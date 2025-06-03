@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-noir-bg: var(--bg-primary);
+  --color-noir-panel: var(--bg-panel);
+  --color-noir-border: var(--border-primary);
+  --color-noir-hover: var(--bg-hover);
+  --color-signal-red: var(--signal-red);
+  --color-signal-green: var(--signal-green);
+  
+  --font-sans: var(--font-inter-tight), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+  
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+}
+
+@layer base {
+  :root {
+    /* Default Theme: Cyber (New) */
+    --bg-primary: #050505;
+    --bg-panel: #0A0A0A;
+    --border-primary: #222222;
+    --bg-hover: #151515;
+    --signal-red: #FF3333;
+    --signal-green: #33FF33;
+    
+    --foreground: #ededed;
+  }
+
+  [data-theme='classic'] {
+    /* Classic Noir Theme */
+    --bg-primary: #1A1A1A;
+    --bg-panel: #121212;
+    --border-primary: #2A2A2A;
+    --bg-hover: #333333;
+  }
+}
+
+body {
+  background-color: var(--color-noir-bg);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* Custom Prose for Cyber Theme */
+.prose-noir h1 {
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+  font-weight: 700;
+  margin-top: 1.5em;
+  margin-bottom: 0.8em;
+  color: #fff;
+}
+
+.prose-noir h2 {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 600;
+  margin-top: 1.5em;
+  margin-bottom: 0.8em;
+  color: #ededed;
+}
+
+.prose-noir ul {
+  list-style-type: disc;
+  padding-left: 1.625em;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+}
+
+.prose-noir ol {
+  list-style-type: decimal;
+  padding-left: 1.625em;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+}
+
+.prose-noir li {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose-noir blockquote {
+  border-left-width: 4px;
+  border-left-color: var(--color-signal-green);
+  color: var(--color-signal-green);
+  font-style: italic;
+  background-color: rgba(51, 255, 51, 0.05);
+  padding: 0.5rem 1rem;
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+
+.prose-noir code {
+  color: #ff3333;
+  font-family: var(--font-mono);
+  background-color: rgba(255, 51, 51, 0.1);
+  padding: 0.1rem 0.3rem;
+  border-radius: 0;
+}
+
+.prose-noir pre {
+  background-color: #000000 !important;
+  border: 1px solid #222;
+  border-radius: 0 !important;
+}
+
+.prose-noir img {
+  border: 1px solid #333;
+  border-radius: 0;
+}
+
+.prose-noir hr {
+  border-color: #222;
+}
+
+/* Tiptap Specific Overrides */
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: #444;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
