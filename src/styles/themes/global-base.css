@@ -1,0 +1,204 @@
+/* Base Styles */
+body {
+  background-color: var(--color-noir-bg);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display) !important;
+}
+
+.font-serif h1, .font-serif h2, .font-serif h3 { font-family: var(--font-serif); }
+.font-mono h1, .font-mono h2, .font-mono h3 { font-family: var(--font-mono); }
+
+/* Prose Styles */
+.prose-noir h1 {
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+  font-weight: 700;
+  margin-top: 1.5em;
+  margin-bottom: 0.8em;
+  color: var(--foreground);
+}
+
+.prose-noir h2 {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 600;
+  margin-top: 1.5em;
+  margin-bottom: 0.8em;
+  color: var(--foreground);
+}
+
+.prose-noir ul {
+  list-style-type: disc;
+  padding-left: 1.625em;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+}
+
+.prose-noir ol {
+  list-style-type: decimal;
+  padding-left: 1.625em;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+}
+
+.prose-noir li {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose-noir blockquote {
+  border-left-width: 4px;
+  border-left-color: var(--accent);
+  color: var(--accent);
+  font-style: italic;
+  background-color: color-mix(in srgb, var(--accent) 5%, transparent);
+  padding: 0.5rem 1rem;
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+
+.prose-noir code {
+  color: var(--signal-red);
+  font-family: var(--font-mono);
+  background-color: color-mix(in srgb, var(--signal-red) 10%, transparent);
+  padding: 0.1rem 0.3rem;
+  border-radius: var(--theme-radius-sm);
+}
+
+.prose-noir pre {
+  background-color: var(--bg-panel) !important;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--theme-radius-md) !important;
+}
+
+.prose-noir img {
+  border: 1px solid var(--border-primary);
+  border-radius: var(--theme-radius-md);
+}
+
+.prose-noir hr {
+  border-color: var(--border-primary);
+}
+
+/* Tiptap Editor Styles */
+.ProseMirror { outline: none; }
+.font-display { font-family: var(--font-display); }
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: var(--foreground-subtle);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.ProseMirror h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  line-height: 1.2;
+  color: var(--foreground);
+}
+
+.ProseMirror h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+  color: var(--foreground);
+}
+
+.ProseMirror ul {
+  list-style-type: disc;
+  padding-left: 1.5em;
+  margin: 1em 0;
+}
+
+.ProseMirror ol {
+  list-style-type: decimal;
+  padding-left: 1.5em;
+  margin: 1em 0;
+}
+
+.ProseMirror li { margin: 0.5em 0; }
+
+.ProseMirror blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 1rem;
+  font-style: italic;
+  color: var(--foreground-muted);
+  margin: 1.5em 0;
+}
+
+.ProseMirror pre {
+  background: var(--bg-panel);
+  color: var(--foreground);
+  padding: 0.75rem 1rem;
+  border-radius: var(--theme-radius-md);
+  font-family: var(--font-mono);
+  overflow-x: auto;
+  border: 1px solid var(--border-primary);
+}
+
+.ProseMirror pre code {
+  color: inherit;
+  background: transparent;
+  padding: 0;
+  border: none;
+}
+
+/* Scrollbar Styles */
+.custom-scrollbar-cyber::-webkit-scrollbar,
+.custom-scrollbar-classic::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar-cyber::-webkit-scrollbar-track,
+.custom-scrollbar-classic::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar-cyber::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  border-radius: 2px;
+}
+
+.custom-scrollbar-cyber::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.custom-scrollbar-classic::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.custom-scrollbar-classic::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.custom-scrollbar {
+  scrollbar-width: auto;
+  scrollbar-color: #8B4513 rgba(139, 69, 19, 0.05);
+}
+.custom-scrollbar::-webkit-scrollbar {
+  width: 10px !important;
+  display: block !important;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(139, 69, 19, 0.05) !important;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #8B4513 !important;
+  border-radius: 4px !important;
+  border: 2px solid transparent !important;
+  background-clip: content-box !important;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #A0522D !important;
+}

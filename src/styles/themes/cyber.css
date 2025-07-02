@@ -1,0 +1,38 @@
+/* Default Theme: Cyber */
+:root, [data-theme='cyber'] {
+  color-scheme: dark;
+  
+  --bg-primary: #050505;
+  --bg-rgb: 5, 5, 5;
+  --bg-panel: #0A0A0A;
+  --bg-hover: #151515;
+  --border-primary: #222222;
+  
+  --accent: #33FF33;
+  --accent-rgb: 51, 255, 51;
+  --signal-red: #FF3333;
+  --signal-green: #33FF33;
+  
+  --foreground: #ededed;
+  --foreground-muted: #888888;
+  --foreground-subtle: #555555;
+  
+  --editor-bg: #050505;
+  --editor-border: color-mix(in srgb, var(--accent) 20%, transparent);
+  --editor-glow: 0 0 40px rgba(51, 255, 51, 0.05);
+
+  --font-display: var(--font-mono);
+  
+  --theme-radius-sm: 0px;
+  --theme-radius-md: 0px;
+  --theme-radius-lg: 0px;
+}
+
+[data-theme='cyber'] h1, 
+[data-theme='cyber'] h2, 
+[data-theme='cyber'] h3, 
+[data-theme='cyber'] h4,
+[data-theme='cyber'] h5,
+[data-theme='cyber'] h6 {
+  font-family: var(--font-mono);
+}

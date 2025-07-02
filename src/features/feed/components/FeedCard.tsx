@@ -1,153 +1,324 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { FeedItem } from "../types";
-import { cn } from "@/lib/utils";
-import { useTheme } from "@/features/theme/ThemeProvider";
-import { FeedActionBar } from "./FeedActionBar";
+import { cn, getPostUrl } from "@/lib/utils";
+import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
+import { ThemeVariant, cardVariants, getHeadingClasses } from "@/lib/theme-variants";
+import { PostMeta, PostHeroImage, PostTags, PostAuthor, PostActions, PostCardContent } from "../../blog/components/base/PostCardParts";
+import { TechieFeedCard } from "./TechieFeedCard"
+import { JournalFeedCard } from "./JournalFeedCard"
+import { RoninFeedCard } from "./RoninFeedCard"
 
-export function FeedCard({ item, className }: { item: FeedItem; className?: string }) {
-  const { theme } = useTheme();
+const CARD_LAYOUT_THEMES = ["cyber", "sakura", "ronin", "octane", "journal", "techie"]
 
-  // Date Format
-  const dateFormatted = new Date(item.publishedAt).toLocaleDateString("en-US", {
-    month: "numeric",
-    day: "numeric",
-    year: "numeric"
-  });
+export function FeedCard({
+  item,
+  className,
+  onRemove,
+  variant = "default",
+}: {
+  item: FeedItem
+  className?: string
+  onRemove?: () => void
+  variant?: "default" | "compact"
+}) {
+  const { theme, config } = useTheme()
+  const { isDarkMode, isTerminalCopy, isTechieCopy, isJournalCopy, isRoninCopy } = useThemeHelpers()
+  const [mounted, setMounted] = useState(false)
 
-  const cyberDateFormatted = new Date(item.publishedAt).toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric"
-  }).toUpperCase();
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true)
+  }, [])
 
-  // ---------------------------------------------------------
-  // CYBER THEME: Vertical "Bracket" Layout
-  // ---------------------------------------------------------
-  if (theme === 'cyber') {
-    return (
-      <Link 
-        href={`/${item.tenantSlug}/${item.postSlug}`}
-        className="group relative block w-full h-full p-6 border-r border-b border-white/10 hover:bg-white/[0.02] transition-colors"
-      >
-        <div className="flex flex-col gap-6 h-full">
-          {/* Meta Header */}
-          <div className="flex items-center justify-between text-[10px] font-mono text-gray-500 uppercase tracking-wide">
-             <span>{cyberDateFormatted}</span>
-             <span>{item.tenantName}</span>
-          </div>
+  if (!mounted) return null
 
-          {/* Hero Image Section */}
-          {item.featuredImage && (
-            <div className="relative w-full aspect-video group-hover:scale-[1.01] transition-transform duration-500 ease-out">
-               <div className="absolute top-0 left-0 w-3 h-3 border-l border-t border-gray-500/50 z-20" />
-               <div className="absolute top-0 right-0 w-3 h-3 border-r border-t border-gray-500/50 z-20" />
-               <div className="absolute bottom-0 left-0 w-3 h-3 border-l border-b border-gray-500/50 z-20" />
-               <div className="absolute bottom-0 right-0 w-3 h-3 border-r border-b border-gray-500/50 z-20" />
-               
-               {/* Image Inner */}
-               <div className="absolute inset-[4px] overflow-hidden bg-noir-bg border border-white/5">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img 
-                    src={item.featuredImage} 
-                    alt={item.title}
-                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                    referrerPolicy="no-referrer"
-                  />
-               </div>
-            </div>
-          )}
-
-          {/* Title Section */}
-          <div className="flex-1 flex flex-col justify-end">
-             <h3 className="text-xl md:text-2xl font-sans font-bold text-white mb-4 leading-tight group-hover:text-signal-green transition-colors">
-                {item.title}
-             </h3>
-
-             {/* Tags */}
-             <div className="flex flex-wrap gap-2 mb-4">
-               {item.tags.slice(0, 3).map(tag => (
-                 <span key={tag} className="text-[10px] font-mono text-signal-green border border-signal-green/30 px-1.5 py-0.5 uppercase bg-signal-green/5">
-                   #{tag}
-                 </span>
-               ))}
-             </div>
-             
-             <div className="flex items-center gap-2 text-[10px] font-mono text-gray-500 uppercase mb-4">
-                <span className="w-1.5 h-1.5 bg-gray-600 group-hover:bg-signal-green transition-colors" />
-                BY {item.authorName}
-             </div>
-
-             {/* Action Bar */}
-             <FeedActionBar 
-                 postId={item.postId} 
-                 initialLikes={item.likesCount} 
-                 initialComments={item.commentsCount}
-                 className="pt-4 border-t border-white/5" 
-             />
-          </div>
-        </div>
-      </Link>
-    );
+  if (isTechieCopy) {
+    return <TechieFeedCard item={item} variant={variant} className={className} />
   }
 
-  // ---------------------------------------------------------
-  // CLASSIC THEME: Noir Row Layout
-  // ---------------------------------------------------------
+  if (isJournalCopy) {
+    return <JournalFeedCard item={item} variant={variant} className={className} />
+  }
+
+  if (isRoninCopy) {
+    return <RoninFeedCard item={item} variant={variant} className={className} />
+  }
+
+  const postUrl = getPostUrl(item)
+  const themeVariant = theme as ThemeVariant
+  const useCardLayout = (CARD_LAYOUT_THEMES as readonly string[]).includes(theme)
+
+  if (variant === "compact") {
+    return (
+      <CompactLayout
+        item={item}
+        className={className}
+        postUrl={postUrl}
+        theme={themeVariant}
+        isDarkMode={isDarkMode}
+        onRemove={onRemove}
+      />
+    )
+  }
+
+  if (useCardLayout) {
+    return (
+      <CardLayout
+        item={item}
+        className={className}
+        postUrl={postUrl}
+        theme={themeVariant}
+        isDarkMode={isDarkMode}
+        onRemove={onRemove}
+      />
+    )
+  }
+
   return (
-    <Link 
-      href={`/${item.tenantSlug}/${item.postSlug}`}
+    <RowLayout
+      item={item}
+      className={className}
+      postUrl={postUrl}
+      theme={themeVariant}
+      isTerminalCopy={isTerminalCopy}
+      isDarkMode={isDarkMode}
+      fontFamily={config.fontFamily}
+      onRemove={onRemove}
+    />
+  )
+}
+
+function CompactLayout({
+  item,
+  className,
+  postUrl,
+  theme,
+  isDarkMode,
+  onRemove,
+}: {
+  item: FeedItem
+  className?: string
+  postUrl: string
+  theme: ThemeVariant
+  isDarkMode: boolean
+  onRemove?: () => void
+}) {
+  const v = cardVariants[theme]
+
+  return (
+    <div
       className={cn(
-        "group grid grid-cols-1 md:grid-cols-[1fr_300px] gap-8 py-12 border-b border-white/10 items-start hover:bg-white/[0.02] transition-colors",
-        className
+        "group relative flex flex-row items-center gap-4 p-4 transition-all duration-300 overflow-hidden w-full h-32",
+        v.base,
+        v.border,
+        v.radius,
+        v.hover,
+        className,
       )}
     >
-      {/* LEFT COLUMN: Content */}
-      <div className="flex flex-col gap-4 h-full justify-between">
+      <Link href={postUrl} className="shrink-0 w-32 h-full relative overflow-hidden rounded-md block">
+        <PostHeroImage
+          data={item}
+          theme={theme}
+          isDarkMode={isDarkMode}
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        />
+      </Link>
+
+      <div className="flex-1 min-w-0 flex flex-col justify-between h-full py-1">
         <div>
-            {/* Meta Row */}
-            <div className="flex items-center gap-4 text-xs font-mono text-gray-500 uppercase tracking-wide">
-            <span>{dateFormatted}</span>
-            </div>
-
-            {/* Title */}
-            <h3 className="font-sans text-3xl font-black text-white group-hover:underline decoration-2 underline-offset-4 transition-all leading-tight mt-2">
-            {item.title}
+          <PostMeta data={item} theme={theme} />
+          <Link href={postUrl} className="block group/title mt-1">
+            <h3
+              className={cn(
+                "text-base md:text-lg font-bold leading-tight transition-colors line-clamp-2",
+                getHeadingClasses(theme),
+                "group-hover/title:text-accent",
+              )}
+            >
+              {item.title}
             </h3>
-
-            {/* Excerpt */}
-            <p className="font-serif text-lg text-gray-400 line-clamp-3 leading-relaxed max-w-2xl mt-4">
-            {item.excerpt}
-            </p>
-
-            {/* Tags */}
-            <div className="mt-4 flex flex-wrap gap-3 font-mono text-xs">
-            {item.tags.map(tag => (
-                <span key={tag} className="text-gray-500 group-hover:text-white uppercase transition-colors">#{tag}</span>
-            ))}
-            </div>
+          </Link>
         </div>
 
-        <FeedActionBar 
-            postId={item.postId} 
-            initialLikes={item.likesCount}
-            initialComments={item.commentsCount} 
-            className="md:max-w-xl"
-        />
+        <div className="flex items-center justify-between mt-auto w-full">
+          <PostAuthor data={item} theme={theme} />
+          <div className="ml-auto">
+            <PostActions data={item} onRemove={onRemove} compact className="border-none pt-0 mt-0" />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function CardLayout({
+  item,
+  className,
+  postUrl,
+  theme,
+  isDarkMode,
+  onRemove,
+}: {
+  item: FeedItem;
+  className?: string;
+  postUrl: string;
+  theme: ThemeVariant;
+  isDarkMode: boolean;
+  onRemove?: () => void;
+}) {
+  const v = cardVariants[theme];
+  const { isRoninCopy, isJournalCopy, isOctaneCopy } = useThemeHelpers()
+
+  if (isJournalCopy) {
+
+    return (
+      <div
+        className={cn(
+          "group relative block w-full h-full p-5 transition-all duration-300 overflow-hidden",
+          v.base,
+          v.border,
+          v.radius,
+          v.hover,
+          isJournalCopy && "journal-page-curl",
+          className,
+        )}
+      >
+        <PostCardContent>
+          <PostMeta data={item} theme={theme} />
+
+          <Link href={postUrl} className="block mb-4">
+            <PostHeroImage data={item} theme={theme} isDarkMode={isDarkMode} />
+          </Link>
+
+          <div className="flex-1 flex flex-col justify-end">
+            <Link href={postUrl} className="block group/title">
+              <h3
+                className={cn(
+                  "text-xl md:text-2xl font-bold mb-4 leading-tight transition-colors",
+                  getHeadingClasses(theme),
+                  "group-hover/title:text-accent",
+                )}
+              >
+                {item.title}
+              </h3>
+            </Link>
+
+            <PostTags data={item} theme={theme} />
+            <PostAuthor data={item} theme={theme} />
+
+
+            <div className="relative z-20">
+              <PostActions data={item} onRemove={onRemove} />
+            </div>
+          </div>
+        </PostCardContent>
+      </div>
+    )
+  }
+
+  return (
+    <Link
+      href={postUrl}
+      className={cn(
+        "group relative block w-full h-full p-6 transition-all duration-300 overflow-hidden",
+        v.base,
+        v.border,
+        v.radius,
+        v.hover,
+        isRoninCopy && "ronin-ink-splatter",
+        className,
+      )}
+    >
+      <PostCardContent>
+        <PostMeta data={item} theme={theme} />
+        <PostHeroImage data={item} theme={theme} isDarkMode={isDarkMode} />
+        <div className="flex-1 flex flex-col justify-end">
+          <h3
+            className={cn(
+              "text-xl md:text-2xl font-bold mb-4 leading-tight group-hover:text-accent transition-colors",
+              getHeadingClasses(theme),
+              isOctaneCopy && "octane-header-accent",
+              isRoninCopy && "ronin-slash",
+            )}
+          >
+            {item.title}
+          </h3>
+          <PostTags data={item} theme={theme} />
+          <PostAuthor data={item} theme={theme} />
+          <PostActions data={item} onRemove={onRemove} />
+        </div>
+      </PostCardContent>
+    </Link>
+  )
+}
+
+function RowLayout({
+  item,
+  className,
+  postUrl,
+  theme,
+  isTerminalCopy,
+  isDarkMode,
+  fontFamily,
+  onRemove,
+}: {
+  item: FeedItem
+  className?: string
+  postUrl: string
+  theme: ThemeVariant
+  isTerminalCopy: boolean
+  isDarkMode: boolean
+  fontFamily: string
+  onRemove?: () => void
+}) {
+  return (
+    <Link
+      href={postUrl}
+      className={cn(
+        "group grid grid-cols-1 md:grid-cols-[1fr_300px] gap-8 py-12 border-b items-start transition-colors",
+        isTerminalCopy
+          ? "border-accent/20 hover:bg-black/50 font-mono text-accent"
+          : "border-noir-border hover:bg-noir-hover",
+        className,
+      )}
+    >
+      <div className="flex flex-col gap-4 h-full justify-between">
+        <PostCardContent>
+          <div>
+            <PostMeta data={item} theme={theme} />
+            <h3
+              className={cn(
+                "text-3xl font-black group-hover:underline decoration-2 underline-offset-4 transition-all leading-tight mt-2",
+                isTerminalCopy ? "text-accent font-mono tracking-tight" : "text-foreground",
+                !isTerminalCopy && (fontFamily === "serif" ? "font-serif" : "font-sans"),
+              )}
+            >
+              {item.title}
+            </h3>
+            <p
+              className={cn(
+                "text-lg line-clamp-3 leading-relaxed max-w-2xl mt-4",
+                isTerminalCopy ? "text-accent/80 font-mono text-sm uppercase tracking-wide" : "text-foreground-muted",
+                !isTerminalCopy && (fontFamily === "serif" ? "font-serif" : "font-sans"),
+              )}
+            >
+              {item.excerpt}
+            </p>
+            <div className="mt-4">
+              <PostTags data={item} theme={theme} />
+            </div>
+          </div>
+          <div className="mt-auto">
+            <PostActions data={item} onRemove={onRemove} />
+          </div>
+        </PostCardContent>
       </div>
 
-      {/* RIGHT COLUMN: Image */}
-      {item.featuredImage && (
-        <div className="w-full aspect-[3/2] overflow-hidden bg-noir-bg border border-white/10 group-hover:border-white/30 transition-all">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img 
-            src={item.featuredImage} 
-            alt={item.title}
-            className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
-          />
-        </div>
-      )}
+      <PostHeroImage data={item} theme={theme} isDarkMode={isDarkMode} className="aspect-[3/2]" />
     </Link>
-  );
+  )
 }

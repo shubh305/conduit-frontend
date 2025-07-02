@@ -1,0 +1,29 @@
+/* Classic White Theme */
+[data-theme='classic-white'] {
+  color-scheme: light;
+  
+  --bg-primary: #FFFFFF;
+  --bg-rgb: 255, 255, 255;
+  --bg-panel: #F9FAFB;
+  --bg-hover: #F3F4F6;
+  --border-primary: #E5E7EB;
+  
+  --accent: #2563EB;
+  --accent-rgb: 37, 99, 235;
+  --signal-red: #DC2626;
+  --signal-green: #2563EB;
+  
+  --foreground: #111827;
+  --foreground-muted: #4B5563;
+  --foreground-subtle: #9CA3AF;
+  
+  --font-display: var(--font-sans);
+  
+  --editor-bg: #FFFFFF;
+  --editor-border: #E5E7EB;
+  --editor-glow: 0 0 20px rgba(0, 0, 0, 0.05);
+
+  --theme-radius-sm: 3px;
+  --theme-radius-md: 6px;
+  --theme-radius-lg: 10px;
+}

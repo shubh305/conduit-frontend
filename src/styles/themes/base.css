@@ -1,0 +1,25 @@
+/* The Void - Focus Mode Utilities */
+.focus-mode-active {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.theme-grid-overlay {
+  background-image: 
+    linear-gradient(rgba(11, 12, 16, 0.8) 50%, rgba(0, 0, 0, 0.9) 100%),
+    linear-gradient(90deg, rgba(102, 252, 241, 0.03) 1px, transparent 1px),
+    linear-gradient(rgba(102, 252, 241, 0.03) 1px, transparent 1px);
+  background-size: 100% 100%, 40px 40px, 40px 40px;
+}
+
+.focus-mode-active::-webkit-scrollbar {
+  display: none;
+}
+
+.focus-mode {
+  overflow-x: hidden !important;
+}
+
+.focus-mode-content {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2' height='20' viewBox='0 0 2 20'%3E%3Crect width='2' height='20' fill='%2333FF33' /%3E%3C/svg%3E"), auto;
+}

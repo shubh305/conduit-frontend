@@ -2,185 +2,368 @@
 
 import Link from "next/link";
 import { Search, ArrowUpRight } from "lucide-react";
-import { useTheme } from "@/features/theme/ThemeProvider";
+import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider"
 import { cn } from "@/lib/utils";
-
-// Helper Components
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  const { theme } = useTheme();
-  return (
-      <h3 className={cn(
-          "mb-4 font-bold uppercase tracking-widest",
-          theme === 'cyber' 
-            ? "text-xs font-mono text-signal-green" 
-            : "text-sm font-serif lowercase italic text-white border-b border-white/10 pb-2 w-full tracking-normal"
-      )}>
-          {children}
-      </h3>
-  );
-}
-
-function Wrapper({ children, className }: { children: React.ReactNode, className?: string }) {
-  const { theme } = useTheme();
-  return (
-     <aside className={cn(
-        "hidden xl:flex flex-col min-h-screen fixed right-0 top-16 w-80 z-30 px-6 py-6 h-[calc(100vh-4rem)] overflow-y-auto no-scrollbar transition-colors duration-500",
-        theme === 'cyber' 
-            ? "border-l border-white/10 bg-[#050505]" 
-            : "border-l border-white/10 bg-[#121212]",
-        className
-     )}>
-        {children}
-     </aside>
-  );
-}
-
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState, useEffect, Suspense } from "react";
-import { mockPosts } from "@/features/blog/data/mock-blogs";
-import { mockRecommendedUsers } from "@/features/auth/data/mock-user";
+import { searchUsers } from "@/features/search/api";
+import { getGlobalFeed } from "@/features/feed/api";
+import { Profile } from "@/features/profile/types";
+import { useState, useEffect, Suspense } from "react";
+import { useThemeLabel } from "@/components/theme";
+
+
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  const { isCyberCopy, isRoninCopy, isOctaneCopy, isJournalCopy, isTechieCopy } = useThemeHelpers()
+
+  if (isTechieCopy) {
+    return (
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-1.5 h-6 bg-accent shadow-[0_0_10px_rgba(var(--accent-rgb),0.5)]" />
+        <h3 className="text-xl font-sans font-black text-white uppercase tracking-tighter italic">{children}</h3>
+      </div>
+    )
+  }
+
+  return (
+    <h3
+      className={cn(
+        "mb-4 font-bold uppercase tracking-widest",
+        isCyberCopy
+          ? "text-xs font-mono text-accent"
+          : isRoninCopy
+            ? "text-sm font-serif text-accent border-b border-accent/30 pb-2 w-full tracking-normal ronin-slash"
+            : isOctaneCopy
+              ? "text-sm font-sans text-accent border-b border-accent/30 pb-2 w-full tracking-wide octane-header-accent"
+              : isJournalCopy
+                ? "text-lg font-serif font-black italic text-journal-ink border-b-2 border-double border-accent/30 pb-2 w-full tracking-tight normal-case"
+                : "text-xs font-bold uppercase text-accent border-b border-border-primary pb-2 w-full tracking-widest",
+      )}
+      style={{
+        borderColor: isJournalCopy ? undefined : "var(--border-primary)",
+      }}
+    >
+      {children}
+    </h3>
+  )
+}
+
+function Wrapper({ children, className }: { children: React.ReactNode; className?: string }) {
+  const { isTerminalCopy, isJournalCopy, isTechieCopy } = useThemeHelpers()
+
+
+
+  return (
+    <aside
+      className={cn(
+        "hidden xl:flex flex-col min-h-screen fixed right-0 top-16 w-80 z-30 px-6 py-8 h-[calc(100vh-4rem)] overflow-y-auto no-scrollbar transition-colors duration-500",
+
+        isTerminalCopy
+          ? "border-l border-accent/20 bg-black text-accent font-mono"
+          : isTechieCopy
+            ? "border-none shadow-[-10px_0_30px_rgba(0,0,0,0.4)] bg-noir-bg"
+            : isJournalCopy
+              ? "bg-journal-paper border-l-4 border-double border-accent/20 custom-scrollbar"
+              : "border-l border-border-primary bg-bg-sidebar",
+        className,
+      )}
+      style={{
+        backgroundColor: isTerminalCopy || isTechieCopy || isJournalCopy ? undefined : "var(--bg-sidebar)",
+        borderColor: isTerminalCopy || isTechieCopy || isJournalCopy ? undefined : "var(--border-primary)",
+      }}
+    >
+      {children}
+      {/* Journal Texture Overlay */}
+      {isJournalCopy && (
+        <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/handmade-paper.png')] mix-blend-multiply -z-10" />
+      )}
+    </aside>
+  );
+}
 
 export function AuxiliarySidebar() {
   return (
-    <Suspense fallback={<Wrapper><div className="animate-pulse h-20 bg-white/5 rounded" /></Wrapper>}>
-       <AuxiliarySidebarContent />
+    <Suspense
+      fallback={
+        <Wrapper>
+          <div className="animate-pulse h-20 bg-noir-hover rounded" />
+        </Wrapper>
+      }
+    >
+      <AuxiliarySidebarContent />
     </Suspense>
   );
 }
 
 function AuxiliarySidebarContent() {
-  const { theme } = useTheme();
+  const { config } = useTheme()
   const searchParams = useSearchParams();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
-  
-  const query = searchParams.get('q');
 
-  // Sync local state with URL query if present
+  const query = searchParams.get("q");
+
+
+  const { isTerminalCopy, isJournalCopy, isTechieCopy } = useThemeHelpers()
+
+
+  const t = useThemeLabel();
+  const searchPlaceholder = t("search");
+  const recommendedLabel = t("recommended");
+  const signalSourcesLabel = t("signalSources");
+
+  const recommendedTitle = isTechieCopy ? "optimized_paths" : recommendedLabel
+  const signalSourcesTitle = isTechieCopy ? "peer_nodes" : signalSourcesLabel
+  const noTagsText = t("noTags");
+  const noUsersText = t("noUsers");
+
+
   useEffect(() => {
     if (query && query !== searchTerm) {
-
-        setSearchTerm(query);
+      setSearchTerm(query);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
-  // Aggregate tags from all posts dynamically
-  const allTags = useMemo(() => {
-    const tags = new Set<string>();
-    Object.values(mockPosts).flat().forEach(post => {
-        post.tags.forEach((tag: string) => tags.add(tag));
-    });
-    return Array.from(tags).slice(0, 10); // Take top 10 unique tags
+
+  const [tags, setTags] = useState<string[]>([]);
+
+  useEffect(() => {
+    getGlobalFeed({ limit: 50 })
+      .then(res => {
+        if (res.data) {
+          const uniqueTags = new Set<string>();
+          res.data.forEach(item => item.tags?.forEach(t => uniqueTags.add(t)));
+          setTags(Array.from(uniqueTags).slice(0, 10));
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && searchTerm.trim()) {
-        router.push(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
+    if (e.key === "Enter" && searchTerm.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
     }
   };
 
-  // Use mock data for Signal Sources
-  const whoToFollow = mockRecommendedUsers;
+
+  const [whoToFollow, setWhoToFollow] = useState<Profile[]>([]);
+
+  useEffect(() => {
+    searchUsers("")
+      .then(res => {
+        if (res && res.users) {
+          setWhoToFollow(res.users.slice(0, 3));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <Wrapper>
-       {/* Search */}
-       <div className="relative mb-12">
-          <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none">
-             <Search size={16} className={theme === 'cyber' ? "text-gray-500" : "text-gray-400"} strokeWidth={2} />
-          </div>
-          <input 
-             type="text" 
-             placeholder="SEARCH" 
-             value={searchTerm}
-             onChange={(e) => setSearchTerm(e.target.value)}
-             onKeyDown={handleSearch}
-             className={cn(
-                "w-full py-2 pl-8 pr-4 bg-transparent outline-none text-xs font-mono uppercase tracking-wide transition-all",
-                theme === 'cyber' 
-                    ? "border-b border-white/20 text-white focus:border-signal-green placeholder:text-gray-600" 
-                    : "border-b border-white/10 text-white focus:border-white placeholder:text-gray-500"
-             )}
+      {/* Search */}
+      {/* Search */}
+      <div
+        className={cn(
+          "relative mb-10",
+          isTerminalCopy ? "border border-accent p-2" : "",
+          isJournalCopy && "bg-transparent border border-accent/20 shadow-sm p-3 rounded-md",
+          isTechieCopy && "bg-noir-panel/60 shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] rounded-full px-4 py-1.5 widget",
+        )}
+        data-widget={isTechieCopy || isTerminalCopy ? "true" : undefined}
+      >
+        <div
+          className={cn("absolute inset-y-0 left-4 flex items-center pointer-events-none", isTechieCopy && "left-3")}
+        >
+          <Search
+            size={16}
+            className={cn(
+              "text-foreground-muted",
+              isTerminalCopy ? "text-accent hidden" : "",
+              isJournalCopy && "text-accent/60",
+              isTechieCopy && "text-accent-secondary",
+            )}
+            strokeWidth={isJournalCopy ? 1.5 : 2}
           />
-       </div>
+          {isTerminalCopy && <span className="text-accent text-xs mr-2">{">"}</span>}
+        </div>
+        <input
+          type="text"
+          placeholder={isTechieCopy ? "QUERY_DB..." : searchPlaceholder}
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+          onKeyDown={handleSearch}
+          className={cn(
+            "w-full py-2 pl-8 pr-4 bg-transparent outline-none text-xs uppercase tracking-wide transition-all",
+            config.fontFamily === "mono" ? "font-mono" : "font-sans",
+            isTerminalCopy
+              ? "border-none text-accent placeholder:text-accent/50 pl-6 font-mono normal-case"
+              : "border-b border-border-primary text-foreground focus:border-accent placeholder:text-foreground-subtle bg-transparent",
+            isJournalCopy &&
+              "border-b border-accent/20 text-journal-ink placeholder:text-journal-ink/40 font-serif normal-case tracking-normal italic focus:border-accent",
+            isTechieCopy && "border-none text-accent-secondary placeholder:text-accent-secondary/50 font-mono pl-6",
+          )}
+          style={{
+            borderColor: isTerminalCopy || isTechieCopy || isJournalCopy ? undefined : "var(--border-primary)",
+          }}
+        />
+      </div>
 
-       {/* Recommended Topics */}
-       <div className="mb-12">
-          <SectionTitle>Recommended</SectionTitle>
+      {/* Recommended Topics */}
+      <div
+        className={cn("mb-10", isTerminalCopy ? "border border-accent p-2" : "", isTechieCopy && "mb-12 widget")}
+        data-widget={isTechieCopy || isTerminalCopy ? "true" : undefined}
+      >
+        <SectionTitle>{recommendedTitle}</SectionTitle>
+        {tags.length > 0 ? (
           <div className="flex flex-wrap gap-2">
-             {allTags.map(tag => {
-                const isActive = query === tag;
-                return (
-                    <Link 
-                       key={tag} 
-                       href={`/search?q=${encodeURIComponent(tag)}`}
-                       className={cn(
-                          "px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider border transition-all",
-                          theme === 'cyber'
-                            ? isActive 
-                                ? "border-signal-green text-signal-green bg-signal-green/10"
-                                : "border-white/20 text-gray-400 hover:border-signal-green hover:text-signal-green"
-                            : isActive
-                                ? "bg-white text-black border-white"
-                                : "border-white/20 text-gray-400 hover:bg-white hover:text-black hover:border-white"
-                       )}
-                    >
-                       #{tag}
-                    </Link>
-                );
-             })}
-          </div>
-       </div>
-
-       {/* Signal Sources */}
-       <div>
-          <SectionTitle>Signal Sources</SectionTitle>
-          <div className="flex flex-col gap-6">
-             {whoToFollow.map(user => (
-                <Link key={user.username} href={`/u/${user.username}`}>
-                    <div className="flex items-start justify-between gap-3 group">
-                    <div className="flex gap-3">
-                        <div className={cn(
-                            "w-8 h-8 shrink-0 flex items-center justify-center font-mono text-xs font-bold border",
-                            theme === 'cyber' 
-                                ? "bg-white/10 text-white border-white/20" 
-                                : "bg-[#1A1A1A] text-white border-white/20"
-                        )}>
-                            {/* Use first char of name */}
-                            {user.displayName ? user.displayName[0] : user.username[0]}
-                        </div>
-                        <div className="min-w-0">
-                            <div className={cn(
-                                "text-xs font-bold uppercase tracking-wide truncate transition-colors",
-                                "text-gray-400 group-hover:text-white"
-                            )}>{user.displayName || user.username}</div>
-                            <div className={cn(
-                                "text-[10px] truncate font-mono",
-                                theme === 'cyber' ? "text-gray-600" : "text-gray-500"
-                            )}>@{user.username}</div>
-                        </div>
-                    </div>
-                    <button className={cn(
-                        "w-6 h-6 flex items-center justify-center border transition-all",
-                        theme === 'cyber' 
-                            ? "border-white/20 text-gray-500 hover:text-signal-green hover:border-signal-green"
-                            : "border-white/20 text-gray-500 hover:bg-white hover:text-black hover:border-white"
-                    )}>
-                        <ArrowUpRight size={12} strokeWidth={2} />
-                    </button>
-                    </div>
+            {tags.map(tag => {
+              const isActive = query === tag;
+              return (
+                <Link
+                  key={tag}
+                  href={`/search?q=${encodeURIComponent(tag)}`}
+                  className={cn(
+                    "px-0 py-1 text-xs font-medium transition-all inline-block mr-4 mb-2 border-b border-transparent",
+                    isTerminalCopy
+                      ? "px-3 py-1.5 border border-transparent text-accent hover:text-white hover:bg-accent/20 hover:border-accent !rounded-none"
+                      : isActive
+                        ? "text-accent border-accent"
+                        : "text-foreground-muted hover:text-accent hover:border-accent/30",
+                    isJournalCopy && [
+                      "px-3 py-1.5 font-serif normal-case tracking-normal italic text-journal-ink-muted border border-accent/20 bg-journal-parchment/30 hover:bg-journal-parchment hover:text-journal-ink rounded-full",
+                      isActive && "bg-journal-ink text-journal-paper border-journal-ink",
+                    ],
+                    isTechieCopy && [
+                      "px-3 py-1.5 bg-noir-panel/40 text-accent uppercase tracking-widest hover:bg-accent/10 shadow-sm border border-accent/20 hover:border-accent/80 group-hover:scale-[1.02]",
+                      isActive &&
+                        "bg-accent/20 text-accent border-accent/80 shadow-[0_0_15px_rgba(var(--accent-rgb),0.2)]",
+                    ],
+                  )}
+                  style={{
+                    borderRadius: isTerminalCopy || isTechieCopy ? "0" : isJournalCopy ? "9999px" : "0",
+                  }}
+                  data-tag="true"
+                >
+                  {isTerminalCopy ? `[#${tag}]` : isJournalCopy ? tag : `# ${tag}`}
                 </Link>
-             ))}
+              );
+            })}
           </div>
-       </div>
+        ) : (
+          <div className="text-[10px] font-mono text-foreground-subtle uppercase tracking-wider">{noTagsText}</div>
+        )}
+      </div>
 
-       {/* Footer */}
-       <div className="mt-auto pt-8 flex flex-wrap gap-x-4 gap-y-2 text-[10px] font-mono text-gray-500 uppercase tracking-widest opacity-50">
-          <span>v.2.0.4</span>
-          <span>Legal</span>
-          <span>API</span>
-       </div>
+      {/* Signal Sources / Who to Follow */}
+      <div
+        className={cn(
+          "",
+          isTerminalCopy ? "rounded-none border border-accent p-2" : "",
+          isTechieCopy && "widget rounded-none",
+        )}
+        data-widget={isTechieCopy || isTerminalCopy ? "true" : undefined}
+      >
+        <SectionTitle>{signalSourcesTitle}</SectionTitle>
+        {whoToFollow.length > 0 ? (
+          <div className="flex flex-col gap-6">
+            {whoToFollow.map(user => (
+              <Link key={user.username} href={`/u/${user.username}`}>
+                <div
+                  className={cn(
+                    "flex items-center justify-between gap-3 group cursor-pointer transition-all duration-300",
+                    isTechieCopy &&
+                      "bg-noir-panel/30 p-3 shadow-md hover:bg-noir-panel/50 hover:shadow-lg border-l-2 border-transparent hover:border-accent/80",
+                    !isTerminalCopy &&
+                      !isTechieCopy &&
+                      !isJournalCopy &&
+                      "bg-bg-panel border border-border-primary p-3 rounded-sm hover:border-accent hover:shadow-sm",
+                  )}
+                >
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={cn(
+                        "w-10 h-10 shrink-0 flex items-center justify-center font-mono text-xs font-bold border",
+                        isTerminalCopy
+                          ? "bg-black text-accent border-accent rounded-none"
+                          : "bg-bg-primary text-foreground border-border-primary",
+                        isJournalCopy &&
+                          "font-serif bg-journal-parchment text-journal-ink border-accent/20 rounded-full",
+                        isTechieCopy &&
+                          "w-10 h-10 bg-black rounded-none text-accent border border-white/5 group-hover:border-accent/40 transition-all",
+                      )}
+                      style={{
+                        borderRadius:
+                          isTerminalCopy || isTechieCopy || (!isJournalCopy && !isTerminalCopy && !isTechieCopy)
+                            ? "2px"
+                            : "50%",
+                      }}
+                    >
+                      {user.displayName ? user.displayName[0] : user.username[0]}
+                    </div>
+                    <div className="min-w-0 flex flex-col">
+                      <div
+                        className={cn(
+                          "text-xs font-bold uppercase tracking-[0.1em] truncate transition-colors",
+                          isTerminalCopy
+                            ? "text-accent group-hover:text-white group-hover:underline"
+                            : "text-foreground-muted group-hover:text-foreground",
+                          isJournalCopy &&
+                            "font-serif normal-case text-journal-ink tracking-normal group-hover:text-accent/80",
+                          isTechieCopy && "text-white font-black group-hover:text-accent/90",
+                        )}
+                      >
+                        {isTerminalCopy ? `${user.username}` : user.displayName || user.username}
+                      </div>
+                      <div
+                        className={cn(
+                          "text-[9px] truncate font-mono text-foreground-subtle uppercase tracking-widest",
+                          isTerminalCopy ? "text-accent/50" : "",
+                          isJournalCopy && "font-serif italic text-accent/60",
+                          isTechieCopy && "text-accent/50",
+                        )}
+                      >
+                        {isTerminalCopy ? `PID: ${(user.id || "0000").substring(0, 4)}` : `@${user.username}`}
+                      </div>
+                    </div>
+                  </div>
+                  {isTechieCopy ? (
+                    <div className="w-6 h-6 flex items-center justify-center border border-white/5 text-accent/40 group-hover:text-accent hover:bg-white/5 transition-all">
+                      <ArrowUpRight size={10} strokeWidth={3} />
+                    </div>
+                  ) : (
+                    <button
+                      className={cn(
+                        "w-6 h-6 flex items-center justify-center border transition-all",
+                        isTerminalCopy
+                          ? "border-transparent text-accent group-hover:text-white"
+                          : "border-noir-border text-foreground-muted hover:text-accent hover:border-accent",
+                        isJournalCopy &&
+                          "border-accent/10 text-accent/50 hover:bg-journal-parchment hover:text-accent rounded-full",
+                      )}
+                      style={{ borderRadius: isTerminalCopy ? "0" : "var(--theme-radius-sm)" }}
+                    >
+                      <ArrowUpRight size={12} strokeWidth={2} />
+                    </button>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="text-[10px] font-mono text-foreground-subtle uppercase tracking-wider">{noUsersText}</div>
+        )}
+      </div>
+      <div
+        className={cn(
+          "mt-auto pt-8 flex flex-wrap gap-x-4 gap-y-2 text-[10px] font-mono text-foreground-subtle uppercase tracking-widest opacity-50",
+          isTerminalCopy ? "text-accent/30" : "",
+          isJournalCopy && "font-serif normal-case italic opacity-70",
+        )}
+      >
+        <span>v.2.0.4</span>
+        {isTerminalCopy ? "" : <span>Legal</span>}
+        {isTerminalCopy ? "" : <span>API</span>}
+      </div>
     </Wrapper>
   );
 }

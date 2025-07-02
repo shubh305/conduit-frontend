@@ -1,0 +1,34 @@
+/* Classic Noir Theme */
+[data-theme='classic'] {
+  color-scheme: dark;
+  
+  --bg-primary: #000000;
+  --bg-rgb: 0, 0, 0;
+  --bg-panel: #0A0A0A;
+  --bg-hover: #1A1A1A;
+  --border-primary: #1A1A1A;
+  
+  --accent: #FFFFFF;
+  --accent-rgb: 255, 255, 255;
+  --signal-red: #FF4444;
+  --signal-green: #FFFFFF;
+  
+  --foreground: #ededed;
+  --foreground-muted: #888888;
+  --foreground-subtle: #555555;
+  
+  --font-display: var(--font-serif);
+  
+  --theme-radius-sm: 2px;
+  --theme-radius-md: 6px;
+  --theme-radius-lg: 10px;
+}
+
+[data-theme='classic'] h1, 
+[data-theme='classic'] h2, 
+[data-theme='classic'] h3, 
+[data-theme='classic'] h4,
+[data-theme='classic'] h5,
+[data-theme='classic'] h6 {
+  font-family: var(--font-serif);
+}
