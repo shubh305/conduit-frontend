@@ -1,0 +1,280 @@
+/* Ronin Theme - Dark Japanese */
+[data-theme='ronin'] {
+  color-scheme: dark;
+  
+  --bg-primary: #050505;
+  --bg-rgb: 5, 5, 5;
+  --bg-panel: #1A1816;
+  --bg-hover: #2A2520;
+  --bg-sidebar: rgba(26, 24, 22, 0.95);
+  --border-primary: #3D3835;
+  
+  --accent: #C41E3A;
+  --accent-rgb: 196, 30, 58;
+  --accent-secondary: #8B1E3F;
+  --signal-red: #E53935;
+  --signal-green: #4CAF50;
+
+  --editor-bg: #0A0A0A;
+  --editor-border: rgba(196, 30, 58, 0.3);
+  --editor-glow: 0 0 30px rgba(196, 30, 58, 0.05);
+  
+  --foreground: #E8E4E1;
+  --foreground-muted: #A8A4A0;
+  --foreground-subtle: #6B6865;
+  
+  --font-display: var(--font-serif);
+  
+  --theme-radius-sm: 0px;
+  --theme-radius-md: 2px;
+  --theme-radius-lg: 4px;
+  
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+  --font-serif: var(--font-cinzel), serif;
+  --font-sans: var(--font-noto), sans-serif;
+}
+
+[data-theme='ronin'] .ronin-blood-splatter::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(circle, rgba(196, 30, 58, 0.12) 0%, rgba(139, 0, 0, 0.05) 40%, transparent 70%);
+  mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40,40 Q60,10 90,40 T140,40 Q170,70 140,100 T90,140 Q60,170 30,140 T40,40' fill='black'/%3E%3C/svg%3E");
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 0;
+  transform: rotate(15deg);
+}
+
+[data-theme='ronin'] .ronin-brush-edge {
+  clip-path: polygon(
+    2% 0%, 8% 1%, 15% 0%, 22% 2%, 30% 0%, 38% 1%, 45% 0%, 52% 2%, 60% 0%, 68% 1%, 75% 0%, 82% 2%, 90% 0%, 98% 1%, 100% 0%, 
+    99% 10%, 100% 20%, 98% 30%, 100% 40%, 99% 50%, 100% 60%, 98% 70%, 100% 80%, 99% 90%, 100% 100%, 
+    92% 99%, 85% 100%, 78% 98%, 70% 100%, 62% 99%, 55% 100%, 48% 98%, 40% 100%, 32% 99%, 25% 100%, 18% 98%, 10% 100%, 2% 99%, 0% 100%, 
+    1% 90%, 0% 80%, 2% 70%, 0% 60%, 1% 50%, 0% 40%, 2% 30%, 0% 20%, 1% 10%, 0% 0%
+  );
+}
+
+[data-theme='ronin'] .ronin-brush-edge-alt {
+  clip-path: polygon(
+    0% 0%, 5% 2%, 10% 0%, 18% 3%, 25% 0%, 32% 1%, 40% 0%, 48% 3%, 55% 0%, 65% 2%, 72% 0%, 80% 3%, 88% 0%, 95% 2%, 100% 0%, 
+    98% 8%, 100% 15%, 97% 25%, 100% 35%, 98% 45%, 100% 55%, 97% 65%, 100% 75%, 98% 85%, 100% 95%, 95% 100%, 
+    90% 98%, 82% 100%, 75% 97%, 68% 100%, 60% 98%, 52% 100%, 45% 97%, 38% 100%, 30% 98%, 22% 100%, 15% 97%, 8% 100%, 0% 98%, 
+    2% 90%, 0% 80%, 3% 70%, 0% 60%, 2% 50%, 0% 40%, 3% 30%, 0% 20%, 2% 10%
+  );
+}
+
+[data-theme='ronin'] .ronin-cinematic-title {
+  color: #ff4655;
+  font-family: var(--font-cinzel), serif !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  line-height: 1.1;
+  font-variant-ligatures: none;
+}
+
+[data-theme='ronin'] .ronin-system-sub {
+  font-family: var(--font-noto), sans-serif !important;
+  color: rgba(209, 213, 219, 0.9);
+  font-size: 1.125rem;
+  line-height: 1.75;
+  letter-spacing: 0em;
+  font-weight: 400;
+}
+
+[data-theme='ronin'] .ronin-slash::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent) 0%, transparent 100%);
+  margin-top: 8px;
+}
+
+[data-theme='ronin'] .ronin-image {
+  filter: grayscale(100%) contrast(1.1);
+  transition: filter 0.5s ease;
+}
+[data-theme='ronin'] .ronin-image:hover,
+[data-theme='ronin'] *:hover > .ronin-image {
+  filter: grayscale(0%) contrast(1);
+}
+
+[data-theme='ronin'] .ronin-watermark::before {
+  content: "影";
+  position: fixed;
+  bottom: 60px;
+  right: 40px;
+  font-size: 180px;
+  font-family: var(--font-serif);
+  color: rgba(196, 30, 58, 0.03);
+  pointer-events: none;
+  z-index: 0;
+  line-height: 1;
+}
+
+[data-theme='ronin'] body {
+  background-image: 
+    linear-gradient(rgba(13, 13, 13, 0.4), rgba(13, 13, 13, 0.7)),
+    url('/images/themes/ronin-bg.png') !important;
+  background-size: cover !important;
+  background-position: center top !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
+}
+
+[data-theme='ronin'] .ronin-katana::before {
+  content: "";
+  position: fixed;
+  bottom: 100px;
+  left: 30px;
+  width: 4px;
+  height: 280px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(196, 30, 58, 0.15) 10%,
+    rgba(196, 30, 58, 0.25) 15%,
+    rgba(168, 164, 160, 0.08) 20%,
+    rgba(168, 164, 160, 0.06) 90%,
+    transparent 100%
+  );
+  transform: rotate(-15deg);
+  transform-origin: bottom center;
+  pointer-events: none;
+  z-index: 0;
+}
+
+[data-theme='ronin'] .ronin-katana::after {
+  content: "";
+  position: fixed;
+  bottom: 315px;
+  left: 22px;
+  width: 24px;
+  height: 8px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(196, 30, 58, 0.2) 20%,
+    rgba(196, 30, 58, 0.3) 50%,
+    rgba(196, 30, 58, 0.2) 80%,
+    transparent 100%
+  );
+  border-radius: 50%;
+  transform: rotate(-15deg);
+  pointer-events: none;
+  z-index: 0;
+}
+
+[data-theme='ronin'] .ronin-kasa::before {
+  content: "";
+  position: fixed;
+  top: 60px;
+  right: 60px;
+  width: 120px;
+  height: 40px;
+  background: radial-gradient(
+    ellipse 100% 50% at center bottom,
+    rgba(196, 30, 58, 0.08) 0%,
+    transparent 70%
+  );
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+[data-theme='ronin'] .ronin-bamboo::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 80px;
+  width: 2px;
+  height: 100vh;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(107, 104, 101, 0.1) 0px,
+    rgba(107, 104, 101, 0.1) 60px,
+    rgba(107, 104, 101, 0.03) 62px,
+    rgba(107, 104, 101, 0.1) 64px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+[data-theme='ronin'] .ronin-bamboo::after {
+  content: "";
+  position: fixed;
+  top: 30px;
+  left: 100px;
+  width: 1.5px;
+  height: 85vh;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(107, 104, 101, 0.08) 0px,
+    rgba(107, 104, 101, 0.08) 50px,
+    rgba(107, 104, 101, 0.02) 52px,
+    rgba(107, 104, 101, 0.08) 54px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+[data-theme='ronin'] .ronin-moon::before {
+  content: "";
+  position: fixed;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(
+    circle at center,
+    rgba(196, 30, 58, 0.06) 0%,
+    rgba(196, 30, 58, 0.02) 40%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+[data-theme='ronin'] .card,
+[data-theme='ronin'] article,
+[data-theme='ronin'] .feed-container,
+[data-theme='ronin'] .profile-container,
+[data-theme='ronin'] .settings-container,
+[data-theme='ronin'] .mysites-container,
+[data-theme='ronin'] .editor-container,
+[data-theme='ronin'] .bg-noir-panel {
+  background-color: rgba(26, 24, 22, 0.85) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(61, 56, 53, 0.6) !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(232, 228, 225, 0.03) !important;
+  border-left: 2px solid rgba(196, 30, 58, 0.4) !important;
+}
+
+[data-theme='ronin'] .sidebar-widget,
+[data-theme='ronin'] .sidebar-nav {
+  background-color: rgba(26, 24, 22, 0.9) !important;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(61, 56, 53, 0.5) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme='ronin'] .card:hover,
+[data-theme='ronin'] article:hover {
+  border-left-color: var(--accent) !important;
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.5),
+    0 0 30px rgba(196, 30, 58, 0.08) !important;
+}
