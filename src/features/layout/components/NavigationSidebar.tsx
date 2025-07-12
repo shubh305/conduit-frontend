@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Home, Compass, Bookmark, PenSquare, User, LayoutDashboard } from "lucide-react";
+import { Home, Compass, Bookmark, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { mockUser } from "@/features/auth/data/mock-user";
 import { useTheme } from "@/features/theme/ThemeProvider";
-import { FEED_CATEGORIES } from "@/features/feed/constants";
+import { useAuth } from "@/features/auth/AuthProvider";
+import { useThemeLabel } from "@/components/theme";
+import { getJapaneseSubLabel } from "@/lib/theme-variants";
 
 interface NavigationSidebarProps {
   isOpen?: boolean;
@@ -15,212 +16,240 @@ interface NavigationSidebarProps {
 export function NavigationSidebar({ isOpen = true }: NavigationSidebarProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { theme } = useTheme();
-  
-  const currentCategory = searchParams.get('category') || 'all';
-  const currentFeed = searchParams.get('feed') || 'foryou';
-  const isHome = pathname === '/';
+  const { theme, config } = useTheme();
+  const { user } = useAuth();
+
+  const currentFeed = searchParams.get("feed") || "foryou";
+  const isHome = pathname === "/";
+
+
+  const isCyberCopy = theme === "cyber";
+  const isSakuraCopy = theme === "sakura";
+  const isRoninCopy = theme === "ronin";
+  const isTerminalCopy = theme === "terminal";
+  const isTechieCopy = theme === "techie"
+
+
+  const t = useThemeLabel();
+  const homeLabel = t("home");
+  const exploreLabel = t("explore");
+  const libraryLabel = t("library");
+  const mySitesLabel = t("mySites");
+  const forYouLabel = t("forYou");
+  const followingLabel = t("following");
+  const loginLabel = t("login");
 
   const navItems = [
-    { label: "Home", icon: Home, href: "/" },
-    { label: "Explore", icon: Compass, href: "/explore" },
-    { label: "Library", icon: Bookmark, href: "/me/library" },
-    { label: "Stories", icon: PenSquare, href: "/studio/posts" },
-    { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+    { id: "home", label: homeLabel, icon: Home, href: "/" },
+    { id: "explore", label: exploreLabel, icon: Compass, href: "/explore" },
+    { id: "library", label: libraryLabel, icon: Bookmark, href: "/me/library" },
+    { id: "mySites", label: mySitesLabel, icon: LayoutDashboard, href: "/dashboard" },
   ];
 
-  if (theme === 'cyber') {
-    return (
-       <aside className={cn(
-           "hidden md:flex flex-col fixed left-0 top-16 z-30 pt-8 pb-8 justify-between border-r border-white/10 bg-[#050505] overflow-y-auto no-scrollbar transition-all duration-300 h-[calc(100vh-4rem)]",
-           isOpen ? "w-64" : "w-20"
-       )}>
-         <div className="px-4 space-y-8">
-             {/* Main Nav */}
-             <div className="space-y-1">
-                 <div className={cn("text-[10px] font-mono text-gray-600 mb-4 px-4 hidden lg:block uppercase tracking-widest", !isOpen && "lg:hidden")}>
-                    {/* SYSTEM_NAV */}
-                 </div>
-                 {navItems.map((item) => {
-                   const isActive = pathname === item.href;
-                   return (
-                     <Link 
-                        key={item.href} 
-                        href={item.href}
-                        className={cn(
-                           "flex items-center gap-4 px-4 py-2 transition-all font-mono text-xs uppercase tracking-wider group relative overflow-hidden",
-                           isActive ? "text-signal-green bg-white/5" : "text-gray-500 hover:text-white",
-                           !isOpen && "justify-center px-0"
-                        )}
-                        title={!isOpen ? item.label : undefined}
-                     >
-                        {isActive && <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-signal-green" />}
-                        <item.icon size={16} className={cn("shrink-0", isActive && "text-signal-green")} />
-                        <span className={cn("relative z-10", isOpen ? "hidden lg:block" : "hidden")}>{item.label}</span>
-                     </Link>
-                   );
-                 })}
-             </div>
 
-             {/* Feed Source & Channels */}
-             {isOpen && (
-                 <>
-                    {/* Feed Source */}
-                    <div className="space-y-1">
-                        <div className="text-[10px] font-mono text-gray-600 mb-2 px-4 hidden lg:block uppercase tracking-widest">
-                            {/* SOURCE */}
-                        </div>
-                        {[
-                            { id: 'foryou', label: 'FOR_YOU' },
-                            { id: 'following', label: 'FOLLOWING' }
-                        ].map(feed => (
-                            <Link 
-                                key={feed.id}
-                                href={`/?feed=${feed.id}`}
-                                className={cn(
-                                    "flex items-center gap-4 px-4 py-1.5 font-mono text-xs uppercase tracking-wider transition-colors",
-                                    (isHome && currentFeed === feed.id) ? "text-signal-green font-bold" : "text-gray-500 hover:text-white"
-                                )}
-                            >
-                                <span className="hidden lg:block">[{feed.label}]</span>
-                                <span className="lg:hidden">{feed.label[0]}</span>
-                            </Link>
-                        ))}
-                    </div>
+  const filteredNavItems = navItems.filter(item => {
+    if (item.href === "/me/library" || item.href === "/studio/posts" || item.href === "/dashboard") {
+      return !!user;
+    }
+    return true;
+  });
 
-                    {/* Channels */}
-                    <div className="space-y-1">
-                        <div className="text-[10px] font-mono text-gray-600 mb-2 px-4 hidden lg:block uppercase tracking-widest">
-                            {/* CHANNELS */}
-                        </div>
-                        {FEED_CATEGORIES.filter(c => c.id !== 'all').map(cat => (
-                            <Link
-                                key={cat.id}
-                                href={`/?category=${cat.id}`}
-                                className={cn(
-                                    "flex items-center gap-4 px-4 py-1.5 font-mono text-[10px] uppercase tracking-wider transition-colors truncate",
-                                    (isHome && currentCategory === cat.id) ? "text-signal-green" : "text-gray-500 hover:text-white"
-                                )}
-                            >
-                                <span className="hidden lg:block truncate">{cat.label}</span>
-                                <span className="lg:hidden">{cat.label[0]}</span>
-                            </Link>
-                        ))}
-                    </div>
-                 </>
-             )}
-         </div>
+  const feedItems = [
+    { id: "foryou", label: forYouLabel },
+    { id: "following", label: followingLabel },
+  ];
 
-         <div className="px-4 border-t border-white/10 pt-4 mt-4">
-             <Link 
-                href={`/u/${mockUser.username}`}
-                className={cn(
-                   "flex items-center gap-4 px-4 py-2 font-mono text-xs uppercase tracking-wider transition-colors",
-                   pathname.includes(`/u/${mockUser.username}`) ? "text-signal-green" : "text-gray-500 hover:text-white",
-                   !isOpen && "justify-center px-0"
-                )}
-             >
-                <div className="w-4 h-4 rounded-none border border-current flex items-center justify-center shrink-0">
-                   <div className="w-2 h-2 bg-current" />
-                </div>
-                <span className={cn("hidden lg:block", !isOpen && "lg:hidden")}>{mockUser.username}</span>
-             </Link>
-         </div>
-       </aside>
-    );
-  }
 
-  // Classic Mode
+  const sourceTitle = isCyberCopy ? "/* SOURCE */" : isSakuraCopy ? "Source" : isRoninCopy ? "Origin" : isTerminalCopy ? ">> sources" : "Source";
+
   return (
-    <aside className={cn(
-        "hidden md:flex flex-col fixed left-0 top-16 border-r border-white/10 bg-[#121212] z-30 pt-8 pb-8 justify-between overflow-y-auto no-scrollbar transition-all duration-300 h-[calc(100vh-4rem)]",
-        isOpen ? "w-64" : "w-20"
-    )}>
-      <div className="flex flex-col px-4 space-y-8">
-        {/* Navigation */}
-        <nav className="space-y-1">
-           {navItems.map((item) => {
-             const isActive = pathname === item.href;
-             return (
-               <Link 
-                 key={item.href} 
-                 href={item.href}
-                 className={cn(
-                    "flex items-center gap-4 px-4 py-2 transition-all group relative border border-transparent rounded-sm",
-                    isActive 
-                        ? "bg-white text-black font-medium" 
-                        : "text-gray-400 hover:text-white hover:bg-white/10",
-                    !isOpen && "justify-center px-0"
-                 )}
-                 title={!isOpen ? item.label : undefined}
-               >
-                 <item.icon size={18} strokeWidth={isActive ? 2.5 : 2} className="shrink-0" />
-                 <span className={cn("hidden lg:block text-sm font-sans tracking-wide", !isOpen && "lg:hidden")}>
-                    {item.label}
-                 </span>
-               </Link>
-             );
-           })}
-        </nav>
+    <aside
+      className={cn(
+        "hidden md:flex flex-col fixed left-0 top-16 z-30 pt-8 pb-8 justify-between border-r overflow-y-auto no-scrollbar transition-all duration-300 h-[calc(100vh-4rem)]",
+        "bg-bg-sidebar border-border-primary sidebar-nav",
+        isTechieCopy && "border-none shadow-[10px_0_30px_rgba(0,0,0,0.4)]",
+        isOpen ? "w-64" : "w-20",
+      )}
+      style={{
+        backgroundColor: "var(--bg-sidebar)",
+        borderColor: "var(--border-primary)",
+      }}
+    >
+      <div className="px-4 space-y-8">
+        {/* Main Nav */}
+        <div className="space-y-1">
+          <div
+            className={cn(
+              "text-[10px] mb-4 px-4 hidden lg:block uppercase tracking-widest text-foreground-subtle",
+              config.fontFamily === "mono" ? "font-mono" : "font-sans",
+              !isOpen && "lg:hidden",
+            )}
+          >
+            {/* SYSTEM_NAV */}
+          </div>
+          {filteredNavItems.map(item => {
+            const isActive = pathname === item.href
+            const japaneseLabel = getJapaneseSubLabel(item.id, theme)
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-4 px-4 py-2 transition-all group relative overflow-hidden",
+                  config.fontFamily === "mono"
+                    ? "font-mono text-xs uppercase tracking-wider"
+                    : "font-sans text-sm tracking-wide font-medium",
+                  isActive
+                    ? "text-accent bg-accent/10"
+                    : "text-foreground-muted hover:text-foreground hover:bg-foreground/5",
+                  !isOpen && "justify-center px-0",
+                )}
+                style={{ borderRadius: "var(--theme-radius-sm)" }}
+                title={!isOpen ? item.label : undefined}
+              >
+                {isActive && <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-accent" />}
+                <item.icon size={16} className={cn("shrink-0", isActive && "text-accent")} />
+                <span className={cn("relative z-10 leading-tight", isOpen ? "hidden lg:block" : "hidden")}>
+                  <span className="block">{item.label}</span>
+                  {japaneseLabel && (
+                    <span
+                      className={cn(
+                        "block transform -translate-y-0.5",
+                        isSakuraCopy
+                          ? "text-[9px] text-foreground-muted font-normal"
+                          : "text-[11px] text-accent font-serif italic",
+                      )}
+                    >
+                      {japaneseLabel}
+                    </span>
+                  )}
+                </span>
+              </Link>
+            )
+          })}
+        </div>
 
-        {/* Source & Channels */}
+        {/* Feed Source */}
         {isOpen && (
-            <>
-                <div className="space-y-2">
-                    <h3 className="px-4 text-xs font-serif italic text-gray-500 hidden lg:block">Source</h3>
-                    {[
-                        { id: 'foryou', label: 'For You' },
-                        { id: 'following', label: 'Following' }
-                    ].map(feed => (
-                        <Link 
-                            key={feed.id}
-                            href={`/?feed=${feed.id}`}
+          <div className="space-y-1">
+            <div
+              className={cn(
+                "text-[10px] mb-2 px-4 hidden lg:block uppercase tracking-widest text-foreground-subtle",
+                config.fontFamily === "mono" ? "font-mono" : "font-serif lowercase italic tracking-normal",
+              )}
+            >
+              {sourceTitle}
+            </div>
+            {feedItems.map(feed => {
+              const feedKey = feed.id === "foryou" ? "forYou" : "following"
+              const japaneseLabel = getJapaneseSubLabel(feedKey, theme)
+              return (
+                <Link
+                  key={feed.id}
+                  href={`/?feed=${feed.id}`}
+                  className={cn(
+                    "flex items-center gap-4 px-4 py-1.5 transition-colors",
+                    config.fontFamily === "mono" ? "font-mono text-xs uppercase tracking-wider" : "text-sm",
+                    isHome && currentFeed === feed.id
+                      ? "text-accent font-bold"
+                      : "text-foreground-muted hover:text-foreground",
+                  )}
+                  style={{ borderRadius: "var(--theme-radius-sm)" }}
+                >
+                  {isCyberCopy ? (
+                    <span className="hidden lg:block">[{feed.label}]</span>
+                  ) : (
+                    <>
+                      <div
+                        className={cn(
+                          "w-1.5 h-1.5 rounded-full shrink-0",
+                          isHome && currentFeed === feed.id
+                            ? "bg-accent"
+                            : "bg-transparent border border-foreground-subtle",
+                        )}
+                      />
+                      <span className="hidden lg:block leading-tight">
+                        <span className="block">{feed.label}</span>
+                        {japaneseLabel && (
+                          <span
                             className={cn(
-                                "flex items-center gap-4 px-4 py-1.5 text-sm transition-colors",
-                                (isHome && currentFeed === feed.id) ? "text-white font-bold" : "text-gray-500 hover:text-gray-300"
+                              "block transform",
+                              isSakuraCopy
+                                ? "text-[9px] text-foreground-muted font-normal"
+                                : "text-[11px] text-accent font-serif italic",
                             )}
-                        >
-                                <div className={cn("w-1.5 h-1.5 rounded-full shrink-0", (isHome && currentFeed === feed.id) ? "bg-white" : "bg-transparent border border-gray-600")} />
-                                <span className="hidden lg:block">{feed.label}</span>
-                        </Link>
-                    ))}
-                </div>
-
-                <div className="space-y-2">
-                    <h3 className="px-4 text-xs font-serif italic text-gray-500 hidden lg:block">Channels</h3>
-                    {FEED_CATEGORIES.filter(c => c.id !== 'all').map(cat => (
-                            <Link
-                            key={cat.id}
-                            href={`/?category=${cat.id}`}
-                            className={cn(
-                                "flex items-center gap-4 px-4 py-1.5 text-sm transition-colors",
-                                (isHome && currentCategory === cat.id) ? "text-white" : "text-gray-500 hover:text-gray-300"
-                            )}
-                        >
-                            <span className="w-1.5 h-px bg-current shrink-0 opacity-50" />
-                            <span className="hidden lg:block capitalize">{cat.label.toLowerCase()}</span>
-                        </Link>
-                    ))}
-                </div>
-            </>
+                          >
+                            {japaneseLabel}
+                          </span>
+                        )}
+                      </span>
+                    </>
+                  )}
+                  <span className="lg:hidden">{feed.label[0]}</span>
+                </Link>
+              )
+            })}
+          </div>
         )}
       </div>
 
-      <div className="flex flex-col px-4 pt-4 mt-auto border-t border-white/10">
-         <Link 
-            href={`/u/${mockUser.username}`}
+      {/* User Footer */}
+      <div className="px-4 border-t border-border-primary pt-4 mt-4" style={{ borderColor: "var(--border-primary)" }}>
+        {user ? (
+          <Link
+            href={`/u/${user.username}`}
             className={cn(
-               "flex items-center gap-3 px-4 py-2 transition-all border border-transparent hover:border-white/20 text-gray-400 hover:text-white rounded-sm",
-               pathname.includes(`/u/${mockUser.username}`) ? "bg-white/10 text-white" : "",
-               !isOpen && "justify-center px-0"
+              "flex items-center gap-4 px-4 py-2 transition-colors",
+              config.fontFamily === "mono" ? "font-mono text-xs uppercase tracking-wider" : "text-sm font-medium",
+              pathname.includes(`/u/${user.username}`) ? "text-accent" : "text-foreground-muted hover:text-foreground",
+              !isOpen && "justify-center px-0",
             )}
-         >
-             <div className="w-6 h-6 bg-[#1A1A1A] border border-white/20 flex items-center justify-center rounded-full overflow-hidden">
-                 <User size={14} className="text-white" />
-             </div>
-             <span className={cn("hidden lg:block text-sm font-medium", !isOpen && "lg:hidden")}>{mockUser.username}</span>
-         </Link>
+          >
+            <div
+              className={cn(
+                "w-4 h-4 border flex items-center justify-center shrink-0 border-current",
+                config.fontFamily === "mono" ? "rounded-none" : "rounded-full",
+              )}
+            >
+              <div className={cn("w-2 h-2 bg-current", config.fontFamily === "mono" ? "" : "rounded-full")} />
+            </div>
+            <span className={cn("hidden lg:block", !isOpen && "lg:hidden")}>{user.username}</span>
+          </Link>
+        ) : (
+          <Link
+            href="/login"
+            className={cn(
+              "flex items-center gap-4 px-4 py-2 text-foreground-muted hover:text-foreground transition-colors",
+              config.fontFamily === "mono" ? "font-mono text-xs uppercase tracking-wider" : "text-sm font-medium",
+              !isOpen && "justify-center px-0",
+            )}
+          >
+            <div
+              className={cn(
+                "w-4 h-4 border flex items-center justify-center shrink-0 border-current",
+                config.fontFamily === "mono" ? "rounded-none" : "rounded-full",
+              )}
+            >
+              <div className="w-2 h-2 bg-transparent" />
+            </div>
+            <span className={cn("hidden lg:block leading-tight", !isOpen && "lg:hidden")}>
+              <span className="block">{loginLabel}</span>
+              {(isSakuraCopy || isRoninCopy) && (
+                <span
+                  className={cn(
+                    "block transform",
+                    isSakuraCopy
+                      ? "text-[9px] text-foreground-muted font-normal"
+                      : "text-[11px] text-accent font-serif italic",
+                  )}
+                >
+                  {getJapaneseSubLabel("login", theme)}
+                </span>
+              )}
+            </span>
+          </Link>
+        )}
       </div>
     </aside>
-  );
+  )
 }
