@@ -6,17 +6,27 @@ import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
+import Youtube from "@tiptap/extension-youtube";
 import { EditorToolbar } from "./EditorToolbar";
+import { TerminalEditorShell } from "./TerminalEditorShell"
 import { cn } from "@/lib/utils";
 import { TiptapContent } from "@/features/blog/types";
+import { useTheme, useThemeHelpers, useStudioLabels } from "@/features/theme/ThemeProvider"
+import { getEditorContainerClasses, getEditorProseClasses } from "@/lib/theme-variants"
+
 
 interface TiptapEditorProps {
   content?: string | TiptapContent;
   onChange?: (content: TiptapContent) => void;
   className?: string;
+  tenantId?: string;
 }
 
-export function TiptapEditor({ content = "", onChange, className }: TiptapEditorProps) {
+export function TiptapEditor({ content = "", onChange, className, tenantId }: TiptapEditorProps) {
+  const { theme, config } = useTheme()
+  const { isTerminalCopy, isTechieCopy, isCyberCopy } = useThemeHelpers()
+  const { getLabel } = useStudioLabels()
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -25,31 +35,49 @@ export function TiptapEditor({ content = "", onChange, className }: TiptapEditor
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: "text-signal-green hover:underline cursor-pointer",
+          class: "text-accent hover:underline cursor-pointer transition-all",
         },
       }),
       Placeholder.configure({
-        placeholder: "Start writing your transmission...",
+        placeholder: getLabel("editor_placeholder"),
+      }),
+      Youtube.configure({
+        controls: false,
       }),
     ],
     content,
     editorProps: {
       attributes: {
-        class: "prose prose-invert prose-noir max-w-none focus:outline-none min-h-[400px] p-6 font-mono text-base md:text-lg leading-relaxed text-gray-300",
+        class: getEditorProseClasses(theme, config.isDark),
       },
     },
     onUpdate: ({ editor }) => {
-      onChange?.(editor.getJSON());
+      onChange?.(editor.getJSON())
     },
     immediatelyRender: false,
-  });
+  })
 
-  if (!editor) return null;
+  if (!editor) return null
 
   return (
-    <div className={cn("border border-noir-border bg-noir-bg flex flex-col", className)}>
-      <EditorToolbar editor={editor} />
-      <EditorContent editor={editor} className="flex-1" />
+    <div
+      className={cn(getEditorContainerClasses(theme), "flex flex-col min-h-[500px] overflow-x-hidden", className)}
+      style={{
+        borderRadius: isCyberCopy || isTechieCopy ? "0" : undefined,
+        backgroundColor: theme === "journal" ? "var(--journal-paper)" : undefined,
+      }}
+    >
+      {isTerminalCopy ? (
+        <TerminalEditorShell editor={editor} />
+      ) : (
+        <>
+          <EditorToolbar editor={editor} tenantId={tenantId} className="px-8 md:px-12" />
+          <EditorContent
+            editor={editor}
+            className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar px-8 md:px-12 py-10"
+          />
+        </>
+      )}
     </div>
   );
 }
