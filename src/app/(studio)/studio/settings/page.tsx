@@ -1,203 +1,229 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useState } from "react";
-import { toast } from "sonner";
-import { Save, Check, User, Bell, Shield, Palette } from "lucide-react";
-import { useTheme } from "@/features/theme/ThemeProvider";
-import { cn } from "@/lib/utils";
-import { mockUser } from "@/features/auth/data/mock-user";
+import { User as UserIcon, Shield } from "lucide-react"
+import { useTheme, useThemeHelpers, useStudioLabels } from "@/features/theme/ThemeProvider"
+import { getHeadingClasses } from "@/lib/theme-variants"
+import { cn } from "@/lib/utils"
+import { useAuth } from "@/features/auth/AuthProvider"
+import { updateCurrentUser } from "@/features/auth/api"
+import { User } from "@/features/auth/types"
+import { ThemeCard } from "@/components/theme"
 
-type SettingsTab = 'profile' | 'account' | 'appearance' | 'notifications';
+
+import { TerminalNanoLayout } from "./sections/TerminalNanoLayout"
+import { ProfileSection } from "./sections/ProfileSection"
+import { AccountSection } from "./sections/AccountSection"
+
+import { useState, useEffect, useRef } from "react"
+import { toast } from "sonner"
+
+type SettingsTab = "profile" | "account"
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<SettingsTab>('appearance');
+  const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
   const [isSaving, setIsSaving] = useState(false);
-  const { theme, setTheme } = useTheme();
-  
-  const handleSave = (e: React.FormEvent) => {
+  const { theme } = useTheme();
+  const { getLabel } = useStudioLabels();
+  const { isCyberCopy, isJournalCopy, isTerminalCopy, isTechieCopy } = useThemeHelpers();
+  const { user, refreshUser } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [formData, setFormData] = useState<Partial<User>>({});
+
+  const publicProfileTitle = getLabel("profile");
+  const profileTabLabel = getLabel("profile");
+  const accountTabLabel = getLabel("account_security");
+  const changeAvatarLabel = getLabel("change_avatar");
+  const saveChangesLabel = getLabel("save_changes");
+  const savingText = getLabel("loading");
+  const socialNetworksLabel = getLabel("social_networks");
+  const accountSecurityTitle = getLabel("account_security");
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        displayName: user.displayName,
+        tagline: user.tagline,
+        location: user.location,
+        bio: user.bio,
+        avatar: user.avatar,
+        email: user.email,
+        socialLinks: user.socialLinks || {},
+      });
+    }
+  }, [user]);
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) return;
+
     setIsSaving(true);
-    setTimeout(() => {
+    try {
+      if (activeTab === "profile") {
+        await updateCurrentUser({
+          displayName: formData.displayName,
+          tagline: formData.tagline,
+          location: formData.location,
+          bio: formData.bio,
+          avatar: formData.avatar,
+          socialLinks: formData.socialLinks,
+        });
+        await refreshUser();
+        toast.success(getLabel("profile_updated"));
+      } else {
+        toast.success(getLabel("settings_saved"));
+      }
+    } catch {
+      toast.error(isCyberCopy ? "WRITE_ERROR" : "Save failed");
+    } finally {
       setIsSaving(false);
-      toast.success("Settings saved successfully");
-    }, 1000);
+    }
   };
 
   const tabs = [
-      { id: 'profile', label: 'Public Profile', icon: User },
-      { id: 'account', label: 'Account', icon: Shield },
-      { id: 'appearance', label: 'Appearance', icon: Palette },
-      { id: 'notifications', label: 'Notifications', icon: Bell },
+    { id: "profile", label: profileTabLabel, icon: UserIcon },
+    { id: "account", label: accountTabLabel, icon: Shield },
   ] as const;
 
+  if (!user) {
+    return (
+      <div className="p-8 font-mono text-foreground-subtle uppercase tracking-widest text-center mt-20">{`// AUTHORIZATION_REQUIRED...`}</div>
+    );
+  }
+
+  // ---------------------------------------------------------
+  // TERMINAL Layout
+  // ---------------------------------------------------------
+  if (isTerminalCopy) {
+    return (
+      <TerminalNanoLayout formData={formData} setFormData={setFormData} isSaving={isSaving} handleSave={handleSave} />
+    );
+  }
+
+  // ---------------------------------------------------------
+  // Standard Layout
+  // ---------------------------------------------------------
   return (
-    <div className="max-w-6xl">
-       <header className="pb-8 mb-8 border-b border-white/10">
-         <h1 className="text-3xl font-sans font-bold tracking-tight mb-2">SETTINGS</h1>
-         <p className="font-mono text-sm text-gray-500">
-           {`// USER.CONFIGURATION_MATRIX`}
-         </p>
-       </header>
+    <div
+      className={cn(
+        "min-h-screen transition-all duration-500",
+        isTechieCopy ? "bg-[#050608]" : isCyberCopy ? "bg-[#08090a]" : "bg-noir-bg",
+      )}
+    >
+      {/* HEADER SECTION */}
+      <div
+        className={cn(
+          "w-full pt-16 pb-32 px-6 md:px-12 transition-all duration-500",
+          isTechieCopy
+            ? "bg-[var(--bg-primary)] border-b border-[var(--bg-panel)]/50"
+            : isCyberCopy || isTerminalCopy
+              ? "bg-noir-panel/40 border-b border-accent/10"
+              : isJournalCopy
+                ? "bg-journal-paper border-b border-accent/5"
+                : "bg-noir-panel border-b border-noir-border/30",
+        )}
+      >
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-8">
+          <header className="relative max-w-2xl">
+            <h1 className={cn("text-4xl md:text-5xl font-bold tracking-tighter mb-4", getHeadingClasses(theme))}>
+              {activeTab === "profile" ? publicProfileTitle : accountSecurityTitle}
+            </h1>
+            <p
+              className={cn(
+                "text-base transition-colors opacity-70",
+                isCyberCopy || isTerminalCopy || isTechieCopy ? "font-mono text-accent/60" : "text-foreground-subtle",
+                isJournalCopy && "font-serif italic text-lg",
+                isTechieCopy && "text-[var(--accent)]/50 tracking-wider uppercase text-[12px]",
+              )}
+            >
+              {activeTab === "profile" ? getLabel("profile_desc_long") : getLabel("account_desc_long")}
+            </p>
 
-       <div className="flex flex-col lg:flex-row gap-12">
-          {/* Sidebar Nav */}
-          <aside className="w-full lg:w-64 shrink-0">
-             <nav className="flex flex-col space-y-1">
-                {tabs.map(tab => (
-                    <button
-                        key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
-                        className={cn(
-                            "flex items-center gap-3 px-4 py-3 text-sm font-mono uppercase tracking-wide transition-all border-l-2 text-left",
-                            activeTab === tab.id
-                                ? (theme === 'cyber' ? "bg-white/5 border-signal-green text-white" : "bg-[#1A1A1A] border-white text-white")
-                                : "border-transparent text-gray-500 hover:text-gray-300 hover:bg-white/5"
-                        )}
-                    >
-                        <tab.icon size={16} />
-                        {tab.label}
-                    </button>
-                ))}
-             </nav>
-          </aside>
+            {(isCyberCopy || isTechieCopy || isTerminalCopy) && (
+              <div className="absolute -top-6 left-0 text-[10px] font-mono text-accent/40 uppercase tracking-[0.4em]">
+                {isTechieCopy ? "IDENTITY_SYSPREP_v4.2" : isTerminalCopy ? "TTY.IDENT.v3" : "SYS.IDENTITY.v2"}
+              </div>
+            )}
+          </header>
 
-          {/* Main Content Area */}
-          <div className="flex-1 max-w-2xl">
-             <form onSubmit={handleSave} className="space-y-8 animate-in fade-in duration-500">
-                
-                {/* PROFILE SECTION */}
-                {activeTab === 'profile' && (
-                    <div className="space-y-6">
-                        <div>
-                            <h2 className="text-xl font-bold mb-1">Public Profile</h2>
-                            <p className="text-sm text-gray-500 font-mono">Manage how others see you on Conduit.</p>
-                        </div>
-                        
-                        <div className="space-y-4">
-                             <div className="flex items-center gap-6">
-                                 <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center border border-white/20">
-                                     <span className="text-2xl font-bold">{mockUser.username[0].toUpperCase()}</span>
-                                 </div>
-                                 <Button type="button" variant="secondary" size="sm">CHANGE AVATAR</Button>
-                             </div>
+          {/* Module Label for Techie/Technical */}
+          {(isTechieCopy || isTerminalCopy || isCyberCopy) && (
+            <div className="hidden md:block py-2 px-6 border border-[var(--bg-panel)] bg-[var(--bg-primary)] text-[10px] font-mono text-accent/50 rounded-md tracking-widest backdrop-blur-xl">
+              {isTechieCopy ? "MODULE::CONFIG_0x3F" : "[SYSTEM_ACTIVE]"}
+            </div>
+          )}
+        </div>
+      </div>
 
-                             <div className="space-y-2">
-                                <label className="font-mono text-xs text-gray-500 uppercase">Display Name</label>
-                                <Input defaultValue={mockUser.displayName} className="bg-transparent" />
-                             </div>
-
-                             <div className="space-y-2">
-                                <label className="font-mono text-xs text-gray-500 uppercase">Bio</label>
-                                <textarea 
-                                    className="flex w-full min-h-[100px] border border-white/20 bg-transparent px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-white transition-colors"
-                                    defaultValue={mockUser.bio}
-                                />
-                             </div>
-                        </div>
-                    </div>
+      {/* CONTENT SECTION */}
+      <div className="max-w-6xl mx-auto px-6 md:px-12 -mt-12 pb-24">
+        <ThemeCard
+          className={cn(
+            "transition-all duration-300 relative overflow-hidden",
+            "p-8 md:p-12 shadow-2xl backdrop-blur-sm",
+            isTechieCopy && "border-white/5 bg-[var(--bg-primary)]/80 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]",
+            isCyberCopy && "bg-noir-bg/90 border-accent/20",
+            !isCyberCopy && !isTechieCopy && !isJournalCopy && !isTerminalCopy && "bg-noir-panel",
+          )}
+        >
+          {/* Internal Tab Selector */}
+          <div
+            className={cn(
+              "flex flex-wrap items-center gap-4 mb-12 border-b pb-6",
+              isTechieCopy || isTerminalCopy || isCyberCopy ? "border-noir-border/10" : "border-noir-border/10",
+              isTechieCopy && "border-[var(--bg-panel)]",
+            )}
+          >
+            {tabs.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as SettingsTab)}
+                className={cn(
+                  "flex items-center gap-3 px-8 py-3 text-[11px] font-mono uppercase tracking-[0.2em] transition-all relative whitespace-nowrap",
+                  activeTab === tab.id
+                    ? isTechieCopy
+                      ? "text-[var(--accent)] font-bold bg-[var(--bg-panel)]/50 shadow-[0_0_20px_rgba(var(--accent-rgb),0.05)] border border-[var(--bg-panel)] rounded-lg"
+                      : isJournalCopy
+                        ? "text-journal-ink bg-accent/5 rounded-xl italic font-serif"
+                        : "text-accent font-bold bg-accent/5 rounded-full"
+                    : "text-foreground-subtle hover:text-foreground hover:bg-noir-hover rounded-full",
+                  (isCyberCopy || isTechieCopy || isTerminalCopy) && "rounded-none",
                 )}
-
-                {/* APPEARANCE SECTION */}
-                {activeTab === 'appearance' && (
-                    <div className="space-y-6">
-                        <div>
-                            <h2 className="text-xl font-bold mb-1">Appearance</h2>
-                            <p className="text-sm text-gray-500 font-mono">Customize your visual interface.</p>
-                        </div>
-
-                        <div className="space-y-4">
-                            <label className="font-mono text-xs text-gray-500 uppercase block">Interface Theme</label>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <button
-                                    type="button"
-                                    onClick={() => setTheme("cyber")}
-                                    className={cn(
-                                    "p-6 border text-left transition-all relative group",
-                                    theme === "cyber" 
-                                        ? "bg-[#050505] border-signal-green text-white ring-1 ring-signal-green/20" 
-                                        : "bg-black border-white/10 text-gray-400 hover:border-white/30"
-                                    )}
-                                >
-                                    <div className="font-mono text-xs text-signal-green mb-2 opacity-80">System.Theme_01</div>
-                                    <div className="font-sans font-black text-lg mb-2">CYBER</div>
-                                    <div className="font-mono text-xs opacity-60 leading-relaxed">
-                                        High contrast. Digital artefacts. Neon accents. Optimized for low-light environments.
-                                    </div>
-                                    {theme === "cyber" && <Check size={18} className="absolute top-4 right-4 text-signal-green" />}
-                                </button>
-                                
-                                <button
-                                    type="button"
-                                    onClick={() => setTheme("classic")}
-                                    className={cn(
-                                    "p-6 border text-left transition-all relative group",
-                                    theme === "classic" 
-                                        ? "bg-[#1A1A1A] border-white text-white ring-1 ring-white/20" 
-                                        : "bg-[#121212] border-white/10 text-gray-400 hover:border-white/30"
-                                    )}
-                                >
-                                    <div className="font-serif italic text-xs text-white mb-2 opacity-80">The Classic Collection</div>
-                                    <div className="font-sans font-black text-lg mb-2">NOIR</div>
-                                    <div className="font-mono text-xs opacity-60 leading-relaxed">
-                                        Premium dark mode. Clean typography. Minimalist layout for reading focus.
-                                    </div>
-                                    {theme === "classic" && <Check size={18} className="absolute top-4 right-4 text-white" />}
-                                </button>
-                             </div>
-                        </div>
-                    </div>
+              >
+                <tab.icon size={16} className={activeTab === tab.id ? "" : "opacity-30"} />
+                {tab.label}
+                {activeTab === tab.id && isTechieCopy && (
+                  <span className="absolute -bottom-[25px] left-0 w-full h-0.5 bg-[var(--accent)] shadow-[0_0_15px_var(--accent)]" />
                 )}
-
-                {/* ACCOUNT SECTION (Stub) */}
-                {activeTab === 'account' && (
-                    <div className="space-y-6">
-                        <div>
-                            <h2 className="text-xl font-bold mb-1">Account Security</h2>
-                            <p className="text-sm text-gray-500 font-mono">Update login credentials.</p>
-                        </div>
-                        <div className="space-y-4 opacity-50 pointer-events-none">
-                             <div className="space-y-2">
-                                <label className="font-mono text-xs text-gray-500 uppercase">Email</label>
-                                <Input defaultValue={mockUser.email} disabled />
-                             </div>
-                             <div className="p-4 border border-white/10 bg-white/5 text-sm font-mono text-gray-400">
-                                 [SECURITY MODULE LOCKED]
-                             </div>
-                        </div>
-                    </div>
-                )}
-                 
-                {/* NOTIFICATIONS SECTION (Stub) */}
-                 {activeTab === 'notifications' && (
-                    <div className="space-y-6">
-                        <div>
-                             <h2 className="text-xl font-bold mb-1">Notifications</h2>
-                             <p className="text-sm text-gray-500 font-mono">Manage signal reception.</p>
-                        </div>
-                        <div className="space-y-4">
-                             {['Email Digest', 'New Followers', 'Mentions', 'Product Updates'].map(item => (
-                                 <div key={item} className="flex items-center justify-between p-4 border border-white/10 bg-white/5">
-                                     <span className="font-mono text-sm">{item}</span>
-                                     <div className="w-8 h-4 bg-gray-700 rounded-full relative cursor-not-allowed">
-                                         <div className="w-4 h-4 bg-gray-500 rounded-full absolute left-0" />
-                                     </div>
-                                 </div>
-                             ))}
-                        </div>
-                    </div>
-                 )}
-
-                <div className="pt-8 border-t border-white/10 flex justify-end">
-                    <Button type="submit" disabled={isSaving} className="gap-2 min-w-[200px]">
-                        <Save size={16} />
-                        {isSaving ? "SAVING..." : "SAVE CHANGES"}
-                    </Button>
-                </div>
-             </form>
+              </button>
+            ))}
           </div>
-       </div>
+
+          <div className="max-w-4xl">
+            <form
+              onSubmit={handleSave}
+              className={cn("animate-in fade-in duration-500", isJournalCopy ? "space-y-6" : "space-y-10")}
+            >
+              {/* PROFILE SECTION */}
+              {activeTab === "profile" && user && (
+                <ProfileSection
+                  user={user}
+                  formData={formData}
+                  setFormData={setFormData}
+                  isSaving={isSaving}
+                  fileInputRef={fileInputRef}
+                  labels={{ publicProfileTitle, changeAvatarLabel, saveChangesLabel, savingText, socialNetworksLabel }}
+                />
+              )}
+
+              {/* ACCOUNT SECTION */}
+              {activeTab === "account" && user && <AccountSection user={user} />}
+            </form>
+          </div>
+        </ThemeCard>
+      </div>
     </div>
   );
 }
+
+
+

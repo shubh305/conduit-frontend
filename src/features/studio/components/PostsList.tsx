@@ -1,141 +1,377 @@
 "use client";
 
+import { getStudioLabel } from "@/features/theme/studio-labels"
 import { Post } from "@/features/blog/types";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
+import { RefreshCw, MoreHorizontal, Trash2, ExternalLink, Pencil, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
-import { useTheme } from "@/features/theme/ThemeProvider";
+import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { useAuth } from "@/features/auth/AuthProvider";
+import { restorePost } from "@/features/blog/api";
+import { toast } from "sonner";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
+import { TerminalDirectory, TerminalListItem } from "@/components/terminal/TerminalDirectory";
+import { useThemeLabel } from "@/components/theme"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  getTabButtonClasses,
+  getPostItemClasses,
+  getPostStatusBadgeClasses,
+  getPostActionMenuClasses,
+  getHeadingClasses,
+} from "@/lib/theme-variants"
 
-type Tab = "drafts" | "published" | "scheduled" | "unlisted";
+type Tab = "drafts" | "published" | "scheduled" | "unlisted" | "deleted";
 
-export function PostsList({ posts }: { posts: Post[] }) {
-  const { theme } = useTheme();
-  const [activeTab, setActiveTab] = useState<Tab>("drafts");
+interface PostsListProps {
+  posts: Post[];
+  onDelete?: (id: string) => void;
+  onRestore?: (id: string) => void;
+}
+
+export function PostsList({ posts, onDelete, onRestore }: PostsListProps) {
+  const { theme } = useTheme()
+  const { isCyberCopy, isSakuraCopy, isTerminalCopy, isJournalCopy, isTechieCopy, fontFamily } = useThemeHelpers()
+  const { user } = useAuth()
+  const [activeTab, setActiveTab] = useState<Tab>("published")
+
+
 
   const filteredPosts = posts.filter(post => {
-      if (activeTab === 'drafts') return post.status === 'draft';
-      if (activeTab === 'published') return post.status === 'published';
-      if (activeTab === 'scheduled') return false;
-      return (post.status as string) === 'unlisted';
-  });
+    const s = (post.status || "").toLowerCase().trim()
+    const tab = activeTab.toLowerCase().trim()
 
-  return (
-    <div className="w-full">
-      {/* Tabs */}
-      <div className={cn(
-          "flex items-center gap-6 border-b mb-8 overflow-x-auto no-scrollbar",
-          theme === 'cyber' ? "border-white/10" : "border-white/10"
-      )}>
-        {(['drafts', 'scheduled', 'published', 'unlisted'] as Tab[]).map((tab) => (
-            <button
+    if (tab === "drafts") return s === "draft" && !post.deletedAt
+    if (tab === "published") return s === "published" && !post.deletedAt
+    if (tab === "scheduled") return s === "scheduled" && !post.deletedAt
+    if (tab === "unlisted") return s === "unlisted" && !post.deletedAt
+    if (tab === "deleted") return !!post.deletedAt
+    return false
+  })
+
+  const t = useThemeLabel();
+  const noDataTitle = t("noData");
+  const noDataDesc = t("noDataDesc");
+
+  const handleRestore = async (id: string, tenantId?: string) => {
+    try {
+      await restorePost(id, tenantId)
+      toast.success(getStudioLabel("delete_success", theme))
+      onRestore?.(id)
+    } catch {
+      toast.error("Failed to restore")
+    }
+  }
+
+  const tabs: Tab[] = ["published", "drafts", "scheduled", "unlisted", "deleted"]
+
+
+  const statusLabels: Record<Tab, string> = {
+    published: t("statusPublished"),
+    drafts: t("statusDrafts"),
+    scheduled: t("statusScheduled"),
+    unlisted: t("statusUnlisted"),
+    deleted: t("statusDeleted"),
+  };
+
+  // --- TERMINAL LAYOUT ---
+  if (isTerminalCopy) {
+    const terminalItems = filteredPosts.map((post): TerminalListItem => {
+      const perms = post.status === "published" ? "-rwxr-xr-x" : "-rw-------"
+      const size = ((post.excerpt?.length || 0) + 1024).toString()
+      const date = new Date(post.publishedAt || post.createdAt).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+
+      return {
+        id: post.id,
+        permissions: perms,
+        user: user?.username || "user",
+        size: size,
+        date: date,
+        name: post.title || "untitled.md",
+        link: `/studio/editor/${post.id}${post.tenantId ? `?tenant=${post.tenantId}` : ""}`,
+        actions: (
+          <div className="flex justify-end gap-2">
+            {post.deletedAt ? (
+              <button
+                onClick={() => handleRestore(post.id, post.tenantId)}
+                className="text-emerald-500 hover:underline"
+              >
+                [RESTORE]
+              </button>
+            ) : (
+              <button onClick={() => onDelete?.(post.id)} className="text-red-500 hover:underline">
+                [RM]
+              </button>
+            )}
+          </div>
+        ),
+      }
+    })
+
+    return (
+      <TerminalDirectory
+        path={`/home/${user?.username || "user"}/posts/${activeTab}`}
+        command="$ ls -la --status="
+        items={terminalItems}
+        totalItems={filteredPosts.length}
+        username={user?.username || "user"}
+        renderTabs={() => (
+          <div className="flex flex-wrap gap-2">
+            {tabs.map(tab => (
+              <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={cn(
-                    "pb-3 text-sm transition-all capitalize relative whitespace-nowrap",
-                    theme === 'cyber' ? "font-mono tracking-wider uppercase text-xs" : "font-sans",
-                    activeTab === tab 
-                        ? (theme === 'cyber' ? "text-signal-green" : "text-white font-medium") 
-                        : "text-gray-500 hover:text-gray-300"
+                  "hover:text-white hover:bg-accent hover:text-black px-1 transition-colors",
+                  activeTab === tab ? "bg-accent/20 text-accent font-bold" : "text-foreground-muted",
                 )}
-            >
-                {tab} 
-                <span className="ml-2 opacity-50">
-                    {tab === 'drafts' ? posts.filter(p => p.status === 'draft').length : ''}
-                    {tab === 'published' ? posts.filter(p => p.status === 'published').length : ''}
-                    {tab === 'scheduled' ? 0 : ''}
+              >
+                [{tab}]
+              </button>
+            ))}
+          </div>
+        )}
+      />
+    )
+  }
+
+  return (
+    <div className="w-full">
+      {/* Tabs / Filter Navigation */}
+      <div className="flex items-center gap-3 mb-12 overflow-x-auto no-scrollbar pb-2">
+        {tabs.map(tab => {
+          const count = posts.filter(p => {
+            const s = p.status?.toLowerCase()
+            if (tab === "drafts") return s === "draft" && !p.deletedAt
+            if (tab === "published") return s === "published" && !p.deletedAt
+            if (tab === "scheduled") return s === "scheduled" && !p.deletedAt
+            if (tab === "unlisted") return s === "unlisted" && !p.deletedAt
+            if (tab === "deleted") return !!p.deletedAt
+            return false
+          }).length
+
+          const isSelected = activeTab === tab
+
+          return (
+            <button key={tab} onClick={() => setActiveTab(tab)} className={getTabButtonClasses(theme, isSelected)}>
+              <span>{statusLabels[tab]}</span>
+              {count > 0 && (
+                <span
+                  className={cn(
+                    "flex items-center justify-center min-w-[1.25rem] h-5 rounded-full text-[10px] px-1.5 font-bold",
+                    isSelected ? "bg-noir-bg/20 text-noir-bg" : "bg-noir-hover text-foreground-muted",
+                  )}
+                >
+                  {count}
                 </span>
-                
-                {activeTab === tab && (
-                    <div className={cn(
-                        "absolute bottom-0 left-0 right-0 h-0.5",
-                        theme === 'cyber' ? "bg-signal-green" : "bg-white"
-                    )} />
-                )}
+              )}
             </button>
-        ))}
+          )
+        })}
       </div>
 
-      {/* List */}
+      {/* List / Posts Grid */}
       <div className="flex flex-col">
         {filteredPosts.length === 0 ? (
-            <div className={cn(
-                "py-12 text-center text-gray-500 text-sm",
-                theme === 'cyber' ? "font-mono uppercase tracking-widest" : "font-sans"
-            )}>
-                NO TRANSMISSIONS FOUND IN {activeTab.toUpperCase()}
+          <div
+            className={cn(
+              "py-40 flex flex-col items-center justify-center border border-dashed bg-noir-hover/30",
+              isCyberCopy || isTechieCopy ? "rounded-none border-accent/20" : "rounded-[2rem] border-noir-border",
+              isJournalCopy && "bg-accent/5 border-accent/10",
+            )}
+          >
+            <div
+              className={cn(
+                "w-16 h-16 flex items-center justify-center mb-6 border border-noir-border bg-noir-bg text-foreground-subtle shadow-sm",
+                isCyberCopy || isTechieCopy ? "rounded-none border-accent/30" : "rounded-2xl",
+              )}
+            >
+              {activeTab === "scheduled" ? (
+                <RefreshCw size={28} className="animate-spin-slow" />
+              ) : (
+                <LayoutDashboard size={28} />
+              )}
             </div>
+            <h3
+              className={cn(
+                "text-2xl font-bold mb-3 tracking-tight text-foreground text-center px-6",
+                getHeadingClasses(theme),
+              )}
+            >
+              {noDataTitle}
+            </h3>
+            <p
+              className={cn(
+                "text-sm max-w-xs text-center text-foreground-subtle leading-relaxed",
+                isCyberCopy || isTechieCopy
+                  ? "font-mono uppercase tracking-wider text-[10px]"
+                  : isJournalCopy
+                    ? "font-serif italic"
+                    : "",
+              )}
+            >
+              {noDataDesc}
+            </p>
+          </div>
         ) : (
-            filteredPosts.map((post) => (
-                <div 
-                    key={post.id} 
-                    className={cn(
-                        "group py-6 border-b flex justify-between items-start transition-colors",
-                         theme === 'cyber' 
-                            ? "border-white/5 hover:bg-white/5" 
-                            : "border-white/10 hover:bg-white/5"
-                    )}
-                >
-                    <div className="flex-1 pr-8">
-                        <Link href={`/studio/editor/${post.id}`} className="block">
-                            <h3 className={cn(
-                                "text-lg md:text-xl font-bold mb-2 tracking-tight",
-                                theme === 'cyber' ? "text-gray-200 font-mono tracking-tighter" : "text-white font-serif"
-                            )}>
-                                {post.title || "Untitled Story"}
-                            </h3>
-                            <p className={cn(
-                                "text-sm mb-2 line-clamp-1",
-                                theme === 'cyber' ? "text-gray-500 font-mono" : "text-gray-400 font-serif"
-                            )}>
-                                {post.excerpt || "No description preview available..."}
-                            </p>
-                            <div className={cn(
-                                "flex items-center gap-2 text-xs uppercase tracking-widest",
-                                theme === 'cyber' ? "font-mono text-signal-green/70" : "font-sans text-gray-500"
-                            )}>
-                                <span>{post.status}</span>
-                                <span>·</span>
-                                <span>{new Date(post.publishedAt).toLocaleDateString()}</span>
-                                <span>·</span>
-                                <span>{post.readingTimeMinutes} min read</span>
-                            </div>
-                        </Link>
-                    </div>
+          <div className={cn("divide-y divide-noir-border/50", (isJournalCopy || isTechieCopy) && "divide-accent/10")}>
+            {filteredPosts.map((post, index) => (
+              <div key={post.id || `post-${index}`} className={getPostItemClasses(theme)}>
+                <div className="flex-1 pr-10">
+                  <div className="flex flex-col h-full">
+                    <Link
+                      href={
+                        post.status === "published"
+                          ? `/u/${post.authorUsername || user?.username || "user"}/${post.slug}`
+                          : `/studio/editor/${post.id}${post.tenantId ? `?tenant=${post.tenantId}` : ""}`
+                      }
+                      className="block group/title mb-2"
+                    >
+                      <h3
+                        className={cn(
+                          "text-xl md:text-2xl font-bold tracking-tight text-foreground transition-all",
+                          "group-hover/title:text-accent group-hover/title:underline decoration-1 underline-offset-8",
+                          getHeadingClasses(theme),
+                        )}
+                      >
+                        {post.title || (isCyberCopy ? "UNTITLED_STREAM" : "Untitled Post")}
+                      </h3>
+                    </Link>
 
-                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                         <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-white">
-                                    <MoreHorizontal size={18} />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className={cn(
-                                theme === 'cyber' ? "bg-black border-signal-green/20 text-gray-300 rounded-none" : "bg-[#121212] border-white/10 text-white"
-                            )}>
-                                <DropdownMenuItem asChild className={theme === 'cyber' ? "focus:bg-signal-green/10 rounded-none" : ""}>
-                                    <Link href={`/studio/editor/${post.id}`}>Edit Draft</Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem asChild className={theme === 'cyber' ? "focus:bg-signal-green/10 rounded-none" : ""}>
-                                    <Link href={`/u/alice/${post.slug}`}>View Public</Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem className={cn("text-red-500 focus:text-red-500", theme === 'cyber' ? "focus:bg-red-500/10 rounded-none" : "")}>
-                                    Delete
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                         </DropdownMenu>
+                    <p
+                      className={cn(
+                        "text-base mb-6 line-clamp-2 text-foreground-subtle leading-relaxed max-w-3xl",
+                        isCyberCopy || isTechieCopy
+                          ? "font-mono text-xs uppercase opacity-70"
+                          : fontFamily === "serif"
+                            ? "font-serif italic"
+                            : "",
+                      )}
+                    >
+                      {post.excerpt ||
+                        (post.content?.content
+                          ? "Draft content available in secure editor environment..."
+                          : "No synchronization preview available for this entry.")}
+                    </p>
+
+                    <div className="flex flex-wrap items-center gap-4">
+                      <div
+                        className={cn(
+                          "flex items-center gap-3 text-[10px] uppercase tracking-[0.2em] font-bold text-foreground-subtle",
+                          isCyberCopy || isTechieCopy ? "font-mono" : "",
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "px-2 py-0.5 border border-noir-border bg-noir-bg/50",
+                            isCyberCopy || isTechieCopy
+                              ? "text-accent border-accent/20"
+                              : isJournalCopy
+                                ? "font-serif italic capitalize tracking-normal border-accent/10"
+                                : "rounded-sm",
+                          )}
+                        >
+                          {post.tenantName || post.tenantSlug || "Default Site"}
+                        </span>
+                        <span className="opacity-20 text-foreground">•</span>
+                        <span className={getPostStatusBadgeClasses(theme, post.status || "")}>{post.status}</span>
+                        <span className="opacity-20 text-foreground">•</span>
+                        <span
+                          className={
+                            isJournalCopy || isTechieCopy ? "font-serif italic capitalize tracking-normal" : ""
+                          }
+                        >
+                          {new Date(post.publishedAt || post.createdAt).toLocaleDateString(undefined, {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                        </span>
+                      </div>
                     </div>
+                  </div>
                 </div>
-            ))
+
+                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all scale-95 group-hover:scale-100">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-10 w-10 p-0 text-foreground-subtle hover:text-foreground hover:bg-accent/10 rounded-full"
+                      >
+                        <MoreHorizontal size={20} />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="end"
+                      className="w-56 p-2 bg-noir-panel border-noir-border text-foreground shadow-2xl"
+                      style={{ borderRadius: isCyberCopy || isTechieCopy ? "0" : "var(--theme-radius-lg)" }}
+                    >
+                      {!post.deletedAt && (
+                        <>
+                          <DropdownMenuItem asChild className={getPostActionMenuClasses(theme)}>
+                            <Link
+                              href={`/studio/editor/${post.id}${post.tenantId ? `?tenant=${post.tenantId}` : ""}`}
+                              className="flex items-center gap-3"
+                            >
+                              <Pencil size={16} />
+                              <span className="font-bold">
+                                {isCyberCopy ? "MODIFY_SIGNAL" : isSakuraCopy ? "編集" : "Edit entry"}
+                              </span>
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild className={getPostActionMenuClasses(theme)}>
+                            <Link
+                              href={`/u/${post.authorUsername || user?.username || "user"}/${post.slug}`}
+                              className="flex items-center gap-3"
+                            >
+                              <ExternalLink size={16} />
+                              <span className="font-bold">{isCyberCopy ? "VIEW_UPLINK" : "View live"}</span>
+                            </Link>
+                          </DropdownMenuItem>
+                          <div className="h-[1px] bg-noir-border/50 my-1 mx-2" />
+                        </>
+                      )}
+
+                      {post.deletedAt ? (
+                        <DropdownMenuItem
+                          onClick={() => handleRestore(post.id, post.tenantId)}
+                          className={cn(
+                            getPostActionMenuClasses(theme),
+                            "text-emerald-500 hover:text-emerald-500 focus:text-noir-bg focus:bg-emerald-500",
+                          )}
+                        >
+                          <RefreshCw size={16} />
+                          <span className="font-bold">{isCyberCopy ? "RESTORE_SIGNAL" : "Restore"}</span>
+                        </DropdownMenuItem>
+                      ) : (
+                        <DropdownMenuItem
+                          onClick={() => onDelete?.(post.id)}
+                          className={cn(
+                            getPostActionMenuClasses(theme),
+                            "text-red-500 hover:text-red-500 focus:text-noir-bg focus:bg-red-500",
+                          )}
+                        >
+                          <Trash2 size={16} />
+                          <span className="font-bold">{isCyberCopy ? "TERMINATE_BROADCAST" : "Delete"}</span>
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>
-  );
+  )
 }
