@@ -1,47 +1,24 @@
-import { notFound } from "next/navigation";
-import { mockTenants, mockPosts } from "@/features/blog/data/mock-blogs";
-import { Metadata } from "next";
+"use client";
+
+import { use } from "react";
 import { ArticlePageWrapper } from "@/features/blog/components/ArticlePageWrapper";
+import { usePostLoader } from "@/features/blog/hooks/usePostLoader";
+import { notFound } from "next/navigation";
 
 interface PageProps {
   params: Promise<{ tenant: string; slug: string }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { tenant: tenantSlug, slug } = await params;
-  const posts = mockPosts[tenantSlug] || [];
-  const post = posts.find(p => p.slug === slug);
-  const tenant = mockTenants[tenantSlug];
-  
-  if (!post || !tenant) return { title: "Not Found" };
-  
-  return {
-    title: `${post.title} | ${tenant.name}`,
-    description: post.excerpt,
-  };
-}
+export default function TenantPostPage({ params }: PageProps) {
+  const { tenant, slug } = use(params);
+  const { loading, error, data } = usePostLoader(tenant, slug);
 
-export default async function PostPage({ params }: PageProps) {
-  const { tenant: tenantSlug, slug } = await params;
-  const tenant = mockTenants[tenantSlug];
-  
-  if (!tenant) notFound();
-  
-  const posts = mockPosts[tenantSlug] || [];
-  const post = posts.find(p => p.slug === slug);
-  
-  if (!post) notFound();
+  if (loading) return null;
 
-  const feedItemPost = {
-    ...post,
-    tenantId: tenant.id,
-    tenantSlug: tenant.slug,
-    tenantName: tenant.name,
-    postId: post.id,
-    postSlug: post.slug,
-    likesCount: 0,
-    commentsCount: 0,
-  };
+  if (error || !data) {
+    if (error === "Tenant not found") notFound();
+    return <div className="min-h-screen flex items-center justify-center text-red-500 font-mono tracking-widest uppercase">{error || "404 NOT FOUND"}</div>;
+  }
 
-  return <ArticlePageWrapper post={feedItemPost} tenant={tenant} />;
+  return <ArticlePageWrapper post={data.post} tenant={data.tenant} nextPost={data.nextPost} />;
 }

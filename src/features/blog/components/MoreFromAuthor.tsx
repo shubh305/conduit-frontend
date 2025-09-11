@@ -1,127 +1,220 @@
 "use client";
 
-import { useTheme } from "@/features/theme/ThemeProvider";
-import { cn } from "@/lib/utils";
+import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
+import { cn, getMediaUrl } from "@/lib/utils";
 import Link from "next/link";
 import { Post } from "@/features/blog/types";
-import { Star, MessageCircle, Hand } from "lucide-react";
+import { MessageCircle, Hand, ArrowRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { getPosts } from "@/features/blog/api";
 
 interface MoreFromAuthorProps {
-  authorName: string;
-  currentPostId: string;
-  tenantSlug: string;
-  posts: Post[];
+  authorName: string
+  currentPostId: string
+  tenantSlug: string
+  tenantId: string
+  className?: string
+  gridClassName?: string
+  hideHeader?: boolean
+  hideFooter?: boolean
+  compact?: boolean
 }
 
-export function MoreFromAuthor({ authorName, currentPostId, tenantSlug, posts }: MoreFromAuthorProps) {
-  const { theme } = useTheme();
+export function MoreFromAuthor({
+  authorName,
+  currentPostId,
+  tenantSlug,
+  tenantId,
+  className,
+  gridClassName,
+  hideHeader = false,
+  hideFooter = false,
+  compact = false,
+}: MoreFromAuthorProps) {
+  const { config } = useTheme()
+  const { isCyberCopy, isSakuraCopy, isDarkMode } = useThemeHelpers()
+  const [posts, setPosts] = useState<Post[]>([])
 
-  const relatedPosts = posts
-    .filter(post => post.authorName === authorName && post.id !== currentPostId)
-    .slice(0, 4);
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const { data } = await getPosts(tenantId, { limit: 5 })
+        const filtered = data.filter(post => post.id !== currentPostId).slice(0, 4)
+        setPosts(filtered)
+      } catch (e) {
+        console.error("Failed to fetch more posts", e)
+      }
+    }
 
-  if (relatedPosts.length === 0) return null;
+    if (tenantId) fetchPosts()
+  }, [tenantId, currentPostId])
+
+  if (posts.length === 0) return null
 
   return (
-    <div className={cn(
-      "py-16 border-t",
-      theme === 'cyber' ? "bg-black border-white/10" : "bg-noir-panel border-noir-border"
-    )}>
-      <div className="container mx-auto px-4 md:px-6 max-w-7xl">
-        <h3 className={cn(
-          "text-xl font-bold mb-10",
-          theme === 'cyber' ? "text-white font-mono" : "text-white font-sans"
-        )}>
-          More from {authorName}
-        </h3>
+    <div className={cn("py-24 border-t border-noir-border bg-noir-bg transition-all duration-700", className)}>
+      <div className="container mx-auto px-6 max-w-7xl">
+        {!hideHeader && (
+          <div
+            className={cn(
+              "flex items-baseline justify-between border-b border-noir-border pb-2",
+              compact ? "mb-6" : "mb-12",
+            )}
+          >
+            <h3
+              className={cn(
+                "font-black uppercase tracking-tight",
+                compact ? "text-lg" : "text-2xl",
+                isCyberCopy
+                  ? "text-accent font-display italic"
+                  : config.fontFamily === "serif"
+                    ? "font-serif italic"
+                    : "font-sans",
+              )}
+            >
+              {isSakuraCopy ? `${authorName} の他の記事` : `More from ${authorName}`}
+            </h3>
+            <div className="font-mono text-[10px] text-foreground-subtle uppercase tracking-[0.4em] hidden sm:block opacity-40">
+              {isSakuraCopy ? "推薦記録" : isCyberCopy ? "DATA_RECALL_V09" : "Recommendations"}
+            </div>
+          </div>
+        )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {relatedPosts.map(post => (
-            <Link key={post.id} href={`/${tenantSlug}/${post.slug}`} className="group block h-full">
-              <article className="flex flex-col h-full">
-                {/* Image */}
-                <div className="aspect-[16/10] overflow-hidden mb-4 relative bg-gray-800">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img 
-                        src={post.featuredImage} 
+        <div className={cn("grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10", gridClassName)}>
+          {posts.map(post => {
+            const href =
+              tenantSlug === "default" && (post as unknown as { authorUsername?: string }).authorUsername
+                ? `/u/${(post as unknown as { authorUsername?: string }).authorUsername}/${post.slug}`
+                : `/${tenantSlug}/${post.slug}`
+
+            return (
+              <Link key={post.id} href={href} className="group block h-full">
+                <article
+                  className={cn(
+                    "flex flex-col h-full bg-noir-panel/30 border border-noir-border hover:border-accent transition-all shadow-lg hover:shadow-accent/5 overflow-hidden",
+                    compact ? "p-0 rounded-lg" : "p-1 rounded-xl",
+                  )}
+                >
+                  {/* Image */}
+                  {post.featuredImage && (
+                    <div
+                      className={cn(
+                        "relative bg-noir-bg transition-all duration-700 shrink-0 overflow-hidden",
+                        compact ? "aspect-[30/12]" : "aspect-[16/10]",
+                        isCyberCopy ? "rounded-none" : compact ? "rounded-t-lg" : "rounded-xl",
+                      )}
+                    >
+                      <Image
+                        src={getMediaUrl(post.featuredImage) || "/placeholder.jpg"}
                         alt={post.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                </div>
+                        fill
+                        className={cn(
+                          "object-cover transition-all duration-700 group-hover:scale-110",
+                          isDarkMode
+                            ? "opacity-70 group-hover:opacity-100 grayscale-[50%] group-hover:grayscale-0"
+                            : "opacity-90 group-hover:opacity-100",
+                        )}
+                      />
+                    </div>
+                  )}
 
-                {/* Content */}
-                <div className="flex flex-col flex-1">
-                    <div className="flex items-center gap-2 mb-2 text-xs opacity-70">
-                         {/* Author Avatar (mock) */}
-                        <div className="w-5 h-5 rounded-full overflow-hidden bg-gray-700">
-                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                             <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${post.authorName}`} alt={post.authorName} className="w-full h-full object-cover" />
-                        </div>
-                        <span className={cn(
-                             "font-medium",
-                             theme === 'cyber' ? "text-gray-300" : "text-gray-300"
-                        )}>{post.authorName}</span>
+                  {/* Content */}
+                  <div className={cn("flex flex-col flex-1", compact ? "px-3 py-2" : "p-5")}>
+                    <div className={cn("flex items-center gap-2", compact ? "mb-1" : "mb-4")}>
+                      <div
+                        className={cn(
+                          "w-5 h-5 flex items-center justify-center text-[9px] font-bold border border-noir-border bg-noir-bg shadow-sm",
+                          isCyberCopy ? "rounded-none" : "rounded-full",
+                        )}
+                      >
+                        {post.authorName.charAt(0)}
+                      </div>
+                      <span
+                        className={cn(
+                          "text-[10px] font-bold uppercase tracking-widest text-foreground-subtle group-hover:text-accent transition-colors",
+                          isCyberCopy ? "font-mono" : "font-sans",
+                        )}
+                      >
+                        {post.authorName}
+                      </span>
                     </div>
 
-                    <h4 className={cn(
-                        "text-lg font-bold leading-tight mb-2 group-hover:underline decoration-2 underline-offset-4",
-                        theme === 'cyber' ? "text-white font-mono" : "text-white font-sans"
-                    )}>
-                        {post.title}
+                    <h4
+                      className={cn(
+                        "font-bold leading-tight text-foreground transition-all group-hover:translate-x-1",
+                        compact ? "text-sm mb-2 line-clamp-2" : "text-lg mb-3",
+                        isCyberCopy
+                          ? "font-mono uppercase tracking-tighter"
+                          : config.fontFamily === "serif"
+                            ? "font-serif italic"
+                            : "font-sans",
+                      )}
+                    >
+                      {post.title}
                     </h4>
 
-                    <p className={cn(
-                        "text-sm line-clamp-2 mb-4 flex-1",
-                        theme === 'cyber' ? "text-gray-400" : "text-gray-400 font-serif"
-                    )}>
-                        {post.excerpt}
+                    <p
+                      className={cn(
+                        "text-xs text-foreground-muted leading-relaxed opacity-80 flex-1",
+                        compact ? "mb-3 line-clamp-2" : "mb-6 line-clamp-3",
+                        config.fontFamily === "serif" ? "font-serif" : "font-sans",
+                      )}
+                    >
+                      {post.excerpt}
                     </p>
 
-                    {/* Footer */}
-                    <div className={cn(
-                        "flex items-center justify-between text-xs mt-auto pt-4 border-t",
-                        theme === 'cyber' ? "border-white/10 text-gray-500" : "border-gray-800 text-gray-500"
-                    )}>
-                        <div className="flex items-center gap-4">
-                             <span className="flex items-center gap-1">
-                                 <Star size={12} className={theme === 'cyber' ? "text-signal-green" : "text-yellow-500"} fill="currentColor" />
-                                 {new Date(post.publishedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                             </span>
-                             <span className="flex items-center gap-1">
-                                 <Hand size={12} />
-                                 {(post.likesCount || 0)} 
-                             </span>
-                             <span className="flex items-center gap-1">
-                                 <MessageCircle size={12} />
-                                 {post.commentsCount || 0}
-                             </span>
-                        </div>
-                        <div>
-                             <span className="opacity-70 group-hover:opacity-100 transition-opacity">
-                                 Read more
-                             </span>
-                        </div>
+                    {/* Footer - Modified for compact mode */}
+                    <div
+                      className={cn(
+                        "flex items-center justify-between text-[9px] font-mono text-foreground-subtle uppercase tracking-widest",
+                        compact
+                          ? "mt-auto pt-2 border-t border-noir-border/50"
+                          : "mt-auto pt-4 border-t border-noir-border",
+                      )}
+                    >
+                      <div className="flex items-center gap-4">
+                        <span className="flex items-center gap-1.5 hover:text-accent transition-colors">
+                          <Hand size={12} className="opacity-50" />
+                          {post.likesCount || 0}
+                        </span>
+                        <span className="flex items-center gap-1.5 hover:text-accent transition-colors">
+                          <MessageCircle size={12} className="opacity-50" />
+                          {post.commentsCount || 0}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="flex items-center gap-2 font-black transition-all group-hover:text-accent group-hover:gap-3">
+                          {isSakuraCopy ? "もっと見る" : "SEE_MORE"} <ArrowRight size={10} />
+                        </span>
+                      </div>
                     </div>
-                </div>
-              </article>
+                  </div>
+                </article>
+              </Link>
+            )
+          })}
+        </div>
+
+        {!hideFooter && (
+          <div className={cn("text-center", compact ? "mt-8" : "mt-20")}>
+            <Link
+              href={`/${tenantSlug}`}
+              className={cn(
+                "inline-flex items-center gap-3 border font-black uppercase tracking-[0.3em] transition-all shadow-xl hover:-translate-y-1",
+                "bg-noir-panel border-noir-border text-foreground hover:border-accent hover:text-accent hover:shadow-accent/10",
+                compact ? "px-6 py-3 text-[9px]" : "px-10 py-4 text-[10px]",
+                isCyberCopy ? "rounded-none" : "rounded-full",
+              )}
+            >
+              {isSakuraCopy ? `${authorName} の全投稿を見る` : `Access all frequencies from ${authorName}`}
+              <ArrowRight size={14} className="animate-pulse" />
             </Link>
-          ))}
-        </div>
-        
-        <div className="mt-12 text-center">
-             <Link 
-                href={`/${tenantSlug}`} 
-                className={cn(
-                    "inline-flex items-center px-6 py-3 border text-sm font-medium rounded-full transition-colors",
-                    theme === 'cyber' 
-                        ? "border-white/20 text-white hover:bg-white/10 hover:border-white/40" 
-                        : "border-gray-700 text-white hover:border-white hover:bg-white/5"
-                )}
-             >
-                 See all from {authorName}
-             </Link>
-        </div>
+          </div>
+        )}
       </div>
     </div>
-  );
+  )
 }
+
+// Added Image import
+import Image from "next/image";

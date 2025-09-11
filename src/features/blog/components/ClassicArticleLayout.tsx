@@ -1,107 +1,156 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import Image from "next/image";
+import { ArrowLeft, Calendar } from "lucide-react";
 import { PostContent } from "@/features/blog/components/PostContent";
 import { FeedItem } from "@/features/feed/types";
 import { TiptapContent } from "@/features/blog/types";
-
-interface ArticleLayoutProps {
-  post: FeedItem & { content: TiptapContent; readingTimeMinutes: number };
-  tenant: { name: string; slug?: string; id: string };
-}
-
 import { FeedActionBar } from "@/features/feed/components/FeedActionBar";
 import { useState } from "react";
 import { CommentSection } from "@/features/feed/components/CommentSection";
 import { MoreFromAuthor } from "./MoreFromAuthor";
-import { mockPosts } from "@/features/blog/data/mock-blogs";
+import { useSearchParams } from "next/navigation";
+import { cn, getMediaUrl } from "@/lib/utils";
+import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
 
-export function ClassicArticleLayout({ post, tenant }: ArticleLayoutProps) {
+interface ArticleLayoutProps {
+  post: FeedItem & { content: TiptapContent; readingTimeMinutes: number };
+  tenant: { name: string; slug?: string; id: string };
+  isPreview?: boolean;
+}
+
+export function ClassicArticleLayout({ post, tenant, isPreview: isPreviewProp }: ArticleLayoutProps) {
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+  const { config } = useTheme();
+  const { isDarkMode } = useThemeHelpers();
+  const searchParams = useSearchParams();
+  const isPreview = isPreviewProp || searchParams.get("preview") === "true";
+
+  const isProfessional = config.id === "professional";
 
   return (
-    <main className="min-h-screen bg-noir-bg text-white pb-20">
-      <div className="border-b border-noir-border py-4 bg-noir-panel">
-        <div className="container mx-auto px-4 md:px-6 max-w-4xl flex items-center gap-4">
-          <Link 
-            href={`/${tenant.slug || tenant.id}`}
-            className="flex items-center gap-2 font-mono text-sm text-gray-400 hover:text-white transition-colors"
-          >
-            <ArrowLeft size={16} />
-            BACK TO BLOG
-          </Link>
-          <div className="h-4 w-px bg-gray-800" />
-          <span className="font-mono text-sm text-gray-500 uppercase tracking-wider">
-            {tenant.name}
-          </span>
+    <main className="min-h-screen bg-noir-bg text-foreground pb-20 transition-all duration-700">
+      {/* Editorial Header */}
+      <div className="border-b border-noir-border py-6 bg-noir-panel/50 backdrop-blur-md sticky top-0 z-[40]">
+        <div className="container mx-auto px-6 max-w-5xl flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            {!isPreview && (
+              <Link
+                href={`/${tenant.slug || tenant.id}`}
+                className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-foreground-subtle hover:text-accent transition-all group"
+              >
+                <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+                <span>{isProfessional ? "BACK_TO_ARCHIVE" : "BACK TO BLOG"}</span>
+              </Link>
+            )}
+            <div className="h-4 w-px bg-noir-border hidden sm:block" />
+            <span className="font-mono text-[9px] text-foreground-subtle uppercase tracking-[0.3em] hidden sm:block">{tenant.name}</span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <span className="text-[10px] font-mono text-foreground-subtle uppercase transition-all hidden md:block">{post.readingTimeMinutes} min pulse</span>
+          </div>
         </div>
       </div>
 
-      <article className="container mx-auto px-4 md:px-6 mt-12 max-w-3xl">
-        <header className="mb-10 space-y-6">
-          <div className="flex gap-2">
-            {post.tags.map((tag: string) => (
-              <span key={tag} className="font-mono text-xs text-signal-red border border-noir-border px-2 py-1 bg-noir-panel">
-                #{tag}
-              </span>
-            ))}
-          </div>
-          
-          <h1 className="text-4xl md:text-5xl font-sans font-black leading-tight tracking-tight">
-            {post.title}
-          </h1>
-          
-          <div className="flex items-center gap-6 font-mono text-sm text-gray-500 border-l-2 border-signal-red pl-4">
-            <div className="flex flex-col">
-              <span className="text-gray-400 text-xs uppercase">Author</span>
-              <span className="text-white">{post.authorName}</span>
+      <div className="container mx-auto px-6 mt-20 max-w-4xl animate-in fade-in slide-in-from-bottom-8 duration-1000">
+        <article className="feed-container">
+          <header className="mb-16 space-y-10">
+            <div className="flex flex-wrap gap-3">
+              {post.tags.map((tag: string) => (
+                <span key={tag} className="font-mono text-[9px] text-accent uppercase tracking-widest border border-accent/20 px-3 py-1 bg-accent/5 rounded-full">
+                  #{tag}
+                </span>
+              ))}
             </div>
-            <div className="flex flex-col">
-              <span className="text-gray-400 text-xs uppercase">Published</span>
-              <span className="text-white">{new Date(post.publishedAt).toLocaleDateString()}</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-gray-400 text-xs uppercase">Read Time</span>
-              <span className="text-white">{post.readingTimeMinutes} min</span>
-            </div>
-          </div>
 
-          <FeedActionBar 
-              postId={post.postId} 
-              initialLikes={post.likesCount} 
-              initialComments={post.commentsCount} 
-              className="border-t border-b border-white/10 py-4"
+            <h1 className={cn("text-4xl md:text-7xl font-black leading-[1.1] tracking-tighter text-foreground transition-all", config.fontFamily === "serif" ? "font-serif italic" : "font-sans")}>
+              {post.title}
+            </h1>
+
+            <div
+              className={cn("flex flex-col md:flex-row md:items-center gap-8 md:gap-12 border-l-4 border-accent pl-8 py-2 transition-all", isProfessional ? "bg-noir-panel/30 mr-2 rounded-r-2xl" : "")}
+            >
+              <div className="flex flex-col gap-1">
+                <span className="text-foreground-subtle text-[10px] uppercase font-mono tracking-widest">{isProfessional ? "SIG_AUTHOR" : "Author"}</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center text-[10px] text-accent font-bold">{post.authorName.charAt(0)}</div>
+                  <span className="text-foreground font-bold text-sm">
+                    {post.authorName} <span className="text-xs text-foreground-subtle font-mono opacity-50">(@{post.authorUsername})</span>
+                  </span>
+                </div>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-foreground-subtle text-[10px] uppercase font-mono tracking-widest">Published</span>
+                <div className="flex items-center gap-2 text-foreground font-bold text-sm">
+                  <Calendar size={14} className="opacity-40" />
+                  {new Date(post.publishedAt).toLocaleDateString()}
+                </div>
+              </div>
+            </div>
+
+            <FeedActionBar
+              postId={post.postId}
+              slug={post.postSlug}
+              tenantId={tenant.id}
+              authorUsername={post.authorUsername}
+              initialLikes={post.likesCount}
+              initialComments={post.commentsCount}
+              className="border-t border-b border-noir-border py-6 shadow-sm"
               onCommentClick={() => setIsCommentsOpen(true)}
-          />
-        </header>
-
-        {post.featuredImage && (
-          <div className="w-full aspect-video bg-noir-panel border border-noir-border mb-12 overflow-hidden">
-             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img 
-              src={post.featuredImage} 
-              alt={post.title}
-              className="w-full h-full object-cover"
             />
+          </header>
+
+          {post.featuredImage && (
+            <div
+              className={cn(
+                "w-full aspect-[21/9] bg-noir-panel border border-noir-border mb-20 overflow-hidden shadow-2xl transition-all duration-1000 hover:shadow-accent/5 relative group",
+                isProfessional ? "rounded-3xl" : "rounded-xl",
+              )}
+            >
+              <Image
+                src={getMediaUrl(post.featuredImage) || ""}
+                alt={post.title}
+                fill
+                className={cn("object-cover transition-all duration-1000 group-hover:scale-105", isDarkMode && "opacity-80 grayscale-[30%] group-hover:grayscale-0")}
+              />
+              {post.featuredImageAttribution && (
+                <div className="absolute bottom-4 left-4 z-20">
+                  <a
+                    href={post.featuredImageAttribution.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1.5 text-[8px] uppercase font-bold tracking-widest bg-noir-bg/60 text-foreground backdrop-blur-md hover:text-accent transition-all opacity-0 group-hover:opacity-100 rounded-full"
+                  >
+                    Photo by {post.featuredImageAttribution.name} on Unsplash
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div
+            className={cn(
+              "max-w-3xl mx-auto transition-all",
+              "prose prose-invert prose-lg md:prose-xl",
+              "prose-headings:text-foreground prose-headings:font-black prose-headings:tracking-tighter",
+              "prose-a:text-accent prose-a:no-underline hover:prose-a:underline",
+              config.fontFamily === "serif" ? "prose-p:font-serif prose-p:leading-[1.9] prose-headings:font-serif italic" : "prose-p:font-sans",
+            )}
+          >
+            <PostContent content={post.content} />
           </div>
-        )}
+        </article>
+      </div>
 
-        <PostContent content={post.content} />
-      </article>
+      <CommentSection postId={post.postId} tenantId={tenant.id} isOpen={isCommentsOpen} onClose={() => setIsCommentsOpen(false)} />
 
-      <CommentSection 
-        postId={post.postId} 
-        isOpen={isCommentsOpen} 
-        onClose={() => setIsCommentsOpen(false)} 
-      />
-
-      <MoreFromAuthor 
-        authorName={post.authorName}
-        currentPostId={post.postId}
-        tenantSlug={tenant.slug || tenant.id}
-        posts={mockPosts[tenant.slug || ''] || []}
-      />
+      {!isPreview && (
+        <div className="mt-32 bg-noir-panel/20 border-t border-noir-border">
+          <MoreFromAuthor authorName={post.authorName} currentPostId={post.postId} tenantSlug={tenant.slug || tenant.id} tenantId={tenant.id} />
+        </div>
+      )}
     </main>
   );
 }
