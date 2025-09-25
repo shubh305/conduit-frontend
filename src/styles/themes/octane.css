@@ -1,0 +1,519 @@
+/* Octane Theme - Automotive */
+[data-theme='octane'] {
+  color-scheme: dark;
+  
+  --bg-primary: #0B0C10;
+  --bg-rgb: 11, 12, 16;
+  --bg-panel: #161616;
+  --bg-hover: #1E1E1E;
+  --bg-sidebar: rgba(22, 22, 22, 0.98);
+  --border-primary: #2A2A2A;
+  
+  --accent: #E65100;
+  --accent-rgb: 230, 81, 0;
+  --accent-secondary: #BF360C;
+  --accent-warm: #FFB74D;
+  --signal-red: #D32F2F;
+  --signal-green: #388E3C;
+
+  --editor-bg: #0B0E14;
+  --editor-border: #1B212C;
+  --editor-glow: 0 4px 12px rgba(230, 81, 0, 0.1);
+  
+  --foreground: #FAFAFA;
+  --foreground-muted: #9E9E9E;
+  --foreground-subtle: #757575;
+  
+  --font-display: var(--font-sans);
+  
+  --theme-radius-sm: 2px;
+  --theme-radius-md: 4px;
+  --theme-radius-lg: 6px;
+  
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.4);
+  
+  --nav-bg: #0A0A0A;
+  --nav-border: #1E1E1E;
+  --nav-text: #E0E0E0;
+  --nav-text-muted: #707070;
+  --nav-bg-hover: rgba(230, 81, 0, 0.1);
+  
+  --widget-bg: #121212;
+  --widget-border: #252525;
+  --widget-text: #D0D0D0;
+  --widget-text-muted: #808080;
+  --widget-accent: #E65100;
+}
+
+[data-theme='octane'] nav,
+[data-theme='octane'] aside,
+[data-theme='octane'] [data-nav="true"] {
+  background-color: var(--nav-bg) !important;
+  color: var(--nav-text) !important;
+  border-color: var(--nav-border) !important;
+}
+
+[data-theme='octane'] nav a,
+[data-theme='octane'] aside a,
+[data-theme='octane'] [data-nav="true"] a {
+  color: var(--nav-text-muted) !important;
+}
+
+[data-theme='octane'] nav a:hover,
+[data-theme='octane'] aside a:hover,
+[data-theme='octane'] nav a[data-active="true"],
+[data-theme='octane'] aside a[data-active="true"],
+[data-theme='octane'] [data-nav="true"] a:hover {
+  color: var(--nav-text) !important;
+  background-color: var(--nav-bg-hover) !important;
+}
+
+[data-theme='octane'] .card,
+[data-theme='octane'] [data-card="true"],
+[data-theme='octane'] article {
+  background-color: var(--bg-panel) !important;
+  border: 1px solid var(--border-primary) !important;
+  border-left: 3px solid var(--accent-warm) !important;
+  border-radius: var(--theme-radius-md) !important;
+  box-shadow: var(--shadow-card) !important;
+  transition: all 0.2s ease-out;
+}
+
+[data-theme='octane'] .card:hover,
+[data-theme='octane'] [data-card="true"]:hover,
+[data-theme='octane'] article:hover {
+  box-shadow: var(--shadow-elevated) !important;
+  border-left-color: var(--accent) !important;
+  transform: translateY(-1px);
+}
+
+[data-theme='octane'] .theme-header-accent,
+[data-theme='octane'] .card-featured {
+  border-top: 2px solid var(--accent-warm) !important;
+}
+
+[data-theme='octane'] h1,
+[data-theme='octane'] h2,
+[data-theme='octane'] h3 {
+  font-family: var(--font-sans) !important;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--foreground) !important;
+}
+
+[data-theme='octane'] h1 {
+  font-size: 2.25rem;
+  line-height: 1.15;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+[data-theme='octane'] h2 {
+  font-size: 1.5rem;
+  line-height: 1.25;
+}
+
+[data-theme='octane'] strong,
+[data-theme='octane'] b {
+  font-weight: 700;
+  color: var(--accent-warm);
+}
+
+[data-theme='octane'] button[data-primary="true"],
+[data-theme='octane'] .btn-primary {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%) !important;
+  color: white !important;
+  border-radius: var(--theme-radius-sm) !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+[data-theme='octane'] button[data-primary="true"]:hover,
+[data-theme='octane'] .btn-primary:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 157, 195, 0.25);
+}
+
+[data-theme='octane'] input,
+[data-theme='octane'] textarea,
+[data-theme='octane'] select {
+  background-color: var(--bg-primary) !important;
+  border: 1px solid var(--border-primary) !important;
+  border-radius: var(--theme-radius-sm) !important;
+  color: var(--foreground) !important;
+  font-family: var(--font-sans);
+}
+
+[data-theme='octane'] input:focus,
+[data-theme='octane'] textarea:focus,
+[data-theme='octane'] select:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px rgba(139, 157, 195, 0.15) !important;
+}
+
+[data-theme='octane'] .tag,
+[data-theme='octane'] [data-tag="true"] {
+  background-color: rgba(139, 157, 195, 0.08) !important;
+  color: var(--accent) !important;
+  border: 1px solid var(--accent) !important;
+  border-radius: var(--theme-radius-sm) !important;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transition: all 0.15s ease;
+}
+
+[data-theme='octane'] .tag:hover,
+[data-theme='octane'] [data-tag="true"]:hover {
+  background-color: rgba(139, 157, 195, 0.15) !important;
+  border-color: var(--accent-warm) !important;
+  color: var(--accent-warm) !important;
+}
+
+[data-theme='octane'] [role="dialog"],
+[data-theme='octane'] .modal {
+  background-color: var(--bg-panel) !important;
+  border: 1px solid var(--border-primary) !important;
+  border-radius: var(--theme-radius-md) !important;
+  box-shadow: var(--shadow-elevated), 0 0 60px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-theme='octane'] hr,
+[data-theme='octane'] .divider {
+  border-color: var(--border-primary) !important;
+  opacity: 0.6;
+}
+
+[data-theme='octane'] [data-widget="true"],
+[data-theme='octane'] .widget,
+[data-theme='octane'] .sidebar-widget {
+  background-color: var(--widget-bg) !important;
+  color: var(--widget-text) !important;
+  border: 1px solid var(--widget-border) !important;
+  border-radius: var(--theme-radius-md) !important;
+  padding: 1rem;
+}
+
+[data-theme='octane'] [data-widget="true"] h3,
+[data-theme='octane'] [data-widget="true"] h4,
+[data-theme='octane'] .widget h3,
+[data-theme='octane'] .widget h4,
+[data-theme='octane'] .sidebar-widget h3 {
+  color: var(--widget-text) !important;
+  font-family: var(--font-sans) !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.7rem;
+}
+
+[data-theme='octane'] [data-widget="true"] p,
+[data-theme='octane'] [data-widget="true"] span,
+[data-theme='octane'] .widget p,
+[data-theme='octane'] .widget span {
+  color: var(--widget-text-muted) !important;
+}
+
+[data-theme='octane'] [data-widget="true"] a,
+[data-theme='octane'] .widget a {
+  color: var(--widget-accent) !important;
+}
+
+[data-theme='octane'] .widget input,
+[data-theme='octane'] [data-widget="true"] input {
+  background-color: transparent !important;
+  border-bottom: 1px solid var(--widget-border) !important;
+  color: var(--widget-text) !important;
+}
+
+[data-theme='octane'] .widget input::placeholder {
+  color: var(--widget-text-muted) !important;
+}
+
+[data-theme='octane'] .widget input:focus {
+  border-bottom-color: var(--widget-accent) !important;
+}
+
+[data-theme='octane'] .profile-container,
+[data-theme='octane'] .settings-container,
+[data-theme='octane'] .mysites-container,
+[data-theme='octane'] .feed-container {
+  background-color: var(--bg-panel) !important;
+  border: 1px solid var(--border-primary) !important;
+  border-radius: var(--theme-radius-md) !important;
+  box-shadow: var(--shadow-card) !important;
+  padding: 2rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+[data-theme='octane'] header {
+  border-bottom: 1px solid var(--border-primary) !important;
+  backdrop-filter: blur(12px);
+}
+
+[data-theme='octane'] .octane-card {
+  position: relative;
+  transition: all 0.25s ease-out;
+  border-left: 3px solid var(--accent-warm) !important;
+}
+
+[data-theme='octane'] .octane-card:hover {
+  border-left-color: var(--accent) !important;
+  box-shadow: 
+    var(--shadow-elevated), 
+    inset 0 0 40px rgba(212, 165, 116, 0.03),
+    0 0 20px rgba(139, 157, 195, 0.08);
+  transform: translateY(-2px);
+}
+
+[data-theme='octane'] .octane-speedometer::before {
+  content: "";
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 120px;
+  height: 120px;
+  border: 3px solid rgba(212, 165, 116, 0.15);
+  border-radius: 50%;
+  border-top-color: transparent;
+  border-right-color: transparent;
+  transform: rotate(45deg);
+  pointer-events: none;
+  z-index: 1;
+}
+
+[data-theme='octane'] .octane-speedometer::after {
+  content: "";
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 2px;
+  height: 20px;
+  background: linear-gradient(to bottom, var(--accent-warm), transparent);
+  transform: rotate(-45deg);
+  transform-origin: bottom center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+[data-theme='octane'] .octane-checkered::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 60px;
+  height: 30px;
+  background-image: 
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.08) 0px,
+      rgba(255, 255, 255, 0.08) 10px,
+      transparent 10px,
+      transparent 20px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.08) 0px,
+      rgba(255, 255, 255, 0.08) 10px,
+      transparent 10px,
+      transparent 20px
+    );
+  background-size: 20px 10px;
+  background-position: 0 0, 10px 0;
+  pointer-events: none;
+  opacity: 0.5;
+  z-index: 1;
+}
+
+[data-theme='octane'] .octane-racing-stripe::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    var(--accent-warm) 0%,
+    var(--accent) 30%,
+    var(--accent) 70%,
+    var(--accent-warm) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+[data-theme='octane'] .octane-scanlines::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    rgba(0, 0, 0, 0.1) 2px,
+    rgba(0, 0, 0, 0.1) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.3;
+}
+
+[data-theme='octane'] .octane-watermark::before {
+  content: "⚙";
+  position: fixed;
+  bottom: 40px;
+  right: 20px;
+  font-size: 200px;
+  color: rgba(212, 165, 116, 0.06);
+  pointer-events: none;
+  z-index: 0;
+  line-height: 1;
+  transform: rotate(-15deg);
+}
+
+[data-theme='octane'] .octane-oil-slick::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 150px;
+  height: 100px;
+  background: linear-gradient(
+    135deg,
+    rgba(139, 157, 195, 0.08) 0%,
+    rgba(212, 165, 116, 0.05) 25%,
+    rgba(139, 157, 195, 0.03) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(20px);
+}
+
+[data-theme='octane'] .octane-image {
+  filter: contrast(1.08) saturate(0.85);
+  transition: filter 0.4s ease;
+}
+[data-theme='octane'] .octane-image:hover,
+[data-theme='octane'] *:hover > .octane-image {
+  filter: contrast(1.15) saturate(1.1);
+}
+
+[data-theme='octane'] .octane-header-accent::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-warm) 0%, var(--accent) 80%, transparent 100%);
+  margin-top: 10px;
+}
+
+[data-theme='octane'] .octane-grid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(139, 157, 195, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 157, 195, 0.06) 1px, transparent 1px);
+  background-size: 30px 30px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+[data-theme='octane'] .octane-carbon::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 4px,
+      rgba(255, 255, 255, 0.02) 4px,
+      rgba(255, 255, 255, 0.02) 8px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 4px,
+      rgba(255, 255, 255, 0.02) 4px,
+      rgba(255, 255, 255, 0.02) 8px
+    );
+  pointer-events: none;
+  z-index: 0;
+}
+
+[data-theme='octane'] .octane-texture::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 0;
+}
+
+[data-theme='octane'] .octane-panel {
+  background: linear-gradient(180deg, #0E0E0E 0%, #121212 100%) !important;
+  border: 1px solid rgba(139, 157, 195, 0.1) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02), 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme='octane'] .octane-stat {
+  font-family: var(--font-mono) !important;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--foreground) !important;
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 20px rgba(139, 157, 195, 0.15);
+}
+[data-theme='octane'] .octane-stat-label {
+  font-family: var(--font-sans) !important;
+  font-size: 0.65rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--foreground-muted) !important;
+}
+
+[data-theme='octane'] .octane-avatar {
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+[data-theme='octane'] .octane-avatar:hover {
+  border-color: var(--accent-warm);
+  box-shadow: 0 0 12px rgba(212, 165, 116, 0.25);
+}
+
+[data-theme='octane'] .octane-workshop-header {
+  font-family: var(--font-sans) !important;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--foreground-muted) !important;
+  border-bottom: 1px solid var(--border-primary);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+[data-theme='octane'] .octane-workshop-header::before {
+  content: "//";
+  margin-right: 0.5rem;
+  color: var(--accent-warm);
+}
+
+[data-theme='octane'] .octane-filter-active {
+  background: rgba(212, 165, 116, 0.15) !important;
+  border: 1px solid var(--accent-warm) !important;
+  color: var(--accent-warm) !important;
+}
