@@ -3,62 +3,55 @@
 import { FeedItem } from "@/features/feed/types";
 import { FeedCard } from "@/features/feed/components/FeedCard";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
 
 interface ProfileFeedProps {
   posts: FeedItem[];
 }
 
 export function ProfileFeed({ posts }: ProfileFeedProps) {
-  const [activeTab, setActiveTab] = useState<'published' | 'about'>('published');
+  const { config } = useTheme();
+  const { isCyberCopy, isSakuraCopy } = useThemeHelpers();
 
   return (
-    <div className="flex flex-col md:flex-row gap-12">
-      {/* Left Column (Main Feed) */}
-      <div className="flex-1">
-         {/* Tabs */}
-         <div className="flex gap-8 border-b border-white/10 mb-8 overflow-x-auto no-scrollbar">
-            <button 
-              onClick={() => setActiveTab('published')}
-              className={cn(
-                "pb-4 text-sm font-mono uppercase tracking-wider transition-colors whitespace-nowrap",
-                activeTab === 'published' 
-                  ? "border-b-2 border-white text-white" 
-                  : "text-gray-500 hover:text-gray-300"
-              )}
-            >
-              Transmissions ({posts.length})
-            </button>
-            <button 
-              onClick={() => setActiveTab('about')}
-              className={cn(
-                "pb-4 text-sm font-mono uppercase tracking-wider transition-colors whitespace-nowrap",
-                activeTab === 'about'
-                  ? "border-b-2 border-white text-white"
-                  : "text-gray-500 hover:text-gray-300"
-              )}
-            >
-              About
-            </button>
-         </div>
+    <div className="flex flex-col gap-8">
+      {/* Tabs */}
+      <div className="flex gap-8 border-b border-noir-border mb-8 overflow-x-auto no-scrollbar">
+        <div
+          className={cn(
+            "pb-4 text-[10px] uppercase tracking-[0.2em] font-mono transition-all border-b-2 border-accent text-foreground",
+            isCyberCopy ? "" : "font-sans font-bold",
+          )}
+        >
+          {isSakuraCopy ? "送信履歴" : "Transmissions"} ({posts.length})
+        </div>
+      </div>
 
-         {activeTab === 'published' ? (
-           <div className="space-y-8">
-             {posts.map(post => (
-               <FeedCard key={post.postId} item={post} />
-             ))}
-             {posts.length === 0 && (
-               <div className="p-12 border border-dashed border-white/10 text-center text-gray-500 font-mono text-sm">
-                  NO_DATA_AVAILABLE
-               </div>
-             )}
-           </div>
-         ) : (
-           <div className="p-8 border border-white/10 bg-white/5 font-mono text-gray-400 text-sm">
-              User identity details restricted.
-           </div>
-         )}
+      <div className={cn("space-y-4")}>
+        {posts.map(post => (
+          <FeedCard key={post.postId} item={post} variant="compact" />
+        ))}
+        {posts.length === 0 && (
+          <div
+            className={cn(
+              "col-span-full flex flex-col items-center justify-center py-24 text-center border bg-noir-panel transition-all",
+              isCyberCopy ? "border-accent/20 rounded-none" : "border-noir-border rounded-3xl",
+            )}
+          >
+            <h3
+              className={cn(
+                "text-foreground text-lg font-bold mb-2 transition-colors",
+                isCyberCopy ? "font-mono uppercase" : config.fontFamily === "serif" ? "font-serif italic" : "font-sans",
+              )}
+            >
+              {isSakuraCopy ? "まだ送信履歴はありません。" : "No transmissions yet."}
+            </h3>
+            <p className="text-foreground-subtle font-mono text-[10px] max-w-sm uppercase tracking-[0.2em] animate-pulse">
+              {isSakuraCopy ? "信号待機中..." : "Awaiting signal broadcast..."}
+            </p>
+          </div>
+        )}
       </div>
     </div>
-  );
+  )
 }
