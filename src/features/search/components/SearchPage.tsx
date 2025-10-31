@@ -1,273 +1,390 @@
 "use client";
 
-import { useTheme } from "@/features/theme/ThemeProvider";
-import { cn } from "@/lib/utils";
-import { Bookmark, MoreHorizontal } from "lucide-react";
-import { useState } from "react";
+import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
+import { cn, getMediaUrl } from "@/lib/utils";
+import { Search as SearchIcon } from "lucide-react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { mockFeedItems } from "@/features/feed/data/mock-feed";
-import { mockTenants } from "@/features/blog/data/mock-blogs";
+import { globalSearch } from "@/features/search/api";
+import { FeedItem } from "@/features/feed/types";
+import { Profile } from "@/features/profile/types";
 import { Button } from "@/components/ui/button";
+import { useLibrary } from "@/features/library/context/LibraryContext";
 
-type Tab = "top" | "posts" | "publications" | "people" | "notes";
+type Tab = "posts" | "publications" | "people";
+
+interface Publication {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+}
 
 export function SearchPageContainer() {
-  const { theme } = useTheme();
+  const { config } = useTheme();
+  const { isCyberCopy, isSakuraCopy, isRoninCopy, isJournalCopy, isTerminalCopy } = useThemeHelpers();
   const searchParams = useSearchParams();
-  
+
   const query = searchParams.get("q") || "";
-  const [activeTab, setActiveTab] = useState<Tab>("top");
-  const tabs: Tab[] = ["top", "posts", "publications", "people", "notes"];
+  const [activeTab, setActiveTab] = useState<Tab>("posts");
+  const tabs: Tab[] = ["posts", "publications", "people"];
+
+  const sakuraTabs: Record<Tab, string> = {
+    posts: "投稿",
+    publications: "出版物",
+    people: "ユーザー",
+  };
+
+  // --- TERMINAL HEADER ---
+  if (isTerminalCopy) {
+    return (
+      <div className="min-h-screen bg-noir-bg text-accent font-mono p-4 pt-24 max-w-6xl mx-auto">
+        <div className="border-b border-accent pb-4 mb-4">
+          <div className="flex flex-wrap items-center gap-2 text-lg md:text-xl">
+            <span className="text-accent">root@conduit:~$</span>
+            <span>grep -r</span>
+            <span className="text-white">&quot;{query}&quot;</span>
+            <span>.</span>
+            <span className="text-foreground-muted">--type={activeTab}</span>
+            <span className="animate-pulse w-2 h-5 bg-accent inline-block align-middle" />
+          </div>
+
+          <div className="flex gap-4 mt-4 text-sm">
+            {tabs.map(tab => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={cn(
+                  "hover:bg-accent hover:text-black px-2 transition-colors",
+                  activeTab === tab ? "bg-accent text-black font-bold" : "text-accent",
+                )}
+              >
+                [ --{tab} ]
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <SearchResults query={query} tab={activeTab} />
+      </div>
+    );
+  }
 
   return (
-    <div className={cn(
-        "min-h-screen transition-colors",
-        theme === 'cyber' ? "bg-[#050505] text-gray-300" : "bg-[#121212] text-white"
-    )}>
+    <div
+      className={cn(
+        "min-h-screen text-foreground transition-all",
+        isRoninCopy || isSakuraCopy || isJournalCopy ? "bg-transparent" : "bg-noir-bg",
+      )}
+    >
       {/* Header Area */}
-      <div className="pt-8 pb-4 border-b border-white/5 px-4 md:px-0">
-          <div className="max-w-3xl mx-auto">
-             <div className="flex items-baseline gap-3 mb-8">
-                <span className={cn(
-                    "text-4xl md:text-5xl font-bold tracking-tight",
-                    theme === 'cyber' ? "text-gray-500 font-mono tracking-tighter" : "text-gray-500 font-sans"
-                )}>
-                    Results for
-                </span>
-                <span className={cn(
-                    "text-4xl md:text-5xl font-bold",
-                    theme === 'cyber' ? "text-white font-mono tracking-tighter" : "text-white font-serif"
-                )}>
-                    {query}
-                </span>
-             </div>
-
-             {/* Tabs */}
-             <div className="flex items-center gap-8 overflow-x-auto no-scrollbar">
-                {tabs.map((tab) => (
-                    <button
-                        key={tab}
-                        onClick={() => setActiveTab(tab)}
-                        className={cn(
-                            "pb-4 text-sm capitalize transition-colors border-b-2 whitespace-nowrap",
-                            activeTab === tab 
-                                ? (theme === 'cyber' ? "border-signal-green text-signal-green font-mono" : "border-white text-white font-medium font-sans") 
-                                : "border-transparent text-gray-500 hover:text-gray-300"
-                        )}
-                    >
-                        {tab}
-                    </button>
-                ))}
-             </div>
+      <div className="pt-24 pb-8 px-6 md:px-0 border-b border-noir-border">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex flex-col gap-4 mb-12">
+            <span className="text-[10px] font-mono text-foreground-subtle uppercase tracking-[0.3em]">
+              {isSakuraCopy
+                ? "Search Results (検索結果)"
+                : isRoninCopy
+                  ? "Findings (発見)"
+                  : isJournalCopy
+                    ? "Search Results"
+                    : "SEARCH_RESULTS"}
+            </span>
+            <div className="flex items-baseline gap-4">
+              <SearchIcon size={24} className="text-accent opacity-50" />
+              <span
+                className={cn(
+                  "text-5xl md:text-7xl font-black leading-tight break-words",
+                  isCyberCopy
+                    ? "font-display uppercase tracking-tighter"
+                    : config.fontFamily === "serif"
+                      ? "font-serif italic"
+                      : "font-sans",
+                )}
+              >
+                {query || "..."}
+              </span>
+            </div>
           </div>
+
+          {/* Tabs */}
+          <div className="flex items-center gap-10 overflow-x-auto no-scrollbar">
+            {tabs.map(tab => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={cn(
+                  "pb-4 text-[10px] font-bold uppercase tracking-[0.2em] transition-all border-b-2 whitespace-nowrap",
+                  activeTab === tab
+                    ? "border-accent text-accent"
+                    : "border-transparent text-foreground-subtle hover:text-foreground",
+                  isCyberCopy ? "font-mono" : "font-sans",
+                )}
+              >
+                {tab}
+                {isSakuraCopy && (
+                  <span className="ml-2 text-[8px] opacity-70 font-normal normal-case">{sakuraTabs[tab]}</span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Results */}
-      <div className="max-w-3xl mx-auto px-4 md:px-0 py-8">
-         <SearchResults query={query} tab={activeTab} />
+      {/* Results Container */}
+      <div className="max-w-4xl mx-auto px-6 md:px-0 py-16">
+        <SearchResults query={query} tab={activeTab} />
       </div>
     </div>
   );
 }
 
+function SearchResults({ query, tab }: { query: string; tab: Tab }) {
+  const { config } = useTheme();
+  const { isCyberCopy, isSakuraCopy, isDarkMode, isTerminalCopy } = useThemeHelpers();
+  const { isUserFollowed, toggleUser } = useLibrary();
 
-import { useLibrary } from "@/features/library/context/LibraryContext";
+  const [posts, setPosts] = useState<FeedItem[]>([]);
+  const [people, setPeople] = useState<Profile[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-function SearchResults({ query, tab }: { query: string, tab: Tab }) {
-  const { theme } = useTheme();
-  const { togglePost, isPostSaved, toggleUser, isUserFollowed, togglePub, isPubFollowed } = useLibrary();
+  useEffect(() => {
+    async function fetchData() {
+      if (!query) return;
+      setIsLoading(true);
+      try {
+        const response = await globalSearch(query);
+        const { results } = response;
+        setPosts(results.posts || []);
+        setPeople(results.users || []);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchData();
+  }, [query]);
 
-  if (!query) return null;
+  if (!query)
+    return (
+      <div className={cn("text-center py-20", isTerminalCopy ? "text-accent/50 text-sm" : "")}>
+        <p className={cn("text-foreground-subtle font-mono text-xs uppercase tracking-widest animate-pulse", isTerminalCopy ? "text-accent/50" : "")}>
+          {isTerminalCopy ? "waiting_for_stdin..." : "Waiting for search signal..."}
+        </p>
+      </div>
+    );
 
-  const searchQuery = query.toLowerCase();
+  const publications: Publication[] = [];
 
-  // 1. Filter Posts
-  const posts = mockFeedItems.filter(post => 
-      post.title.toLowerCase().includes(searchQuery) ||
-      post.excerpt.toLowerCase().includes(searchQuery) ||
-      post.tags?.some(tag => tag.toLowerCase().includes(searchQuery))
-  );
+  const getPostLink = (post: FeedItem) => {
+    if (post.tenantSlug === "default" && post.authorUsername) {
+      return `/u/${post.authorUsername}/${post.postSlug}`;
+    }
+    return `/${post.tenantSlug}/${post.postSlug}`;
+  };
 
-  // 2. Filter Publications
-  const publications = Object.values(mockTenants).filter(pub => 
-      pub.name.toLowerCase().includes(searchQuery) || 
-      pub.description?.toLowerCase().includes(searchQuery)
-  );
+  // --- TERMINAL RESULTS ---
+  if (isTerminalCopy) {
+    return (
+      <div className="space-y-2 font-mono text-xs md:text-sm">
+        {isLoading && <div className="text-accent animate-pulse">Running query on database shards...</div>}
 
-  // 3. Filter People (from feed authors)
-  const uniqueAuthors = Array.from(new Set(mockFeedItems.map(item => item.authorName))).map(name => {
-      const post = mockFeedItems.find(p => p.authorName === name);
-      return {
-          id: post?.tenantSlug || "u1",
-          name: name,
-          username: post?.tenantSlug || "user",
-          bio: "Writer on Conduit",
-          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}` 
-      };
-  });
-  const people = uniqueAuthors.filter(p => p.name.toLowerCase().includes(searchQuery));
+        {!isLoading && tab === "posts" && (
+          <>
+            {posts.length === 0 && <div className="text-accent/50">grep: {query}: No matches found</div>}
+            {posts.map(post => (
+              <div key={post.postId} className="group hover:bg-accent/10 p-1 -mx-1">
+                <Link href={getPostLink(post)} className="flex gap-2">
+                  <span className="text-purple-400 shrink-0">
+                    ./{post.tenantSlug || "posts"}/{post.postSlug}.md
+                  </span>
+                  <span className="text-accent">:</span>
+                  <span className="text-foreground-muted line-clamp-1 group-hover:text-white transition-colors">
+                    {post.title} -- <span className="italic opacity-50">{post.excerpt?.substring(0, 50)}...</span>
+                  </span>
+                </Link>
+              </div>
+            ))}
+          </>
+        )}
 
+        {!isLoading && tab === "people" && (
+          <>
+            {people.length === 0 && (
+              <div className="text-accent/50">grep: {query}: No user matches found in /etc/passwd</div>
+            )}
+            {people.map(person => (
+              <div key={person.id} className="group hover:bg-accent/10 p-1 -mx-1 flex justify-between items-center">
+                <div className="flex gap-2 text-foreground-muted group-hover:text-white">
+                  <span className="text-yellow-500">{person.username}</span>
+                  <span>
+                    :x:100{person.id.substring(0, 1)}:100{person.id.substring(0, 1)}:
+                  </span>
+                  <span>{person.bio || "User"}</span>
+                  <span>:/home/{person.username}:/bin/bash</span>
+                </div>
+                <button
+                  onClick={() => toggleUser(person.id)}
+                  className="text-accent hover:underline hidden group-hover:inline-block"
+                >
+                  [{isUserFollowed(person.id) ? "UNLINK" : "LINK"}]
+                </button>
+              </div>
+            ))}
+          </>
+        )}
 
-  const hasResults = posts.length > 0 || publications.length > 0 || people.length > 0;
+        {!isLoading && tab === "publications" && (
+          <div className="text-accent/50">grep: {query}: No publications found</div>
+        )}
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-12">
-        {(tab === 'top' || tab === 'posts') && (
-            <div className="flex flex-col gap-10">
-                {posts.length === 0 && tab === 'posts' && (
-                    <div className="text-gray-500 text-center py-10">No stories found.</div>
+    <div className="space-y-16">
+      {isLoading && (
+        <div className="flex flex-col items-center gap-4 py-20">
+          <div className="w-12 h-12 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
+          <div className="text-foreground-subtle font-mono text-[10px] uppercase tracking-[0.3em]">SEARCHING_DATABASE</div>
+        </div>
+      )}
+
+      {!isLoading && tab === "posts" && (
+        <div className="grid gap-16">
+          {posts.length === 0 && <div className="text-foreground-subtle text-center py-20 border border-dashed border-noir-border rounded-xl">No stories found matching &quot;{query}&quot;.</div>}
+
+          {posts.map(post => {
+            return (
+              <div key={post.postId} className={cn("group flex justify-between gap-12 items-start transition-all", isSakuraCopy ? "card p-8 rounded-3xl border-transparent" : "")}>
+                <div className="flex-1 space-y-4">
+
+                  {/* Author Line */}
+                  <div className="flex items-center gap-4 mb-2">
+                    <Link href={`/u/${post.authorUsername}`} className="flex items-center gap-2 hover:text-accent transition-all group/author">
+                      <div className={cn("w-6 h-6 flex items-center justify-center text-[10px] font-bold border border-noir-border bg-noir-panel", isCyberCopy ? "rounded-none" : "rounded-full")}>
+                        {post.authorName?.[0]}
+                      </div>
+                      <span className={cn("text-[10px] font-bold uppercase tracking-widest", isCyberCopy ? "font-mono" : "font-sans")}>{post.authorName}</span>
+                    </Link>
+                    <span className="text-noir-border text-[10px]">/</span>
+                    <span className="text-[10px] text-foreground-subtle font-mono">{new Date(post.publishedAt).toLocaleDateString()}</span>
+                  </div>
+
+
+                  {/* Title & Excerpt */}
+                  <Link href={getPostLink(post)} className="block space-y-3 group-hover:bg-accent/5 p-2 -ml-2 rounded-xl transition-all">
+                    <h2
+                      className={cn(
+                        "text-2xl font-bold leading-tight group-hover:text-accent transition-colors",
+                        isCyberCopy ? "font-mono uppercase tracking-tighter" : config.fontFamily === "serif" ? "font-serif italic" : "font-sans",
+                      )}
+                    >
+                      {post.title}
+                    </h2>
+                    <p className={cn("text-sm line-clamp-2 leading-relaxed text-foreground-muted", config.fontFamily === "serif" ? "font-serif" : "font-sans")}>{post.excerpt}</p>
+                  </Link>
+
+
+                  {/* Meta / Actions */}
+                  <div className="flex items-center gap-3 pt-2">
+                    <span
+                      className={cn(
+                        "px-2 py-0.5 text-[8px] uppercase tracking-widest font-black border",
+                        isCyberCopy ? "border-accent/30 text-accent font-mono" : "border-noir-border text-foreground-subtle rounded-md",
+                      )}
+                    >
+                      {post.tags?.[0] || "Story"}
+                    </span>
+                  </div>
+                </div>
+
+
+                {/* Aspect Ratio Controlled Image */}
+                {post.featuredImage && (
+                  <Link
+                    href={getPostLink(post)}
+                    className={cn(
+                      "hidden sm:block w-36 h-36 shrink-0 overflow-hidden border border-noir-border transition-all duration-700",
+                      isCyberCopy ? "rounded-none" : "rounded-2xl shadow-xl hover:shadow-accent/10",
+                    )}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={getMediaUrl(post.featuredImage)}
+                      alt=""
+                      className={cn(
+                        "w-full h-full object-cover transition-all duration-700",
+                        isDarkMode ? "grayscale group-hover:grayscale-0 opacity-80 group-hover:opacity-100" : "opacity-90 group-hover:opacity-100",
+                      )}
+                    />
+                  </Link>
                 )}
-                
-                {posts.map(post => {
-                    const isSaved = isPostSaved(post.postId);
-                    return (
-                        <div key={post.postId} className="group flex justify-between gap-8 cursor-pointer">
-                            <div className="flex-1 space-y-3">
-                                {/* Author Line */}
-                                <div className="flex items-center gap-2">
-                                    <div className={cn(
-                                        "w-5 h-5 flex items-center justify-center text-[10px] font-bold",
-                                        theme === 'cyber' ? "bg-white/10 text-signal-green rounded-none" : "bg-gray-800 rounded-full text-white"
-                                    )}>
-                                        {post.authorName[0]}
-                                    </div>
-                                    <span className={cn("text-xs font-bold", theme === 'cyber' ? "text-gray-400 font-mono" : "text-white")}>
-                                        {post.authorName}
-                                    </span>
-                                    <span className="text-gray-600 text-xs">·</span>
-                                    <span className={cn("text-xs", theme === 'cyber' ? "text-gray-600 font-mono" : "text-gray-500")}>
-                                        {new Date(post.publishedAt).toLocaleDateString()}
-                                    </span>
-                                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
-                                {/* Title & Excerpt */}
-                                <Link href={`/${post.tenantSlug}/${post.postSlug}`} className="block space-y-2">
-                                    <h2 className={cn(
-                                        "text-xl md:text-2xl font-bold leading-tight decoration-2 underline-offset-4 group-hover:underline",
-                                        theme === 'cyber' 
-                                            ? "text-gray-100 font-mono tracking-tight decoration-signal-green/50" 
-                                            : "text-white font-serif tracking-tight decoration-white/30"
-                                    )}>
-                                        {post.title}
-                                    </h2>
-                                    <p className={cn(
-                                        "text-sm line-clamp-3 leading-relaxed",
-                                        theme === 'cyber' ? "text-gray-500 font-mono" : "text-gray-400 font-serif"
-                                    )}>
-                                        {post.excerpt}
-                                    </p>
-                                </Link>
 
-                                {/* Meta / Actions */}
-                                <div className="flex items-center justify-between pt-2">
-                                    <div className="flex items-center gap-4 text-xs text-gray-500">
-                                    <span className={cn("px-2 py-1 rounded", theme === 'cyber' ? "bg-white/5 text-gray-400 font-mono rounded-none" : "bg-gray-800 text-gray-300 rounded-full")}>
-                                            {post.tags?.[0] || 'Story'}
-                                    </span>
-                                    <span>5 min read</span>
-                                    </div>
-                                    <div className="flex gap-4 opacity-0 group-hover:opacity-100 transition-opacity text-gray-500 items-center">
-                                        <button 
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                togglePost(post.postId);
-                                            }}
-                                            className="hover:text-white transition-colors"
-                                        >
-                                            <Bookmark size={18} fill={isSaved ? "currentColor" : "none"} className={isSaved ? (theme === 'cyber' ? "text-signal-green" : "text-white") : ""} />
-                                        </button>
-                                        <MoreHorizontal size={18} className="hover:text-white" />
-                                    </div>
-                                </div>
-                            </div>
+      {/* PEOPLE TAB */}
+      {!isLoading && tab === "people" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {people.length === 0 && <div className="col-span-full text-foreground-subtle text-center py-20 italic">No nodes identified with this signature.</div>}
+          {people.map(person => {
+            const isFollowed = isUserFollowed(person.id);
+            return (
+              <div
+                key={person.id}
+                className={cn(
+                  "flex items-center justify-between p-6 border transition-all hover:bg-noir-panel group",
+                  isCyberCopy ? "border-noir-border rounded-none" : "border-noir-border rounded-2xl",
+                )}
+              >
+                <div className="flex items-center gap-4">
+                  <div
+                    className={cn(
+                      "w-12 h-12 overflow-hidden flex items-center justify-center font-bold text-lg border border-noir-border bg-noir-bg shadow-inner",
+                      isCyberCopy ? "rounded-none" : "rounded-full",
+                    )}
+                  >
+                    {person.avatar ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={getMediaUrl(person.avatar)} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-accent/20 font-serif italic">{person.username[0].toUpperCase()}</span>
+                    )}
+                  </div>
+                  <div>
+                    <div className={cn("font-bold text-base transition-colors group-hover:text-accent", isCyberCopy ? "font-mono uppercase" : "font-sans")}>{person.username}</div>
+                    <div className="text-[10px] text-foreground-subtle font-mono uppercase tracking-widest line-clamp-1">{person.bio || "No bio signal."}</div>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    "h-8 text-[10px] px-6 uppercase tracking-widest transition-all",
+                    isCyberCopy ? "rounded-none border-accent/40 text-accent font-mono" : "rounded-full border-noir-border",
+                    isFollowed && "bg-accent text-noir-bg border-accent",
+                  )}
+                  onClick={() => toggleUser(person.id)}
+                >
+                  {isFollowed ? (isSakuraCopy ? "Following (フォロー中)" : "Linked") : isSakuraCopy ? "Follow (フォローする)" : "Link"}
+                </Button>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
-                            {/* Image */}
-                            {post.featuredImage && (
-                                <div className={cn(
-                                    "hidden sm:block w-32 h-32 md:w-48 md:h-32 shrink-0 overflow-hidden",
-                                    theme === 'cyber' ? "rounded-none border-2 border-transparent group-hover:border-signal-green/50 transition-colors opacity-80 group-hover:opacity-100" : "rounded-lg border border-white/10"
-                                )}>
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img src={post.featuredImage} alt="" className="w-full h-full object-cover" />
-                                </div>
-                            )}
-                        </div>
-                    );
-                })}
-            </div>
-        )}
 
-        {/* PUBLICATIONS TAB */}
-        {(tab === 'top' || tab === 'publications') && publications.length > 0 && (
-             <div className="space-y-6">
-                 {tab === 'top' && <h3 className="font-bold text-white mb-4">Publications</h3>}
-                 {publications.map(pub => {
-                     const isFollowed = isPubFollowed(pub.id);
-                     return (
-                         <div key={pub.id} className="flex items-center justify-between border-b border-white/10 pb-4 last:border-none">
-                             <div className="flex items-center gap-4">
-                                 <div className="w-10 h-10 rounded-sm bg-gray-800 overflow-hidden">
-                                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                                     <img src={`https://api.dicebear.com/7.x/identicon/svg?seed=${pub.slug}`} alt="" className="w-full h-full object-cover" />
-                                 </div>
-                                 <div>
-                                     <div className="font-bold text-white">{pub.name}</div>
-                                     <div className="text-xs text-gray-500">{pub.description}</div>
-                                 </div>
-                             </div>
-                             <Button 
-                                variant="secondary" 
-                                size="sm" 
-                                className={cn("h-8 text-xs w-20", isFollowed && "bg-white/20 text-white")}
-                                onClick={() => togglePub(pub.id)}
-                             >
-                                {isFollowed ? "Following" : "Follow"}
-                            </Button>
-                         </div>
-                     );
-                 })}
-             </div>
-        )}
-
-        {/* PEOPLE TAB */}
-        {(tab === 'top' || tab === 'people') && people.length > 0 && (
-             <div className="space-y-6">
-                 {tab === 'top' && <h3 className="font-bold text-white mb-4 mt-8">People</h3>}
-                 {people.map(person => {
-                     const isFollowed = isUserFollowed(person.id);
-                     return (
-                         <div key={person.id} className="flex items-center justify-between border-b border-white/10 pb-4 last:border-none">
-                             <div className="flex items-center gap-4">
-                                 <div className="w-10 h-10 rounded-full bg-gray-800 overflow-hidden">
-                                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                                     <img src={person.avatar} alt="" className="w-full h-full object-cover" />
-                                 </div>
-                                 <div>
-                                     <div className="font-bold text-white">{person.name}</div>
-                                     <div className="text-xs text-gray-500 line-clamp-1">{person.bio}</div>
-                                 </div>
-                             </div>
-                             <Button 
-                                variant="secondary" 
-                                size="sm" 
-                                className={cn("h-8 text-xs w-20", isFollowed && "bg-white/20 text-white")}
-                                onClick={() => toggleUser(person.id)}
-                            >
-                                {isFollowed ? "Following" : "Follow"}
-                             </Button>
-                         </div>
-                     );
-                 })}
-             </div>
-        )}
-
-        {!hasResults && (
-            <div className="text-center text-gray-500 py-12">
-                No results found for &quot;{query}&quot;.<br/>
-                Try searching for existing posts like &quot;rust&quot; or &quot;design&quot;.
-            </div>
-        )}
+      {/* PUBLICATIONS TAB */}
+      {!isLoading && tab === "publications" && (
+        <div className="grid gap-6">{publications.length === 0 && <div className="text-foreground-subtle text-center py-20 italic">No frequencies identified with this band.</div>}</div>
+      )}
     </div>
   );
 }
