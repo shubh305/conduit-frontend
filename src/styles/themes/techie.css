@@ -1,0 +1,47 @@
+/* Techie Theme */
+[data-theme='techie'] {
+  color-scheme: dark;
+
+  --bg-primary: #0B0C10;
+  --bg-rgb: 11, 12, 16;
+  --bg-panel: #1F2833;
+  --bg-hover: #2C353F;
+  --bg-sidebar: #0B0C10;
+  
+  --border-primary: #45A29E;
+  
+  --accent: #66FCF1;
+  --accent-rgb: 102, 252, 241;
+  --accent-secondary: #45A29E;
+  --signal-red: #FF4C4C;
+  --signal-green: #4ECB71;
+
+  --foreground: #C5C6C7;
+  --foreground-muted: #8E9297;
+  --foreground-subtle: #586069;
+  
+  --nav-bg: #0B0C10;
+  --nav-border: #45A29E;
+  --nav-text: #66FCF1;
+  --nav-text-muted: #45A29E;
+  --nav-bg-hover: rgba(102, 252, 241, 0.1);
+
+  --widget-bg: #1F2833;
+  --widget-border: #45A29E;
+  --widget-text: #66FCF1;
+  --widget-text-muted: #45A29E;
+  --widget-accent: #66FCF1;
+
+  --font-display: var(--font-mono);
+  
+  --theme-radius-sm: 4px;
+  --theme-radius-md: 6px;
+  --theme-radius-lg: 8px;
+  
+  --shadow-card: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-elevated: 0 10px 15px rgba(0, 0, 0, 0.4);
+
+  --editor-bg: #0B0C10;
+  --editor-border: #1F2833;
+  --editor-glow: 0 0 20px rgba(102, 252, 241, 0.05);
+}
