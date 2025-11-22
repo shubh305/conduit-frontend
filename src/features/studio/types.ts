@@ -3,6 +3,7 @@ export interface DashboardStat {
   value: string;
   change: string;
   trend: "up" | "down" | "neutral";
+  isPositive?: boolean;
 }
 
 export interface ActivityItem {
