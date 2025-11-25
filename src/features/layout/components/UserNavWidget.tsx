@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { Settings, LogOut, LayoutDashboard, UserIcon } from "lucide-react";
-import { useTheme } from "@/features/theme/ThemeProvider";
+import { usePathname } from "next/navigation";
+import { Settings, LogOut, LayoutDashboard, UserIcon, LogIn, UserPlus, Bookmark } from "lucide-react";
+import { useThemeHelpers } from "@/features/theme/ThemeProvider";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/features/auth/AuthProvider";
-import { LogIn, UserPlus } from "lucide-react";
+import { useThemeLabel } from "@/components/theme/ThemeLabel";
+import { getRoundedClass } from "@/lib/theme-variants";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -15,107 +17,153 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function UserNavWidget() {
-  const { theme } = useTheme();
+  const pathname = usePathname();
+  const { theme } = useThemeHelpers();
   const { user, logout } = useAuth();
+  const t = useThemeLabel();
 
-  const userInitial = user?.username?.[0]?.toUpperCase() || "A";
+  // Determine if we are on a tenant-specific page to pass context to Studio
+  const firstPathSegment = pathname.split("/")[1];
+  const matchingTenant = user?.tenants?.find(t => t.slug === firstPathSegment);
+  const studioParam = matchingTenant ? `?tenantId=${matchingTenant.id}` : "";
+
+  const userInitial = user?.username?.[0]?.toUpperCase();
 
   return (
-       <DropdownMenu>
-          <DropdownMenuTrigger className="outline-none">
-              <div className={cn(
-                  "w-8 h-8 flex items-center justify-center transition-all",
-                  theme === 'cyber' 
-                     ? "bg-white/10 hover:bg-signal-green hover:text-black text-gray-300" 
-                     : "bg-[#121212] border border-white/10 text-white hover:bg-white/10"
-              )}>
-                  <span className="font-mono text-xs font-bold">{userInitial}</span>
+    <DropdownMenu>
+      <DropdownMenuTrigger className="outline-none">
+        <div
+          className={cn(
+            "w-9 h-9 flex items-center justify-center transition-all border shadow-lg overflow-hidden",
+            "bg-noir-panel border-noir-border text-foreground hover:border-accent hover:text-accent",
+            getRoundedClass(theme, "full"),
+          )}
+        >
+          {user ? (
+            <span className="font-mono text-xs font-bold transition-all group-hover:scale-110">{userInitial}</span>
+          ) : (
+            <UserIcon size={16} />
+          )}
+        </div>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        className={cn(
+          "w-60 p-2 z-[200] transition-all animate-in fade-in slide-in-from-top-2 duration-300",
+          "bg-noir-panel border-noir-border border shadow-2xl backdrop-blur-md",
+          getRoundedClass(theme, "lg"),
+        )}
+      >
+        {user ? (
+          <>
+            <div className="px-4 py-3 border-b border-noir-border mb-1">
+              <div className="text-[10px] font-mono text-accent uppercase tracking-[0.3em] truncate">
+                @{user.username}
               </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent 
-             align="end" 
-             className={cn(
-                 "w-56 rounded-none border",
-                 theme === 'cyber' 
-                    ? "bg-black border-signal-green text-gray-300"
-                    : "bg-[#121212] border-white/10 text-white"
-             )}
-          >
-             {user ? (
-                 <>
-                    <div className="px-2 py-1.5 text-xs font-mono opacity-50 uppercase tracking-widest">
-                        @{user.username}
-                    </div>
-                    <DropdownMenuSeparator className={theme === 'cyber' ? "bg-white/20" : "bg-white/10"} />
-                    
-                    <DropdownMenuItem asChild className="rounded-none focus:bg-white/10 cursor-pointer">
-                        <Link href={`/u/${user.username}`} className="flex items-center gap-2">
-                        <UserIcon size={14} />
-                        <span>Profile</span>
-                        </Link>
-                    </DropdownMenuItem>
-        
-                    <DropdownMenuItem asChild className="rounded-none focus:bg-white/10 cursor-pointer">
-                        <Link href="/me/library" className="flex items-center gap-2">
-                        <BookmarkIcon size={14} />
-                        <span>Library</span>
-                        </Link>
-                    </DropdownMenuItem>
+              <div className="text-[8px] text-foreground-subtle font-mono uppercase tracking-[0.1em] opacity-40 mt-0.5">
+                {t("activeSession")}
+              </div>
+            </div>
 
-                    <DropdownMenuItem asChild className="rounded-none focus:bg-white/10 cursor-pointer">
-                        <Link href="/dashboard" className="flex items-center gap-2">
-                            <LayoutDashboard size={14} />
-                            <span>Dashboard</span>
-                        </Link>
-                    </DropdownMenuItem>
+            <DropdownMenuItem
+              asChild
+              className={cn("cursor-pointer focus:bg-noir-hover transition-colors", getRoundedClass(theme, "md"))}
+            >
+              <Link
+                href={`/u/${user.username}`}
+                className="flex items-center gap-3 px-4 py-2.5 text-xs text-foreground-subtle hover:text-foreground font-mono uppercase tracking-widest"
+              >
+                <UserIcon size={14} className="opacity-70" />
+                <span>{t("profile")}</span>
+              </Link>
+            </DropdownMenuItem>
 
-                    
-                    <DropdownMenuSeparator className={theme === 'cyber' ? "bg-white/20" : "bg-white/10"} />
-                    
-                    <DropdownMenuItem asChild className="rounded-none focus:bg-white/10 cursor-pointer">
-                        <Link href="/studio/settings" className="flex items-center gap-2">
-                        <Settings size={14} />
-                        <span>Settings</span>
-                        </Link>
-                    </DropdownMenuItem>
-                    
-                    <DropdownMenuItem 
-                        onClick={logout}
-                        className="text-red-500 focus:text-red-400 rounded-none focus:bg-red-900/10 cursor-pointer">
-                        <div className="flex items-center gap-2">
-                        <LogOut size={14} />
-                        <span>Sign out</span>
-                        </div>
-                    </DropdownMenuItem>
-                 </>
-             ) : (
-                 <>
-                    <div className="px-2 py-1.5 text-xs font-mono opacity-50 uppercase tracking-widest">
-                        GUEST
-                    </div>
-                    <DropdownMenuSeparator className={theme === 'cyber' ? "bg-white/20" : "bg-white/10"} />
-                    
-                    <DropdownMenuItem asChild className="rounded-none focus:bg-white/10 cursor-pointer">
-                        <Link href="/login" className="flex items-center gap-2">
-                        <LogIn size={14} />
-                        <span>Sign In</span>
-                        </Link>
-                    </DropdownMenuItem>
+            <DropdownMenuItem
+              asChild
+              className={cn("cursor-pointer focus:bg-noir-hover transition-colors", getRoundedClass(theme, "md"))}
+            >
+              <Link
+                href="/me/library"
+                className="flex items-center gap-3 px-4 py-2.5 text-xs text-foreground-subtle hover:text-foreground font-mono uppercase tracking-widest"
+              >
+                <Bookmark size={14} className="opacity-70" />
+                <span>{t("library")}</span>
+              </Link>
+            </DropdownMenuItem>
 
-                    <DropdownMenuItem asChild className="rounded-none focus:bg-white/10 cursor-pointer">
-                        <Link href="/signup" className="flex items-center gap-2">
-                        <UserPlus size={14} />
-                        <span>Sign Up</span>
-                        </Link>
-                    </DropdownMenuItem>
-                 </>
-             )}
+            <DropdownMenuItem
+              asChild
+              className={cn("cursor-pointer focus:bg-noir-hover transition-colors", getRoundedClass(theme, "md"))}
+            >
+              <Link
+                href={`/studio${studioParam}`}
+                className="flex items-center gap-3 px-4 py-2.5 text-xs text-foreground-subtle hover:text-foreground font-mono uppercase tracking-widest"
+              >
+                <LayoutDashboard size={14} className="opacity-70" />
+                <span>{t("studio")}</span>
+              </Link>
+            </DropdownMenuItem>
 
-          </DropdownMenuContent>
-       </DropdownMenu>
+            <DropdownMenuSeparator className="bg-noir-border my-1 mx-2" />
+
+            <DropdownMenuItem
+              asChild
+              className={cn("cursor-pointer focus:bg-noir-hover transition-colors", getRoundedClass(theme, "md"))}
+            >
+              <Link
+                href={`/studio/settings${studioParam}`}
+                className="flex items-center gap-3 px-4 py-2.5 text-xs text-foreground-subtle hover:text-foreground font-mono uppercase tracking-widest"
+              >
+                <Settings size={14} className="opacity-70" />
+                <span>{t("settings")}</span>
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onClick={logout}
+              className={cn(
+                "flex items-center gap-3 px-4 py-2.5 text-xs text-red-500 focus:text-red-400 cursor-pointer focus:bg-red-500/5 font-mono uppercase tracking-widest",
+                getRoundedClass(theme, "md"),
+              )}
+            >
+              <LogOut size={14} />
+              <span>{t("signOut")}</span>
+            </DropdownMenuItem>
+          </>
+        ) : (
+          <>
+            <div className="px-4 py-3 border-b border-noir-border mb-1">
+              <div className="text-[10px] font-mono text-foreground-subtle uppercase tracking-[0.3em]">GUEST_USER</div>
+            </div>
+
+            <DropdownMenuItem
+              asChild
+              className={cn("cursor-pointer focus:bg-noir-hover transition-colors", getRoundedClass(theme, "md"))}
+            >
+              <Link
+                href="/login"
+                className="flex items-center gap-3 px-4 py-2.5 text-xs text-foreground hover:text-accent font-mono uppercase tracking-widest"
+              >
+                <LogIn size={14} />
+                <span>{t("signIn")}</span>
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              asChild
+              className={cn("cursor-pointer focus:bg-noir-hover transition-colors", getRoundedClass(theme, "md"))}
+            >
+              <Link
+                href="/signup"
+                className="flex items-center gap-3 px-4 py-2.5 text-xs text-foreground hover:text-accent font-mono uppercase tracking-widest"
+              >
+                <UserPlus size={14} />
+                <span>{t("signUp")}</span>
+              </Link>
+            </DropdownMenuItem>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
-}
-
-function BookmarkIcon({size}: {size: number}) {
-    return <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
 }

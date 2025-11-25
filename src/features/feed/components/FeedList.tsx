@@ -1,157 +1,246 @@
 "use client";
 
 import { FeedItem } from "../types";
-import { FeedCard } from "./FeedCard";
-import { useTheme } from "@/features/theme/ThemeProvider";
-import { useState, useMemo } from "react";
+import { FeedCard } from "./FeedCard"
+import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
+import { useState, useEffect } from "react";
 import { CyberFeedHeader } from "./CyberFeedHeader";
-import { FEED_CATEGORIES } from "../constants";
-import Link from "next/link";
+import { FEED_CATEGORIES } from "../constants"
 import { useSearchParams } from "next/navigation";
-import { mockFollowingItems } from "@/features/feed/data/mock-following";
+import { getGlobalFeed } from "../api";
+import { cn } from "@/lib/utils";
+import { TerminalFeedLayout } from "./TerminalFeedLayout";
+import { TechieFeedLayout } from "./TechieFeedLayout"
+import { JournalFeedLayout } from "./JournalFeedLayout"
+import { RoninFeedLayout } from "./RoninFeedLayout"
+import { SakuraFeedLayout } from "./SakuraFeedLayout"
+import { ThemePage, useThemeLabel } from "@/components/theme";
+import { OctaneFeedLayout } from "./OctaneFeedLayout"
+import { ProfessionalFeedLayout } from "./ProfessionalFeedLayout"
 
-export function FeedList({ items: initialItems, classicHeader, blogDescription, blogTitle }: { items: FeedItem[], classicHeader?: React.ReactNode, blogDescription?: string, blogTitle?: string }) {
+const GRID_THEMES = ["cyber", "sakura", "ronin", "journal", "octane", "techie"] as const
+
+export function FeedList({
+  items: initialItems,
+  blogDescription,
+  blogTitle,
+}: {
+  items: FeedItem[];
+  blogDescription?: string;
+  blogTitle?: string;
+}) {
   const { theme } = useTheme();
+  const { isTerminalCopy, isCyberCopy, isSakuraCopy, isJournalCopy, isTechieCopy, isRoninCopy } = useThemeHelpers();
+
   const searchParams = useSearchParams();
-  
-  // 1. Get Active Category & Feed Type from URL
   const activeCategoryId = searchParams.get("category") || "all";
-  const feedType = (searchParams.get("feed") as 'foryou' | 'following') || 'foryou';
 
-  // 2. Pagination State
-  const [visibleCount, setVisibleCount] = useState(6);
+  const [items, setItems] = useState<FeedItem[]>(initialItems);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(initialItems.length >= 12);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  // 3. Determine Source Items
-  const sourceItems = feedType === 'following' ? mockFollowingItems : initialItems;
+  const t = useThemeLabel();
+  const loadMoreText = t("loadMore");
+  const loadingText = t("loading");
+  const noDataText = t("noData");
 
-  // 4. Filter Items Logic
-  const filteredItems = useMemo(() => {
-    if (activeCategoryId === 'all') return sourceItems;
-    
-    const categoryDef = FEED_CATEGORIES.find(c => c.id === activeCategoryId);
-    if (!categoryDef) return sourceItems;
+  const useGridLayout = (GRID_THEMES as readonly string[]).includes(theme);
 
-    return sourceItems.filter(item => 
-      item.tags.some(tag => categoryDef.tags.includes(tag.toLowerCase()))
-    );
-  }, [sourceItems, activeCategoryId]);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  const handleLoadMore = () => {
-    setVisibleCount((prev) => prev + 6);
+  useEffect(() => {
+    setItems(initialItems);
+    setPage(1);
+    setHasMore(initialItems.length >= 12);
+  }, [initialItems]);
+
+  const handleLoadMore = async () => {
+    setIsLoadingMore(true);
+    try {
+      const catDef = FEED_CATEGORIES.find(c => c.id === activeCategoryId);
+      const tag = catDef?.tags[0];
+
+      const nextPage = page + 1;
+      const response = await getGlobalFeed({ tag, page: nextPage, limit: 12 });
+
+      if (response.data.length > 0) {
+        setItems(prev => [...prev, ...response.data]);
+        setPage(nextPage);
+        if (response.data.length < 12) {
+          setHasMore(false);
+        }
+      } else {
+        setHasMore(false);
+      }
+    } catch (e) {
+      console.error("Failed to load more", e);
+    } finally {
+      setIsLoadingMore(false);
+    }
   };
 
-  // 5. Split for Cyber Layout
-  const featured = filteredItems[0];
-  const rest = filteredItems.slice(1);
-  const visibleItems = (theme === 'cyber' ? rest : filteredItems).slice(0, visibleCount);
-  const hasMore = visibleCount < (theme === 'cyber' ? rest.length : filteredItems.length);
+  if (mounted && isTerminalCopy) {
+    return <TerminalFeedLayout items={items} blogDescription={blogDescription} blogTitle={blogTitle} />;
+  }
 
-  // --- CYBER THEME RENDER ---
-  if (theme === 'cyber') {
+  if (mounted && useGridLayout) {
+    const featured = items[0];
+    const rest = items.slice(1);
+
+    if (mounted && isTechieCopy) {
+      return (
+        <TechieFeedLayout
+          items={items}
+          blogTitle={blogTitle}
+          blogDescription={blogDescription}
+          hasMore={hasMore}
+          isLoadingMore={isLoadingMore}
+          onLoadMore={handleLoadMore}
+          loadMoreText={loadMoreText}
+        />
+      );
+    }
+
+    if (mounted && isJournalCopy) {
+      return (
+        <JournalFeedLayout
+          items={items}
+          blogTitle={blogTitle}
+          blogDescription={blogDescription}
+          hasMore={hasMore}
+          isLoadingMore={isLoadingMore}
+          onLoadMore={handleLoadMore}
+          loadMoreText={loadMoreText}
+        />
+      );
+    }
+    if (mounted && isRoninCopy) {
+      return (
+        <RoninFeedLayout
+          items={items}
+          blogTitle={blogTitle}
+          blogDescription={blogDescription}
+          hasMore={hasMore}
+          isLoadingMore={isLoadingMore}
+          onLoadMore={handleLoadMore}
+          loadMoreText={loadMoreText}
+        />
+      );
+    }
+    if (mounted && isSakuraCopy) {
+      return (
+        <SakuraFeedLayout
+          items={items}
+          blogTitle={blogTitle}
+          blogDescription={blogDescription}
+          hasMore={hasMore}
+          isLoadingMore={isLoadingMore}
+          onLoadMore={handleLoadMore}
+          loadMoreText={loadMoreText}
+        />
+      );
+    }
+
+    if (mounted && theme === "octane") {
+      return (
+        <OctaneFeedLayout
+          items={items}
+          blogTitle={blogTitle}
+          blogDescription={blogDescription}
+          hasMore={hasMore}
+          isLoadingMore={isLoadingMore}
+          onLoadMore={handleLoadMore}
+          loadMoreText={loadMoreText}
+        />
+      );
+    }
+
     return (
-      <div className="flex flex-col min-h-screen">
-        <CyberFeedHeader featured={featured} blogDescription={blogDescription} blogTitle={blogTitle} />
-        
-        <div className="flex flex-1">            
-            {/* Main Content */}
-            <div className="flex-1 flex flex-col">
-                <div className="grid grid-cols-1 lg:grid-cols-2">
-                   {visibleItems.map((item) => (
-                     <FeedCard key={item.postId} item={item} />
-                   ))}
-                   {filteredItems.length === 0 && (
-                       <div className="col-span-full p-12 text-center text-gray-500 font-mono text-sm">
-                           NO_DATA_FOUND_IN_SECTOR
-                       </div>
-                   )}
-                </div>
+      <ThemePage className="flex flex-col min-h-screen">
+        {isCyberCopy && <CyberFeedHeader featured={featured} blogDescription={blogDescription} blogTitle={blogTitle} />}
 
-                {hasMore && (
-                    <div className="p-8 flex justify-center border-t border-white/10">
-                        <button 
-                            onClick={handleLoadMore}
-                            className="bg-white/5 hover:bg-white/10 text-white font-mono text-xs uppercase px-8 py-4 border border-white/10 tracking-widest transition-colors flex items-center gap-2"
-                        >
-                            <span className="w-1.5 h-1.5 bg-signal-green rounded-full animate-pulse" />
-                            LOAD_MORE_DATA
-                        </button>
-                    </div>
-                )}
+        {isTechieCopy && (
+          <div className="max-w-[1600px] mx-auto w-full px-6 py-12 border-b border-noir-border">
+            <h1 className="text-4xl md:text-6xl font-sans font-black text-white uppercase tracking-tighter">
+              {blogTitle || "Transmission_Stream"}
+            </h1>
+            <p className="text-foreground-muted font-mono text-xs uppercase tracking-widest mt-2">
+              {blogDescription || "// Sector Data Active"}
+            </p>
+          </div>
+        )}
+
+        <div className="flex flex-1">
+          <div className="flex-1 flex flex-col">
+            <div
+              className={cn(
+                "grid grid-cols-1 md:grid-cols-2 max-w-[1600px] mx-auto w-full gap-6",
+                isSakuraCopy && "p-6 md:p-12 lg:p-20 gap-8",
+                isJournalCopy && "p-6 md:p-10 gap-8 mt-12",
+                isTechieCopy && "p-6 lg:p-12 gap-10",
+                !isSakuraCopy && !isJournalCopy && !isTechieCopy && "p-4 md:p-8",
+              )}
+            >
+              {/* Featured Item in Grid */}
+              <div className={cn(isTechieCopy && "col-span-full")}>
+                <FeedCard item={featured} variant={isTechieCopy ? "default" : "default"} />
+              </div>
+
+              {rest.map(item => (
+                <FeedCard key={item.postId} item={item} />
+              ))}
+
+              {items.length === 0 && (
+                <div className="col-span-full p-20 text-center text-foreground-subtle font-mono text-xs uppercase tracking-widest animate-pulse">
+                  {noDataText}
+                </div>
+              )}
             </div>
+
+            {hasMore && (
+              <div className={cn("p-12 flex justify-center", isCyberCopy ? "border-t border-noir-border" : "")}>
+                <button
+                  onClick={handleLoadMore}
+                  disabled={isLoadingMore}
+                  className={cn(
+                    "font-mono text-[10px] uppercase px-12 py-4 tracking-widest transition-all flex items-center gap-3",
+                    isCyberCopy
+                      ? "bg-noir-panel border border-noir-border text-foreground hover:bg-noir-hover"
+                      : "bg-accent text-noir-bg hover:shadow-lg hover:shadow-accent/20 rounded-full",
+                    isJournalCopy &&
+                      "bg-accent text-bg-primary hover:bg-accent-secondary font-serif italic normal-case tracking-normal px-8 py-3 rounded-md shadow-md",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "w-1.5 h-1.5 rounded-full animate-pulse",
+                      isCyberCopy ? "bg-accent" : "bg-noir-bg",
+                      isJournalCopy && "bg-journal-paper/50",
+                    )}
+                  />
+                  {isLoadingMore ? `${loadingText}...` : loadMoreText}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      </ThemePage>
     );
   }
 
-  // --- CLASSIC THEME RENDER ---
-  const activeCategoryDef = FEED_CATEGORIES.find(c => c.id === activeCategoryId);
-
   return (
-    <div className="max-w-7xl mx-auto p-8 md:p-12 lg:p-24">
-       {classicHeader ? classicHeader : (
-         <header className="mb-12 space-y-4 border-b border-white/10 pb-8">
-          <div className="flex items-center justify-between">
-            <h1 className="text-5xl md:text-7xl font-sans font-black tracking-tighter uppercase text-white">
-              {activeCategoryId === 'all' ? 'Conduit' : activeCategoryDef?.label || 'Conduit'}
-            </h1>
-            {activeCategoryId !== 'all' && (
-                <Link 
-                    href="/?category=all"
-                    className="hidden md:block text-sm font-mono text-gray-400 hover:text-white uppercase border-b border-transparent hover:border-white transition-all"
-                >
-                    [CLEAR_FILTER]
-                </Link>
-            )}
-          </div>
-          
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <p className="text-lg md:text-xl font-mono text-gray-500 max-w-2xl">
-                {`// The OctaneBrew Publishing Network`}
-                <br />
-                {activeCategoryId === 'all' 
-                    ? "Discover stories from engineering, design, and culture."
-                    : `Browsing transmissions in sector: ${activeCategoryDef?.label}`
-                }
-            </p>
-          </div>
-        </header>
-       )}
-      
-       {/* Content Area */}
-       <div className="flex flex-col divide-y divide-white/10 border-t border-white/10">
-        {activeCategoryId === 'all' && filteredItems[0] && feedType === 'foryou' && (
-            <div className="py-12">
-                 <div className="mb-4 text-xs font-mono text-white uppercase tracking-wide border border-white w-fit px-2 py-0.5 font-bold">
-                    Featured Transmission
-                </div>
-                <FeedCard item={filteredItems[0]} />
-            </div>
-        )}
-
-        {((activeCategoryId === 'all' && feedType === 'foryou') ? filteredItems.slice(1) : filteredItems).map((item) => (
-          <FeedCard key={item.postId} item={item} />
-        ))}
-
-         {filteredItems.length === 0 && (
-             <div className="py-12 text-center text-gray-500 font-mono">
-                 No transmissions found in sector {activeCategoryId}.
-                 <Link href="/?category=all" className="block mx-auto mt-4 text-white underline hover:text-gray-300">
-                     Return to All
-                 </Link>
-             </div>
-         )}
-      </div>
-
-       {hasMore && (
-        <div className="mt-12 text-center">
-            <button 
-                onClick={handleLoadMore}
-                className="text-white hover:underline font-mono text-sm uppercase hover:text-gray-300"
-            >
-                Load Older Posts
-            </button>
-        </div>
-       )}
-    </div>
+    <ProfessionalFeedLayout
+      items={items}
+      blogTitle={blogTitle}
+      blogDescription={blogDescription}
+      hasMore={hasMore}
+      isLoadingMore={isLoadingMore}
+      onLoadMore={handleLoadMore}
+      loadMoreText={loadMoreText}
+    />
   );
 }
