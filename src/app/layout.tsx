@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter_Tight, JetBrains_Mono, Playfair_Display } from "next/font/google";
+import { Inter_Tight, JetBrains_Mono, Playfair_Display, Cinzel, Noto_Sans, Spectral } from "next/font/google"
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/features/theme/ThemeProvider";
@@ -7,6 +7,7 @@ import { AuthProvider } from "@/features/auth/AuthProvider";
 import { LibraryProvider } from "@/features/library/context/LibraryContext";
 import { LayoutWrapper } from "@/components/shared/LayoutWrapper";
 import { Toaster } from "@/components/ui/sonner";
+import QueryProvider from "@/providers/QueryProvider";
 
 const interTight = Inter_Tight({
   subsets: ["latin"],
@@ -23,10 +24,31 @@ const playfair = Playfair_Display({
   variable: "--font-playfair",
 });
 
+const cinzel = Cinzel({
+  subsets: ["latin"],
+  variable: "--font-cinzel",
+  weight: ["400", "700", "900"],
+})
+
+const noto = Noto_Sans({
+  subsets: ["latin"],
+  variable: "--font-noto",
+  weight: ["300", "400", "700"],
+})
+
+const spectral = Spectral({
+  subsets: ["latin"],
+  variable: "--font-spectral",
+  weight: ["200", "300", "400", "500", "600", "700", "800"],
+})
+
 export const metadata: Metadata = {
   title: "Conduit",
   description: "Multi-tenant blogging platform",
 };
+
+import { FluidicWrapper } from "@/features/theme/FluidicWrapper";
+import { GlobalStatusBar } from "@/features/layout/components/GlobalStatusBar";
 
 export default function RootLayout({
   children,
@@ -34,26 +56,34 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
           interTight.variable,
           jetbrainsMono.variable,
           playfair.variable,
-          "antialiased bg-noir-bg text-white min-h-screen"
+          cinzel.variable,
+          noto.variable,
+          spectral.variable,
+          "antialiased bg-noir-bg text-foreground min-h-screen",
         )}
       >
-        <ThemeProvider>
-          <AuthProvider>
-            <LibraryProvider>
-              <LayoutWrapper>
-                {children}
-                <Toaster />
-              </LayoutWrapper>
-            </LibraryProvider>
-          </AuthProvider>
-        </ThemeProvider>
+        <QueryProvider>
+          <ThemeProvider>
+            <AuthProvider>
+              <LibraryProvider>
+                <GlobalStatusBar />
+                <FluidicWrapper>
+                  <LayoutWrapper>
+                    {children}
+                    <Toaster />
+                  </LayoutWrapper>
+                </FluidicWrapper>
+              </LibraryProvider>
+            </AuthProvider>
+          </ThemeProvider>
+        </QueryProvider>
       </body>
     </html>
-  );
+  )
 }
