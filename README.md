@@ -1,12 +1,12 @@
-# Conduit Frontend: The Multi Tenant Publishing Platform
+# Conduit Frontend: The Multi-Tenant Publishing Platform
 
 Conduit is a high-performance, multi-tenant publishing platform. The frontend is built on the **Fluidic UI** philosophy—a design system that allows for seamless, real-time transitions between drastically different aesthetic states.
 
-## 🌈 The Fluidic UI Engine
+## The Fluidic UI Engine
 
 Conduit features a custom theme interpolation engine built on **Framer Motion** and high-precision CSS variables. Unlike standard theme systems that simply swap colors, Conduit performs a **"Physical Morph"**—reflowing the entire layout, changing border radii, font scales, and decorative artifacts (like scanlines or paper textures) in a single fluid animation.
 
-### 🎨 Theme Catalog
+### Theme Catalog
 
 | Theme ID | Aesthetic DNA | Typography | Tone & Vibe |
 |:---|:---|:---|:---|
@@ -23,7 +23,7 @@ Conduit features a custom theme interpolation engine built on **Framer Motion** 
 
 ---
 
-## 🏗 Modular Architecture
+## Modular Architecture
 
 The codebase follows a **Feature-First Architecture** to ensure independent scalability of domains:
 
@@ -33,14 +33,43 @@ The codebase follows a **Feature-First Architecture** to ensure independent scal
 - **`src/features/feed`**: Global discovery engine using reactive interaction patterns.
 - **`src/features/search`**: Global predictive search with type-ahead suggestions for tags and authors.
 
-### 📐 Layout Management
+### Layout Management
 - **The LayoutManager**: A central authority ensuring zero "layout drift" across themes.
 - **BasePostCard**: A universal component that adapts its visual style (flat, bordered, horizontal) based on the current theme's physical tokens.
 - **Terminal Pattern**: Specialized "windowed" views for administrative tasks that override the standard scroll model.
 
 ---
 
-## 🚀 Advanced Platform Features
+## Directory Structure
+
+```text
+conduit-frontend/
+├── docs/                   # Full platform specs and architectural guides
+├── public/                 # Static assets (fonts, theme-specific background images)
+├── src/
+│   ├── app/                # Next.js App Router (Pages, Layouts, and API routes)
+│   ├── components/         # Shared UI components and themed primitives
+│   │   ├── shared/         # Cross-feature components (Navbar, Footer, etc.)
+│   │   ├── theme/          # Fluidic UI Atomic components (ThemeCard, ThemeButton)
+│   │   └── ui/             # Shadcn/UI base primitives
+│   ├── features/           # Domain-driven feature modules
+│   │   ├── auth/           # Login, Signup, and AuthProvider
+│   │   ├── blog/           # Article viewing, layouts (Magazine, Single, Grid)
+│   │   ├── feed/           # Global and tenant-specific feeds
+│   │   ├── studio/         # Creator dashboard, analytics, and editor
+│   │   └── theme/          # Core interpolation engine (FluidicWrapper, useThemeInterpolation)
+│   ├── lib/                # Shared utilities and logic
+│   │   ├── api-client.ts   # Centralized fetch API with interceptors
+│   │   ├── theme/          # Theme metadata, labels, and variant definitions
+│   │   └── utils.ts        # CN utility and shared helpers
+│   ├── providers/          # Global React context providers (Query, Auth, Theme)
+│   └── styles/             # Global CSS and individual theme definitions (.css files)
+└── tailwind.config.ts      # Theme-aware Tailwind configuration
+```
+
+---
+
+## Advanced Platform Features
 
 ### 1. Studio Suite
 - **Live Performance Tracking**: Visualizing engagement, traffic sources, and reader demographics.
@@ -59,7 +88,7 @@ The codebase follows a **Feature-First Architecture** to ensure independent scal
 
 ---
 
-## 🛠 Technology Stack
+## Technology Stack
 
 - **Framework**: [Next.js 16+](https://nextjs.org) (App Router)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com) + CSS Variables
@@ -70,7 +99,7 @@ The codebase follows a **Feature-First Architecture** to ensure independent scal
 
 ---
 
-## 🚦 Getting Started
+## Getting Started
 
 ### Installation
 ```bash
