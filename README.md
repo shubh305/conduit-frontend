@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Conduit Frontend: The Multi Tenant Publishing Platform
 
-## Getting Started
+Conduit is a high-performance, multi-tenant publishing platform. The frontend is built on the **Fluidic UI** philosophy—a design system that allows for seamless, real-time transitions between drastically different aesthetic states.
 
-First, run the development server:
+## 🌈 The Fluidic UI Engine
 
+Conduit features a custom theme interpolation engine built on **Framer Motion** and high-precision CSS variables. Unlike standard theme systems that simply swap colors, Conduit performs a **"Physical Morph"**—reflowing the entire layout, changing border radii, font scales, and decorative artifacts (like scanlines or paper textures) in a single fluid animation.
+
+### 🎨 Theme Catalog
+
+| Theme ID | Aesthetic DNA | Typography | Tone & Vibe |
+|:---|:---|:---|:---|
+| `terminal` | Retro CRT, monospaced, green screen simulation | `JetBrains Mono` | CLI Commands, Root access |
+| `ronin` | Cinematic ink-and-brush, samurai inspired | `Noto Serif JP` | Poetic, Crimson accents |
+| `cyber` | Neon-drenched, digital noise, grid systems | `Outfit (Mono)` | Technical, ALL_CAPS |
+| `journal` | Warm artisan-paper, литературный (literary) editorial | `Crimson Text` | Artisan, Warm Parchment |
+| `techie` | Industrial hardware-reviewer, module-based | `Roboto Mono` | Spec Sheet, Electric Cyan |
+| `octane` | Industrial automotive, gunmetal gradients | `Outfit` | Workshop, High-performance |
+| `sakura` | Cherry blossom, light and ephemeral Japanese | `Playfair Display` | Zen, Sakura Pink |
+| `professional`| Corporate data-focused, slate dual-tone | `Inter` | Precise, Analytical |
+| `classic` | Noir elegance, high contrast, minimalist | `Lora` | Refined, Literary |
+| `classic-white`| Clean white, blue accents, professional standard | `Geist` | Straightforward, Minimalist |
+
+---
+
+## 🏗 Modular Architecture
+
+The codebase follows a **Feature-First Architecture** to ensure independent scalability of domains:
+
+- **`src/features/theme`**: The core Interpolation Engine and `ThemeProvider`.
+- **`src/features/studio`**: A high-density suite for creators with real-time **Analytics** (Recharts).
+- **`src/features/blog`**: Highly-themed reader experiences with **Advanced Layout Awareness** (Grid, Stack, Magazine).
+- **`src/features/feed`**: Global discovery engine using reactive interaction patterns.
+- **`src/features/search`**: Global predictive search with type-ahead suggestions for tags and authors.
+
+### 📐 Layout Management
+- **The LayoutManager**: A central authority ensuring zero "layout drift" across themes.
+- **BasePostCard**: A universal component that adapts its visual style (flat, bordered, horizontal) based on the current theme's physical tokens.
+- **Terminal Pattern**: Specialized "windowed" views for administrative tasks that override the standard scroll model.
+
+---
+
+## 🚀 Advanced Platform Features
+
+### 1. Studio Suite
+- **Live Performance Tracking**: Visualizing engagement, traffic sources, and reader demographics.
+- **Project Console**: Manage multiple blogs (Relay Stations) from a unified dashboard.
+- **Resource Management**: Built-in File Library and Media management.
+
+### 2. The Creative Editor
+- **Tiptap Core**: Native support for structured rich-text content via JSON storage.
+- **Dynamic Prose**: Typography that adapts its weight, leading, and scale in real-time.
+- **Dual-Mode Editing**: Switch between a standard canvas and a simulated Terminal editor.
+
+### 3. Discovery & Social
+- **Global Signal**: Aggregated discovery feed across all platform tenants.
+- **Social Graph**: Tenant-scoped following systems and personalized discovery paths.
+- **Reactive Interactions**: Smooth animations for Likes, Saves, and nested Comment trees.
+
+---
+
+## 🛠 Technology Stack
+
+- **Framework**: [Next.js 16+](https://nextjs.org) (App Router)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com) + CSS Variables
+- **Animation**: [Framer Motion](https://www.framer.com/motion/)
+- **Charts**: [Recharts](https://recharts.org)
+- **Editor**: [Tiptap](https://tiptap.dev)
+- **Icons**: [Lucide React](https://lucide.dev)
+
+---
+
+## 🚦 Getting Started
+
+### Installation
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/shubh305/conduit-frontend.git
+cd conduit-frontend
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Development
+1. Configure `.env.local` to point to your `conduit-core` instance.
+2. Launch the development server: `npm run dev`
+3. Access the platform at `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
