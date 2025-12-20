@@ -6,38 +6,39 @@ import { useThemeInterpolation } from "./hooks/useThemeInterpolation";
 import { useTheme } from "./ThemeProvider";
 
 export function FluidicWrapper({ children }: { children: React.ReactNode }) {
-  const { theme } = useTheme();
+  const { theme, mounted } = useTheme();
   const controls = useAnimation();
-  const { 
-    containerPadding, 
-    borderRadius, 
-    borderWidth, 
-    fontScale, 
-    innerSpacing 
-  } = useThemeInterpolation();
+  const { containerPadding, borderRadius, borderWidth, fontScale, innerSpacing } = useThemeInterpolation();
 
   React.useEffect(() => {
+    if (!mounted) return;
     controls.start({
       scale: [1, 0.992, 1],
-      transition: { duration: 0.4, ease: "easeInOut" }
+      transition: { duration: 0.4, ease: "easeInOut" },
     });
-  }, [theme, controls]);
+  }, [theme, controls, mounted]);
 
   const paddingVar = useMotionTemplate`${containerPadding}px`;
   const radiusVar = useMotionTemplate`${borderRadius}px`;
   const borderVar = useMotionTemplate`${borderWidth}px`;
   const spacingVar = useMotionTemplate`${innerSpacing}px`;
-  
-  return (
-    <motion.div
-      animate={controls}
-      style={{
-        // @ts-expect-error - Custom CSS variables for fluid layout
+
+  const fluidStyles = mounted
+    ? {
         "--fluid-padding": paddingVar,
         "--fluid-radius": radiusVar,
         "--fluid-border-width": borderVar,
         "--fluid-font-scale": fontScale,
         "--fluid-spacing": spacingVar,
+      }
+    : {};
+
+  return (
+    <motion.div
+      animate={controls}
+      // @ts-expect-error - Custom CSS variables for fluid layout
+      style={{
+        ...fluidStyles,
       }}
       className="relative w-full min-h-screen"
     >

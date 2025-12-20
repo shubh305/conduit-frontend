@@ -183,22 +183,31 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .custom-scrollbar {
-  scrollbar-width: auto;
-  scrollbar-color: #8B4513 rgba(139, 69, 19, 0.05);
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) transparent;
 }
 .custom-scrollbar::-webkit-scrollbar {
-  width: 10px !important;
+  width: 6px !important;
   display: block !important;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(139, 69, 19, 0.05) !important;
+  background: transparent !important;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #8B4513 !important;
-  border-radius: 4px !important;
-  border: 2px solid transparent !important;
-  background-clip: content-box !important;
+  background: color-mix(in srgb, var(--accent) 40%, transparent) !important;
+  border-radius: 10px !important;
+  transition: background 0.2s ease;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #A0522D !important;
+  background: var(--accent) !important;
+}
+
+/* Utility to hide scrollbars */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
 }
