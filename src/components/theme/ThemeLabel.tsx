@@ -7,6 +7,7 @@
 import { useTheme } from "@/features/theme/ThemeProvider";
 import { getLabel, getJapaneseSubLabel, ThemeVariant, LabelKey } from "@/lib/theme-variants";
 import { cn } from "@/lib/utils";
+import { useMounted } from "@/hooks/use-mounted";
 
 interface ThemeLabelProps {
   labelKey: LabelKey;
@@ -22,6 +23,10 @@ export function ThemeLabel({
   subLabelClassName,
 }: ThemeLabelProps) {
   const { theme } = useTheme();
+  const mounted = useMounted();
+
+  if (!mounted) return null;
+
   const mainLabel = getLabel(labelKey, theme as ThemeVariant);
   const subLabel = showSubLabel ? getJapaneseSubLabel(labelKey, theme as ThemeVariant) : undefined;
 
@@ -51,5 +56,10 @@ export function ThemeLabel({
  */
 export function useThemeLabel() {
   const { theme } = useTheme();
-  return (labelKey: LabelKey) => getLabel(labelKey, theme as ThemeVariant);
+  const mounted = useMounted();
+
+  return (labelKey: LabelKey) => {
+    if (!mounted) return "";
+    return getLabel(labelKey, theme as ThemeVariant);
+  };
 }

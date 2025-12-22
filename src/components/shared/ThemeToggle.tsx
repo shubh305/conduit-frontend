@@ -55,7 +55,7 @@ export function ThemeToggle() {
           className={cn(
             "absolute bottom-full right-0 mb-2 w-64 border shadow-xl overflow-hidden",
             "animate-in slide-in-from-bottom-2 fade-in duration-200",
-            config.isDark ? "bg-noir-bg border-noir-border" : "bg-noir-panel border-noir-border",
+            config.isDark ? "bg-noir-bg border-noir-border" : "bg-white border-border shadow-2xl",
           )}
           style={{ borderRadius: "var(--theme-radius-md)" }}
         >
@@ -71,16 +71,25 @@ export function ThemeToggle() {
                   setIsOpen(false);
                 }}
                 data-theme={themeId}
-                className={cn("w-full px-4 py-3 text-left flex items-center gap-3 transition-all", "hover:bg-noir-hover", isSelected && "bg-accent/10")}
+                className={cn(
+                  "w-full px-4 py-3 text-left flex items-center gap-3 transition-all",
+                  "hover:bg-noir-hover",
+                  isSelected && "bg-accent/10",
+                )}
               >
                 <span
-                  className={cn("flex items-center justify-center w-8 h-8 border", isSelected ? "border-accent text-accent" : "border-noir-border text-foreground-muted")}
+                  className={cn(
+                    "flex items-center justify-center w-8 h-8 border",
+                    isSelected ? "border-accent text-accent" : "border-noir-border text-foreground-muted",
+                  )}
                   style={{ borderRadius: "var(--theme-radius-sm)" }}
                 >
                   {THEME_ICONS[themeId]}
                 </span>
                 <div className="flex-1">
-                  <div className={cn("text-sm font-bold", isSelected ? "text-accent" : "text-foreground")}>{themeConfig.label}</div>
+                  <div className={cn("text-sm font-bold", isSelected ? "text-accent" : "text-foreground")}>
+                    {themeConfig.label}
+                  </div>
                   <div className="text-[10px] text-foreground-subtle line-clamp-1">{themeConfig.description}</div>
                 </div>
                 {isSelected && <div className="w-2 h-2 rounded-full bg-accent" />}
