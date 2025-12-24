@@ -6,7 +6,7 @@
   --bg-rgb: 250, 249, 246;
  
   --bg-panel: rgba(255, 255, 255, 0.6); 
-  --bg-sidebar: rgba(255, 255, 255, 0.4); 
+  --bg-sidebar: #faf9f6;
   --bg-hover: rgba(255, 255, 255, 0.9);
   --border-primary: rgba(255, 133, 162, 0.15); 
   

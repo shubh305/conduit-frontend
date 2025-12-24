@@ -201,31 +201,30 @@ export function isThemeId(value: string): value is ThemeId {
 // ============================================================================
 
 interface ThemeContextType {
-  theme: ThemeId
-  setTheme: (theme: ThemeId) => void
-  config: ThemeConfig
-  focusMode: boolean
-  setFocusMode: (value: boolean) => void
-  themeHubVisible: boolean
-  setThemeHubVisible: (value: boolean) => void
+  theme: ThemeId;
+  setTheme: (theme: ThemeId) => void;
+  config: ThemeConfig;
+  focusMode: boolean;
+  setFocusMode: (value: boolean) => void;
+  themeHubVisible: boolean;
+  setThemeHubVisible: (value: boolean) => void;
+  mounted: boolean;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<ThemeId>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("conduit-theme");
-      if (saved && isThemeId(saved)) return saved;
-    }
-    return "cyber";
-  });
+  const [theme, setThemeState] = useState<ThemeId>("cyber");
   const [mounted, setMounted] = useState(false);
-  const [focusMode, setFocusMode] = useState(false)
-  const [themeHubVisible, setThemeHubVisibleState] = useState(false)
+  const [focusMode, setFocusMode] = useState(false);
+  const [themeHubVisible, setThemeHubVisibleState] = useState(false);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    const saved = localStorage.getItem("conduit-theme");
+    if (saved && isThemeId(saved)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setThemeState(saved);
+    }
     setMounted(true);
   }, []);
 
@@ -237,15 +236,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const setTheme = React.useCallback((newTheme: ThemeId) => {
     if (isThemeId(newTheme)) {
-      setThemeState(newTheme)
+      setThemeState(newTheme);
     }
-  }, [])
+  }, []);
 
   const setThemeHubVisible = React.useCallback((value: boolean) => {
-    setThemeHubVisibleState(value)
-  }, [])
+    setThemeHubVisibleState(value);
+  }, []);
 
-  const config = React.useMemo(() => THEME_REGISTRY[theme], [theme])
+  const config = React.useMemo(() => THEME_REGISTRY[theme], [theme]);
 
   const value = React.useMemo(
     () => ({
@@ -256,11 +255,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       setFocusMode,
       themeHubVisible,
       setThemeHubVisible,
+      mounted,
     }),
-    [theme, setTheme, config, focusMode, themeHubVisible, setThemeHubVisible],
-  )
+    [theme, setTheme, config, focusMode, themeHubVisible, setThemeHubVisible, mounted],
+  );
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme() {
@@ -276,7 +276,8 @@ export function useTheme() {
         setFocusMode: () => {},
         themeHubVisible: false,
         setThemeHubVisible: () => {},
-      }
+        mounted: false,
+      };
     }
     throw new Error("useTheme must be used within a ThemeProvider")
   }
