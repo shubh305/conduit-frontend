@@ -61,7 +61,7 @@ export function JournalFeedLayout({
           {gridItems.map((item, idx) => (
             <div
               key={item.postId}
-              className={cn("animate-in fade-in slide-in-from-bottom-4 duration-700", `fill-mode-both`)}
+              className={cn("animate-in fade-in slide-in-from-bottom-4 duration-700")}
               style={{ animationDelay: `${(idx + 1) * 100}ms` }}
             >
               <JournalFeedCard item={item} />
@@ -92,5 +92,5 @@ export function JournalFeedLayout({
         )}
       </main>
     </ThemePage>
-  )
+  );
 }

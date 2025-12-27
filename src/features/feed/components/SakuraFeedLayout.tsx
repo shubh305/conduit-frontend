@@ -40,26 +40,24 @@ export function SakuraFeedLayout({
   const [petals, setPetals] = useState<Petal[]>([]);
 
   useEffect(() => {
-
     const generatedPetals = Array.from({ length: 20 }, (_, i) => ({
       id: i,
       left: `${Math.random() * 100}%`,
       duration: `${8 + Math.random() * 12}s`,
       delay: `${Math.random() * 10}s`,
       opacity: 0.2 + Math.random() * 0.4,
-      scale: 0.5 + Math.random() * 1
+      scale: 0.5 + Math.random() * 1,
     }));
-    
 
     const timer = setTimeout(() => {
       setPetals(generatedPetals);
     }, 100);
-    
+
     return () => clearTimeout(timer);
   }, []);
   
   return (
-    <ThemePage className="max-w-7xl mx-auto px-8 md:px-16 py-12 md:py-20 flex flex-col items-center gap-12 relative overflow-hidden bg-[#FFF5F7]">
+    <ThemePage className="max-w-7xl mx-auto px-8 md:px-16 py-12 md:py-20 flex flex-col items-center gap-12 relative overflow-hidden bg-noir-bg">
       {/* 1. Atmospheric Layer - Falling Petals */}
       <div className="sakura-petals-container">
         {petals.map(petal => (
@@ -80,16 +78,16 @@ export function SakuraFeedLayout({
       {/* 2. Header */}
       <header className="text-center max-w-3xl mx-auto mb-4 relative z-20 flex flex-col items-center">
         <div className="mb-6">
-          <span className="text-xs font-sans font-medium text-[#FF85A2] uppercase tracking-[0.3em] mb-4 block">
+          <span className="text-xs font-sans font-medium text-accent uppercase tracking-[0.3em] mb-4 block">
             Spring Transmission
           </span>
-          <h1 className="font-serif text-5xl md:text-7xl text-[#4a4a4a] italic tracking-tight mb-6">
+          <h1 className="font-serif text-5xl md:text-7xl text-foreground italic tracking-tight mb-6">
             {blogTitle || "SAKURA_BLOOM"}
           </h1>
-          <div className="h-[1px] w-24 bg-gradient-to-r from-transparent via-[#FF85A2]/30 to-transparent mx-auto" />
+          <div className="h-[1px] w-24 bg-gradient-to-r from-transparent via-accent/30 to-transparent mx-auto" />
         </div>
 
-        <p className="font-sans text-[#718096] text-lg md:text-xl leading-relaxed max-w-2xl mx-auto font-light">
+        <p className="font-sans text-foreground-muted text-lg md:text-xl leading-relaxed max-w-2xl mx-auto font-light">
           {blogDescription ||
             "Embrace the fleeting beauty of the season. A collection of thoughts, ephemeral and enduring."}
         </p>
@@ -122,9 +120,9 @@ export function SakuraFeedLayout({
             <button
               onClick={onLoadMore}
               disabled={isLoadingMore}
-              className="group relative px-20 py-4 bg-white text-[#FF85A2] font-medium rounded-full shadow-sm hover:shadow-md transition-all duration-300 border border-[#FF85A2]/10 overflow-hidden"
+              className="group relative px-20 py-4 bg-white text-accent font-medium rounded-full shadow-sm hover:shadow-md transition-all duration-300 border border-accent/10 overflow-hidden"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-[#FF85A2]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 bg-gradient-to-r from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <span className="relative z-10 uppercase text-xs tracking-[0.2em]">
                 {isLoadingMore ? "Gathering..." : loadMoreText || "Next Bloom"}
               </span>
@@ -134,7 +132,7 @@ export function SakuraFeedLayout({
       </main>
 
       {/* Decorative Watermark */}
-      <div className="absolute bottom-20 right-[-5%] font-serif text-[20vw] text-[#FF85A2]/5 pointer-events-none select-none italic transform -rotate-12 z-0">
+      <div className="absolute bottom-20 right-[-5%] font-serif text-[20vw] text-accent/5 pointer-events-none select-none italic transform -rotate-12 z-0">
         桜
       </div>
     </ThemePage>
