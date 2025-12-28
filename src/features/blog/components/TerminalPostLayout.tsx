@@ -1,3 +1,5 @@
+"use client";
+
 import { FeedItem } from "@/features/feed/types";
 import { TiptapContent } from "@/features/blog/types";
 import { generateHTML } from "@tiptap/react";
@@ -6,12 +8,13 @@ import Link from "@tiptap/extension-link";
 import Underline from "@tiptap/extension-underline";
 import Youtube from "@tiptap/extension-youtube";
 import Image from "next/image";
-import { getMediaUrl } from "@/lib/utils";
 import { useState, useEffect, useRef } from "react";
 import { CommentSection } from "@/features/feed/components/CommentSection";
 import { likePost, unlikePost } from "@/features/feed/api";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { toast } from "sonner";
+import { cn, getMediaUrl } from "@/lib/utils";
+import { useTheme } from "@/features/theme/ThemeProvider";
 
 interface TerminalPostLayoutProps {
   post: FeedItem & { content: TiptapContent; readingTimeMinutes: number };
@@ -21,6 +24,7 @@ interface TerminalPostLayoutProps {
 }
 
 export function TerminalPostLayout({ post, tenant, isPreview: isPreviewProp }: TerminalPostLayoutProps) {
+  const { focusMode } = useTheme();
   const isPreview = isPreviewProp;
   const htmlContent = generateHTML(post.content || {}, [
     StarterKit,
@@ -124,7 +128,12 @@ export function TerminalPostLayout({ post, tenant, isPreview: isPreviewProp }: T
   };
 
   return (
-    <div className="min-h-screen bg-black font-mono text-foreground pt-28 pb-12 px-2 md:px-0 max-w-4xl mx-auto">
+    <div
+      className={cn(
+        "min-h-screen bg-black font-mono text-foreground pt-28 pb-12 px-2 md:px-0 mx-auto transition-all duration-700",
+        focusMode ? "max-w-5xl" : "max-w-4xl",
+      )}
+    >
       <CommentSection
         postId={post.postId}
         tenantId={tenant.id}

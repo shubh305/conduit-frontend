@@ -26,6 +26,10 @@ export interface Post {
   createdAt: string;
   excerpt: string;
   featuredImage?: string;
+  featuredImageAttribution?: {
+    name: string;
+    url: string;
+  } | null;
   tags: string[];
   status: "draft" | "published" | "archived" | "scheduled";
   authorId: string;

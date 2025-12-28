@@ -1,6 +1,5 @@
 "use client"
 
-import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { FeedItem } from "@/features/feed/types"
 import { Tenant, TiptapContent } from "@/features/blog/types"
@@ -13,6 +12,8 @@ import { getGlobalFeed } from "@/features/feed/api"
 import { mapPostToFeedItem, FeedItemExtended } from "@/features/blog/mappers"
 import { JournalSheet } from "./JournalSheet"
 import { JournalRecommendationsDrawer } from "./JournalRecommendationsDrawer"
+import { cn } from "@/lib/utils";
+import { useTheme } from "@/features/theme/ThemeProvider";
 
 interface JournalArticleLayoutProps {
   post: FeedItem & { content: TiptapContent; readingTimeMinutes: number }
@@ -22,13 +23,14 @@ interface JournalArticleLayoutProps {
 }
 
 export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPreviewProp }: JournalArticleLayoutProps) {
-  const [isCommentsOpen, setIsCommentsOpen] = useState(false)
-  const [isRecommendationsOpen, setIsRecommendationsOpen] = useState(false)
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const isPreview = isPreviewProp || searchParams.get("preview") === "true"
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [containerHeight, setContainerHeight] = useState(0)
+  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+  const [isRecommendationsOpen, setIsRecommendationsOpen] = useState(false);
+  const { focusMode } = useTheme();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const isPreview = isPreviewProp || searchParams.get("preview") === "true";
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerHeight, setContainerHeight] = useState(0);
 
   const [activePost, setActivePost] = useState(post);
   const [nextContent, setNextContent] = useState<FeedItemExtended | null>(null);
@@ -36,15 +38,15 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
   const [isFlipping, setIsFlipping] = useState(false);
   const [flippingPost, setFlippingPost] = useState<
     (FeedItem & { content: TiptapContent; readingTimeMinutes: number }) | null
-  >(null)
+  >(null);
 
   const [frozenPost, setFrozenPost] = useState<
     (FeedItem & { content: TiptapContent; readingTimeMinutes: number }) | null
-  >(null)
+  >(null);
 
   useEffect(() => {
-    setActivePost(post)
-  }, [post])
+    setActivePost(post);
+  }, [post]);
 
   const fetchNextData = useCallback(
     async (currentPostSlug: string) => {
@@ -52,9 +54,9 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
         const { data: globalFeed } = await getGlobalFeed({ limit: 50 });
         const currentIndex = globalFeed.findIndex(p => p.postSlug === currentPostSlug);
 
-        let nextFeedItem: FeedItem | undefined
+        let nextFeedItem: FeedItem | undefined;
         if (currentIndex >= 0 && currentIndex < globalFeed.length - 1) {
-          nextFeedItem = globalFeed[currentIndex + 1]
+          nextFeedItem = globalFeed[currentIndex + 1];
         }
 
         if (nextFeedItem) {
@@ -65,21 +67,20 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
               id: nextFeedItem.tenantId,
               name: nextFeedItem.tenantName,
               slug: nextFeedItem.tenantSlug,
-            })
-            setNextContent(mapped)
+            });
+            setNextContent(mapped);
 
-
-            router.prefetch(`/${nextFeedItem.tenantSlug}/${nextFeedItem.postSlug}`)
+            router.prefetch(`/${nextFeedItem.tenantSlug}/${nextFeedItem.postSlug}`);
           }
         } else {
-          setNextContent(null)
+          setNextContent(null);
         }
       } catch (e) {
-        console.warn("Background fetch failed", e)
+        console.warn("Background fetch failed", e);
       }
     },
     [router],
-  )
+  );
 
   // Initial Fetch Setup
   useEffect(() => {
@@ -90,16 +91,16 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
 
   // Seamless Navigation Handler
   const handleSeamlessPageTurn = () => {
-    if (isFlipping || !nextContent) return
+    if (isFlipping || !nextContent) return;
 
     // 1. Freeze current content and start flip
-    setFrozenPost(activePost)
-    setFlippingPost(activePost)
-    setIsFlipping(true)
+    setFrozenPost(activePost);
+    setFlippingPost(activePost);
+    setIsFlipping(true);
 
     // 2. Setup URL and Fetch
-    const nextUrl = `/${nextContent.tenantSlug || nextContent.tenantId}/${nextContent.postSlug}`
-    const newSlug = nextContent.postSlug
+    const nextUrl = `/${nextContent.tenantSlug || nextContent.tenantId}/${nextContent.postSlug}`;
+    const newSlug = nextContent.postSlug;
 
     setTimeout(() => {
       setActivePost({ ...nextContent, content: nextContent.content });
@@ -107,12 +108,11 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
       window.history.pushState(null, "", nextUrl);
       fetchNextData(newSlug);
     }, 150);
-  }
+  };
 
   const handleManualNavigation = () => {
-
-    router.push("/explore")
-  }
+    router.push("/search");
+  };
 
   useEffect(() => {
     const updateHeight = () => {
@@ -122,26 +122,30 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
           setContainerHeight(Math.min(newHeight, 900));
         }
       }
-    }
+    };
 
-    const timer = setTimeout(updateHeight, 100)
+    const timer = setTimeout(updateHeight, 100);
 
-    window.addEventListener("resize", updateHeight)
+    window.addEventListener("resize", updateHeight);
     return () => {
-      clearTimeout(timer)
-      window.removeEventListener("resize", updateHeight)
-    }
-  }, [])
+      clearTimeout(timer);
+      window.removeEventListener("resize", updateHeight);
+    };
+  }, []);
 
-
-  const ringCount = containerHeight > 0 ? Math.ceil(containerHeight / 30) : 24
+  const ringCount = containerHeight > 0 ? Math.ceil(containerHeight / 30) : 24;
 
   return (
-    <div className="w-full min-h-screen flex flex-col items-center justify-center p-4 md:p-8 lg:p-12 overflow-visible">
+    <div className="w-full min-h-screen flex flex-col items-center justify-start sm:justify-center p-2 xs:p-4 md:p-8 lg:p-12 pt-24 sm:pt-6 overflow-x-hidden">
       {/* 2D LAYOUT CONTAINER - No global 3D context to mess up z-index */}
-      <div className="relative w-full max-w-6xl h-[90vh] min-h-[700px] flex shadow-2xl rounded-r-lg bg-journal-binding overflow-hidden">
+      <div
+        className={cn(
+          "relative w-full h-[85vh] min-h-[500px] md:min-h-[650px] flex shadow-2xl rounded-r-lg bg-journal-binding overflow-hidden transition-all duration-700",
+          focusMode ? "max-w-[1700px]" : "max-w-6xl",
+        )}
+      >
         {/* -- STATIC BINDING COLUMN -- */}
-        <div className="relative w-12 md:w-16 shrink-0 z-20 flex flex-col items-center py-4 overflow-hidden bg-journal-binding shadow-[inset_-2px_0_5px_rgba(0,0,0,0.4)] border-r border-journal-binding-border">
+        <div className="relative w-8 xs:w-12 md:w-16 shrink-0 z-20 flex flex-col items-center py-4 overflow-hidden bg-journal-binding shadow-[inset_-2px_0_5px_rgba(0,0,0,0.4)] border-r border-journal-binding-border">
           {/* Leather Texture & Stitching */}
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/leather.png')] opacity-20 mix-blend-overlay" />
           <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-black/60" />
@@ -150,17 +154,24 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
 
           {/* Back Button */}
           {!isPreview && (
-            <Link
-              href={`/${tenant.slug || tenant.id}`}
+            <button
+              onClick={() => {
+                if (typeof window !== "undefined" && window.history.length > 2) {
+                  router.back();
+                } else {
+                  router.push(`/${tenant.slug || tenant.id}`);
+                }
+              }}
               className="relative z-40 mb-8 flex items-center justify-center w-10 h-10 rounded-full bg-journal-paper/10 text-journal-paper/80 hover:bg-journal-paper/20 hover:text-white transition-all border border-white/10"
+              title="Back to Blog"
             >
               <ArrowLeft size={18} />
-            </Link>
+            </button>
           )}
         </div>
 
         {/* -- SPIRAL RINGS */}
-        <div className="absolute left-[12px] md:left-[22px] top-0 bottom-0 w-16 z-50 flex flex-col justify-between py-4 pointer-events-none">
+        <div className="absolute left-[8px] xs:left-[12px] md:left-[22px] top-0 bottom-0 w-12 xs:w-16 z-30 flex flex-col justify-between py-4 pointer-events-none">
           {Array.from({ length: ringCount }).map((_, i) => (
             <div key={i} className="w-full relative h-[14px] group my-1">
               {/* Hole Punch Shadow on Binding */}
@@ -168,11 +179,11 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
 
               {/* The Metal Coil */}
               <div
-                className="absolute left-[-4px] top-1/2 -translate-y-1/2 h-[18px] w-[70px] bg-gradient-to-b from-journal-coil-metal via-journal-coil-highlight to-journal-coil-shadow rounded-full shadow-[0_4px_6px_rgba(0,0,0,0.4),_inset_0_-1px_1px_rgba(0,0,0,0.6)] transform -rotate-[8deg] origin-left z-50 ring-1 ring-white/30"
+                className="absolute left-[-2px] xs:left-[-4px] top-1/2 -translate-y-1/2 h-[12px] xs:h-[18px] w-[50px] xs:w-[70px] bg-gradient-to-b from-journal-coil-metal via-journal-coil-highlight to-journal-coil-shadow rounded-full shadow-[0_4px_6px_rgba(0,0,0,0.4),_inset_0_-1px_1px_rgba(0,0,0,0.6)] transform -rotate-[8deg] origin-left z-50 ring-1 ring-white/30"
                 style={{ clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%, 15% 50%)" }}
               />
 
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 h-[12px] w-[55px] bg-gradient-to-b from-journal-coil-dark-base via-[#333] to-[#000] rounded-full transform -rotate-[2deg] origin-left -z-10 opacity-90 shadow-inner" />
+              <div className="absolute left-2 xs:left-3 top-1/2 -translate-y-1/2 h-[8px] xs:h-[12px] w-[40px] xs:w-[55px] bg-gradient-to-b from-journal-coil-dark-base via-[#333] to-[#000] rounded-full transform -rotate-[2deg] origin-left -z-10 opacity-90 shadow-inner" />
             </div>
           ))}
         </div>
@@ -188,6 +199,7 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
             <JournalSheet
               key={activePost.postId}
               post={frozenPost || activePost}
+              tenantSlug={tenant.slug || tenant.id}
               onShowRecommendations={() => setIsRecommendationsOpen(true)}
               onShowComments={() => setIsCommentsOpen(true)}
               className="z-10 rounded-l-none border-l border-black/5"
@@ -211,7 +223,7 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
                   skewY: [0, 2, 0],
                 }}
                 transition={{
-                  duration: 1.4, // Truly kinematic speed
+                  duration: 1.4,
                   ease: "easeInOut",
                   times: [0, 0.5, 1],
                 }}
@@ -225,7 +237,12 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
               >
                 {/* FRONT FACE (Old Content) */}
                 <div className="absolute inset-0 backface-hidden bg-noir-hover rounded-r-[2rem] overflow-hidden flex flex-col border-l border-black/5 shadow-[-5px_0_15px_rgba(0,0,0,0.1)]">
-                  <JournalSheet post={flippingPost} disableInitialAnimation={true} isStatic={true} />
+                  <JournalSheet
+                    post={flippingPost}
+                    tenantSlug={tenant.slug || tenant.id}
+                    disableInitialAnimation={true}
+                    isStatic={true}
+                  />
                   {/* CYLINDRICAL SHADING OVERLAY*/}
                   <motion.div
                     initial={{ opacity: 0 }}
@@ -320,9 +337,10 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
       {/* Comments Drawer */}
       <CommentSection
         postId={activePost.postId}
-        tenantId={activePost.tenantId}
+        tenantId={activePost.tenantId || tenant.id}
         isOpen={isCommentsOpen}
         onClose={() => setIsCommentsOpen(false)}
+        className="bg-[var(--journal-paper)] text-foreground border-l border-[var(--journal-binding)]/10 shadow-[-10px_0_30px_rgba(0,0,0,0.05)]"
       />
 
       {/* Recommendations Drawer */}
