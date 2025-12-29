@@ -352,7 +352,7 @@ export function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
               </div>
 
               {isOwner && (
-                <Link href="/studio/settings" legacyBehavior>
+                <Link href="/studio/settings">
                   <Button
                     variant="outline"
                     className={cn(

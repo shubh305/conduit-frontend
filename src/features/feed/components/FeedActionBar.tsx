@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { likePost, unlikePost } from "../api";
 import { SaveToListMenu } from "@/features/lists/components/SaveToListMenu";
+import { useMounted } from "@/hooks/use-mounted";
 
 interface FeedActionBarProps {
   postId: string
@@ -49,6 +50,7 @@ export function FeedActionBar({
   const { theme } = useTheme()
   const { isCyberCopy } = useThemeHelpers()
   const { isPostSaved } = useLibrary()
+  const mounted = useMounted();
 
   const [likes, setLikes] = useState(initialLikes)
   const [isLiked, setIsLiked] = useState(initialIsLiked)
@@ -123,9 +125,9 @@ export function FeedActionBar({
             isVertical && "flex-col gap-1",
           )}
         >
-          {isCyberCopy ? (
+          {mounted && isCyberCopy ? (
             <Heart size={18} fill={isLiked ? "currentColor" : "none"} className={isLiked ? "scale-110" : ""} />
-          ) : theme === "journal" ? (
+          ) : mounted && theme === "journal" ? (
             <Heart
               size={20}
               fill={isLiked ? "currentColor" : "none"}
@@ -143,9 +145,9 @@ export function FeedActionBar({
         <button
           type="button"
           onClick={e => {
-            e.preventDefault()
-            e.stopPropagation()
-            if (isInteractive("comments")) onCommentClick?.()
+            e.preventDefault();
+            e.stopPropagation();
+            if (isInteractive("comments")) onCommentClick?.();
           }}
           className={cn(getIconStyles("comments"), "text-foreground-subtle", isVertical && "flex-col gap-1")}
         >
@@ -192,8 +194,8 @@ export function FeedActionBar({
             <button
               type="button"
               onClick={e => {
-                e.preventDefault()
-                e.stopPropagation()
+                e.preventDefault();
+                e.stopPropagation();
               }}
               className={cn(getIconStyles("save"), isSaved ? iconActive : "text-foreground-subtle")}
             >
@@ -226,9 +228,9 @@ export function FeedActionBar({
             {onRemove && (
               <DropdownMenuItem
                 onClick={e => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  onRemove()
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onRemove();
                 }}
                 className="focus:bg-red-500/10 focus:text-red-500 cursor-pointer text-xs uppercase font-mono tracking-widest text-red-500"
               >
@@ -237,9 +239,9 @@ export function FeedActionBar({
             )}
             <DropdownMenuItem
               onClick={e => {
-                e.preventDefault()
-                e.stopPropagation()
-                toast.info("Coming soon")
+                e.preventDefault();
+                e.stopPropagation();
+                toast.info("Coming soon");
               }}
               className="focus:bg-accent/10 focus:text-accent cursor-pointer text-xs uppercase font-mono tracking-widest"
             >
@@ -249,5 +251,5 @@ export function FeedActionBar({
         </DropdownMenu>
       </div>
     </div>
-  )
+  );
 }

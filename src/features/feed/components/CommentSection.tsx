@@ -10,6 +10,7 @@ import { Comment } from "@/features/comments/types";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { toast } from "sonner";
 import Link from "next/link";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface CommentSectionProps {
   postId: string;
@@ -410,168 +411,181 @@ export function CommentSection({ postId, tenantId, className, isOpen, onClose }:
     );
   }
 
-  if (!isOpen) return null;
-
   return (
-    <>
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] transition-opacity" onClick={onClose} />
+    <AnimatePresence mode="wait">
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] transition-opacity"
+            onClick={onClose}
+          />
 
-      <div
-        className={cn(
-          "fixed inset-y-0 right-0 z-[201] w-full md:w-[450px] shadow-2xl flex flex-col transition-transform duration-300 ease-in-out transform translate-x-0",
-          "bg-noir-panel text-foreground border-l border-noir-border",
-          className,
-        )}
-      >
-        <div className="flex items-center justify-between p-6 border-b border-noir-border">
-          <h2
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className={cn(
-              "text-lg font-bold uppercase tracking-widest",
-              isCyberCopy
-                ? "text-accent font-mono"
-                : config.fontFamily === "serif"
-                  ? "font-serif italic decoration-accent/20 underline underline-offset-8"
-                  : "font-sans",
+              "fixed inset-y-0 right-0 z-[201] w-full md:w-[450px] shadow-2xl flex flex-col",
+              "bg-noir-panel text-foreground border-l border-noir-border",
+              className,
             )}
           >
-            {isSakuraCopy ? "コメント" : "Comments"} ({totalComments})
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-noir-hover rounded-full transition-colors text-foreground-subtle hover:text-accent"
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-6 space-y-8 no-scrollbar">
-          {isLoading && (
-            <div className="text-center py-10 text-foreground-subtle font-mono uppercase text-xs animate-pulse tracking-[0.2em]">
-              RECEIVING_TRANSMISSION...
-            </div>
-          )}
-          {!isLoading && comments.length === 0 && (
-            <div className="text-center py-10 text-foreground-subtle italic opacity-50">
-              No signals found. Initiate contact.
-            </div>
-          )}
-
-          {comments.map(comment => (
-            <CommentItem key={comment.id} comment={comment} />
-          ))}
-        </div>
-
-        <div className="p-6 border-t mt-auto border-noir-border bg-noir-bg/50 backdrop-blur-md">
-          {user ? (
-            <>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full overflow-hidden bg-noir-hover relative border border-noir-border shadow-inner">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`}
-                      alt={user.username}
-                      className="object-cover w-full h-full"
-                    />
-                  </div>
-                  <span className="text-xs font-bold font-mono uppercase tracking-widest text-foreground-muted">
-                    {user.displayName || user.username}
-                  </span>
-                </div>
-
-                {replyingToName && (
-                  <div className="flex items-center gap-2 text-[10px] text-accent font-bold uppercase tracking-widest bg-accent/5 px-2 py-1 border border-accent/20">
-                    <span>
-                      {isSakuraCopy ? "返信先：" : "Replying to "}
-                      {replyingToName}
-                    </span>
-                    <button
-                      onClick={cancelReply}
-                      className="hover:text-foreground text-foreground-subtle transition-colors"
-                    >
-                      <X size={12} />
-                    </button>
-                  </div>
+            <div className="flex items-center justify-between p-6 border-b border-noir-border">
+              <h2
+                className={cn(
+                  "text-lg font-bold uppercase tracking-widest",
+                  isCyberCopy
+                    ? "text-accent font-mono"
+                    : config.fontFamily === "serif"
+                      ? "font-serif italic decoration-accent/20 underline underline-offset-8"
+                      : "font-sans",
                 )}
-              </div>
-
-              <form onSubmit={handleSubmit} className="relative">
-                <textarea
-                  ref={textareaRef}
-                  value={input}
-                  onChange={e => setInput(e.target.value)}
-                  placeholder={isSakuraCopy ? "あなたの考えを教えてください..." : "Input thoughts..."}
-                  className={cn(
-                    "w-full h-32 p-4 pb-14 resize-none focus:outline-none focus:border-accent text-sm bg-noir-bg border border-noir-border text-foreground transition-all shadow-inner",
-                    isCyberCopy ? "font-mono rounded-none" : "rounded-xl",
-                  )}
-                />
-
-                <div className="absolute bottom-16 left-4 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleFormat("bold")}
-                    className="p-1 text-foreground-subtle hover:text-accent transition-colors"
-                    title="Bold"
-                  >
-                    <Bold size={16} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleFormat("italic")}
-                    className="p-1 text-foreground-subtle hover:text-accent transition-colors"
-                    title="Italic"
-                  >
-                    <Italic size={16} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleFormat("underline")}
-                    className="p-1 text-foreground-subtle hover:text-accent transition-colors"
-                    title="Underline"
-                  >
-                    <Underline size={16} />
-                  </button>
-                </div>
-
-                <div className="flex justify-between items-center mt-3">
-                  <div className="flex gap-2"></div>
-                  <Button
-                    type="submit"
-                    disabled={!input.trim() || isSubmitting}
-                    className={cn(
-                      "px-8 h-9 transition-all text-xs font-bold uppercase tracking-widest",
-                      isCyberCopy
-                        ? "bg-accent text-noir-bg hover:brightness-110 rounded-none font-mono"
-                        : "bg-accent text-noir-bg hover:shadow-lg hover:shadow-accent/20",
-                    )}
-                    style={{ borderRadius: isCyberCopy ? "0" : "var(--theme-radius-full)" }}
-                  >
-                    {isSubmitting
-                      ? isSakuraCopy
-                        ? "送信中..."
-                        : "Processing..."
-                      : replyingToId
-                        ? isSakuraCopy
-                          ? "返信を送信"
-                          : "Post Reply"
-                        : isSakuraCopy
-                          ? "コメントする"
-                          : "Respond"}
-                  </Button>
-                </div>
-              </form>
-            </>
-          ) : (
-            <div className="text-center py-6 text-sm">
-              <Link href="/login" className="text-accent font-bold hover:underline">
-                Sign in
-              </Link>{" "}
-              <span className="text-foreground-muted">to join the transmission.</span>
+              >
+                {isSakuraCopy ? "コメント" : "Comments"} ({totalComments})
+              </h2>
+              <button
+                onClick={onClose}
+                className="p-2 hover:bg-noir-hover rounded-full transition-colors text-foreground-subtle hover:text-accent"
+              >
+                <X size={20} />
+              </button>
             </div>
-          )}
-        </div>
-      </div>
-    </>
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-8 no-scrollbar">
+              {isLoading && (
+                <div className="text-center py-10 text-foreground-subtle font-mono uppercase text-xs animate-pulse tracking-[0.2em]">
+                  RECEIVING_TRANSMISSION...
+                </div>
+              )}
+              {!isLoading && comments.length === 0 && (
+                <div className="text-center py-10 text-foreground-subtle italic opacity-50">
+                  No signals found. Initiate contact.
+                </div>
+              )}
+
+              {comments.map(comment => (
+                <CommentItem key={comment.id} comment={comment} />
+              ))}
+            </div>
+
+            <div className="p-6 border-t mt-auto border-noir-border bg-noir-bg/50 backdrop-blur-md">
+              {user ? (
+                <>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full overflow-hidden bg-noir-hover relative border border-noir-border shadow-inner">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`}
+                          alt={user.username}
+                          className="object-cover w-full h-full"
+                        />
+                      </div>
+                      <span className="text-xs font-bold font-mono uppercase tracking-widest text-foreground-muted">
+                        {user.displayName || user.username}
+                      </span>
+                    </div>
+
+                    {replyingToName && (
+                      <div className="flex items-center gap-2 text-[10px] text-accent font-bold uppercase tracking-widest bg-accent/5 px-2 py-1 border border-accent/20">
+                        <span>
+                          {isSakuraCopy ? "返信先：" : "Replying to "}
+                          {replyingToName}
+                        </span>
+                        <button
+                          onClick={cancelReply}
+                          className="hover:text-foreground text-foreground-subtle transition-colors"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  <form onSubmit={handleSubmit} className="relative">
+                    <textarea
+                      ref={textareaRef}
+                      value={input}
+                      onChange={e => setInput(e.target.value)}
+                      placeholder={isSakuraCopy ? "あなたの考えを教えてください..." : "Input thoughts..."}
+                      className={cn(
+                        "w-full h-32 p-4 pb-14 resize-none focus:outline-none focus:border-accent text-sm bg-noir-bg border border-noir-border text-foreground transition-all shadow-inner",
+                        isCyberCopy ? "font-mono rounded-none" : "rounded-xl",
+                      )}
+                    />
+
+                    <div className="absolute bottom-16 left-4 flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleFormat("bold")}
+                        className="p-1 text-foreground-subtle hover:text-accent transition-colors"
+                        title="Bold"
+                      >
+                        <Bold size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleFormat("italic")}
+                        className="p-1 text-foreground-subtle hover:text-accent transition-colors"
+                        title="Italic"
+                      >
+                        <Italic size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleFormat("underline")}
+                        className="p-1 text-foreground-subtle hover:text-accent transition-colors"
+                        title="Underline"
+                      >
+                        <Underline size={16} />
+                      </button>
+                    </div>
+
+                    <div className="flex justify-between items-center mt-3">
+                      <div className="flex gap-2"></div>
+                      <Button
+                        type="submit"
+                        disabled={!input.trim() || isSubmitting}
+                        className={cn(
+                          "px-8 h-9 transition-all text-xs font-bold uppercase tracking-widest",
+                          isCyberCopy
+                            ? "bg-accent text-noir-bg hover:brightness-110 rounded-none font-mono"
+                            : "bg-accent text-noir-bg hover:shadow-lg hover:shadow-accent/20",
+                        )}
+                        style={{ borderRadius: isCyberCopy ? "0" : "var(--theme-radius-full)" }}
+                      >
+                        {isSubmitting
+                          ? isSakuraCopy
+                            ? "送信中..."
+                            : "Processing..."
+                          : replyingToId
+                            ? isSakuraCopy
+                              ? "返信を送信"
+                              : "Post Reply"
+                            : isSakuraCopy
+                              ? "コメントする"
+                              : "Respond"}
+                      </Button>
+                    </div>
+                  </form>
+                </>
+              ) : (
+                <div className="text-center py-6 text-sm">
+                  <Link href="/login" className="text-accent font-bold hover:underline">
+                    Sign in
+                  </Link>{" "}
+                  <span className="text-foreground-muted">to join the transmission.</span>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 }

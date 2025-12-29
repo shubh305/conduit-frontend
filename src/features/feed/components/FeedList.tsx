@@ -83,15 +83,28 @@ export function FeedList({
     }
   };
 
-  if (mounted && isTerminalCopy) {
+  if (!mounted) {
+    return (
+      <ProfessionalFeedLayout
+        items={items}
+        blogTitle={blogTitle}
+        blogDescription={blogDescription}
+        hasMore={hasMore}
+        isLoadingMore={isLoadingMore}
+        onLoadMore={handleLoadMore}
+        loadMoreText=""
+      />
+    );
+  }
+
+  if (isTerminalCopy) {
     return <TerminalFeedLayout items={items} blogDescription={blogDescription} blogTitle={blogTitle} />;
   }
 
-  if (mounted && useGridLayout) {
+  if (useGridLayout) {
     const featured = items[0];
-    const rest = items.slice(1);
 
-    if (mounted && isTechieCopy) {
+    if (isTechieCopy) {
       return (
         <TechieFeedLayout
           items={items}
@@ -105,7 +118,7 @@ export function FeedList({
       );
     }
 
-    if (mounted && isJournalCopy) {
+    if (isJournalCopy) {
       return (
         <JournalFeedLayout
           items={items}
@@ -118,7 +131,7 @@ export function FeedList({
         />
       );
     }
-    if (mounted && isRoninCopy) {
+    if (isRoninCopy) {
       return (
         <RoninFeedLayout
           items={items}
@@ -131,7 +144,7 @@ export function FeedList({
         />
       );
     }
-    if (mounted && isSakuraCopy) {
+    if (isSakuraCopy) {
       return (
         <SakuraFeedLayout
           items={items}
@@ -145,7 +158,7 @@ export function FeedList({
       );
     }
 
-    if (mounted && theme === "octane") {
+    if (theme === "octane") {
       return (
         <OctaneFeedLayout
           items={items}
@@ -185,12 +198,11 @@ export function FeedList({
                 !isSakuraCopy && !isJournalCopy && !isTechieCopy && "p-4 md:p-8",
               )}
             >
-              {/* Featured Item in Grid */}
               <div className={cn(isTechieCopy && "col-span-full")}>
                 <FeedCard item={featured} variant={isTechieCopy ? "default" : "default"} />
               </div>
 
-              {rest.map(item => (
+              {items.slice(1).map(item => (
                 <FeedCard key={item.postId} item={item} />
               ))}
 
