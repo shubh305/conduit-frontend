@@ -9,3 +9,5 @@ export * from "./variants/post-variants";
 export * from "./variants/chart-variants";
 export * from "./variants/layout-variants";
 export * from "./variants/studio-variants";
+export * from "./variants/popover-variants";
+export * from "./variants/input-variants";

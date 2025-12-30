@@ -2,7 +2,6 @@ import { ThemeVariant } from "./types";
 
 export type LabelKey =
   | "home"
-  | "explore"
   | "library"
   | "activeSession"
   | "profile"
@@ -96,9 +95,179 @@ export type LabelKey =
   | "published"
   | "articleTitlePlaceholder"
   | "addTags"
-  | "broadcastFailure";
+  | "broadcastFailure"
+  | "collapseSection"
+  | "expandSection"
+  | "newSearch"
+  | "searchResults"
+  | "waitingForSignal"
+  | "searchingDatabase"
+  | "postsTab"
+  | "publicationsTab"
+  | "peopleTab"
+  | "followAction"
+  | "followingAction"
+  | "noStoriesFound"
+  | "noNodesFound"
+  | "noFrequenciesFound";
 
 const labelMap: Record<LabelKey, Record<ThemeVariant | "default", string>> = {
+  newSearch: {
+    cyber: "NEW_SEARCH",
+    sakura: "New Search (新しい検索)",
+    ronin: "Seek New Path",
+    octane: "NEW_SEARCH",
+    journal: "New Search",
+    terminal: "INIT_SEARCH_SEQUENCE",
+    classic: "New Search",
+    "classic-white": "New Search",
+    professional: "New Search",
+    techie: "INIT_QUERY",
+    default: "New Search",
+  },
+  searchResults: {
+    cyber: "SEARCH_RESULTS",
+    sakura: "Search Results (検索結果)",
+    ronin: "Findings (発見)",
+    octane: "RESULTS",
+    journal: "Search Results",
+    terminal: "GREP_RESULTS",
+    classic: "Search Results",
+    "classic-white": "Search Results",
+    professional: "Search Results",
+    techie: "QUERY_RESULTS",
+    default: "Search Results",
+  },
+  waitingForSignal: {
+    cyber: "AWAITING_SIGNAL...",
+    sakura: "信号を待っています...",
+    ronin: "Waiting for path... (道を待つ)",
+    octane: "AWAITING_SIGNAL...",
+    journal: "Awaiting entry...",
+    terminal: "waiting_for_stdin...",
+    classic: "Waiting for search signal...",
+    "classic-white": "Waiting for search signal...",
+    professional: "Waiting for search signal...",
+    techie: "AWAITING_INPUT",
+    default: "Waiting for search signal...",
+  },
+  searchingDatabase: {
+    cyber: "SEARCHING_DATABASE...",
+    sakura: "データベースを検索中...",
+    ronin: "Searching records...",
+    octane: "SEARCHING...",
+    journal: "Searching...",
+    terminal: "DB_SHARD_SCAN",
+    classic: "Searching database...",
+    "classic-white": "Searching...",
+    professional: "Searching...",
+    techie: "DB_QUERY_ACTIVE",
+    default: "Searching...",
+  },
+  postsTab: {
+    cyber: "POSTS",
+    sakura: "投稿 (Posts)",
+    ronin: "Chronicles (記)",
+    octane: "MODELS",
+    journal: "Entries",
+    terminal: "--posts",
+    classic: "Posts",
+    "classic-white": "Posts",
+    professional: "Posts",
+    techie: "BLOB_DATA",
+    default: "Posts",
+  },
+  publicationsTab: {
+    cyber: "NODES",
+    sakura: "出版物 (Pubs)",
+    ronin: "Territories (領)",
+    octane: "FLEETS",
+    journal: "Archives",
+    terminal: "--nodes",
+    classic: "Publications",
+    "classic-white": "Publications",
+    professional: "Publications",
+    techie: "MODULE_EXPORTS",
+    default: "Publications",
+  },
+  peopleTab: {
+    cyber: "USERS",
+    sakura: "ユーザー (People)",
+    ronin: "Allies (友)",
+    octane: "DRIVERS",
+    journal: "Authors",
+    terminal: "--users",
+    classic: "People",
+    "classic-white": "People",
+    professional: "People",
+    techie: "SYS_USERS",
+    default: "People",
+  },
+  followAction: {
+    cyber: "LINK",
+    sakura: "Follow (フォローする)",
+    ronin: "Pledge (誓)",
+    octane: "Follow",
+    journal: "Follow",
+    terminal: "JOIN",
+    classic: "Follow",
+    "classic-white": "Follow",
+    professional: "Follow",
+    techie: "INIT_LINK",
+    default: "Follow",
+  },
+  followingAction: {
+    cyber: "LINKED",
+    sakura: "Following (フォロー中)",
+    ronin: "Allied (連)",
+    octane: "Following",
+    journal: "Following",
+    terminal: "MEMBER",
+    classic: "Following",
+    "classic-white": "Following",
+    professional: "Following",
+    techie: "LINK_ACTIVE",
+    default: "Following",
+  },
+  noStoriesFound: {
+    cyber: "NO_TRANSMISSIONS_MATCHED",
+    sakura: "投稿が見つかりませんでした (No stories found)",
+    ronin: "The path is empty.",
+    octane: "NO_MODELS_FOUND",
+    journal: "No entries found matching your search.",
+    terminal: "grep: no matches found",
+    classic: "No stories found matching your search.",
+    "classic-white": "No stories found",
+    professional: "No stories found",
+    techie: "NULL_DATA_SET",
+    default: "No stories found",
+  },
+  noNodesFound: {
+    cyber: "NO_PEERS_IDENTIFIED",
+    sakura: "ユーザーが見つかりませんでした",
+    ronin: "No allies identified.",
+    octane: "NO_DRIVERS_FOUND",
+    journal: "No authors identified.",
+    terminal: "grep: /etc/passwd: identity not found",
+    classic: "No users identified.",
+    "classic-white": "No users found",
+    professional: "No users identified.",
+    techie: "PEER_NOT_FOUND",
+    default: "No users identified.",
+  },
+  noFrequenciesFound: {
+    cyber: "NO_FREQUENCIES_MATCHED",
+    sakura: "周波数が一致しませんでした",
+    ronin: "No frequencies found.",
+    octane: "NO_FLEETS_FOUND",
+    journal: "No archives found.",
+    terminal: "grep: /dev/null: no output",
+    classic: "No frequencies identified.",
+    "classic-white": "No publications found",
+    professional: "No publications found",
+    techie: "MODULE_NOT_FOUND",
+    default: "No frequencies identified.",
+  },
   home: {
     cyber: "HOME",
     sakura: "Home",
@@ -112,26 +281,13 @@ const labelMap: Record<LabelKey, Record<ThemeVariant | "default", string>> = {
     techie: "Command Center",
     default: "Home",
   },
-  explore: {
-    cyber: "EXPLORE",
-    sakura: "Explore",
-    ronin: "Path",
-    octane: "Browse",
-    journal: "Browse",
-    terminal: "~/explore",
-    classic: "Explore",
-    "classic-white": "Explore",
-    professional: "Explore",
-    techie: "Discover Specs",
-    default: "Explore",
-  },
   library: {
     cyber: "Assets",
     sakura: "ライブラリ",
     ronin: "Library",
-    octane: "LIBRARY",
+    octane: "Library",
     journal: "Library",
-    terminal: "LIBRARY",
+    terminal: "~/directory",
     techie: "Assets",
     classic: "Library",
     "classic-white": "Library",
@@ -1353,6 +1509,32 @@ const labelMap: Record<LabelKey, Record<ThemeVariant | "default", string>> = {
     professional: "Awaiting...",
     default: "Awaiting signal broadcast...",
   },
+  collapseSection: {
+    cyber: "MINIMIZE_INTERFACE",
+    sakura: "閉じる",
+    ronin: "収 (Collapse)",
+    octane: "MINIMIZE",
+    journal: "Collapse",
+    terminal: "COLLAPSE",
+    techie: "MIN_VIEW",
+    classic: "Collapse",
+    "classic-white": "Collapse",
+    professional: "Minimize",
+    default: "Collapse Section",
+  },
+  expandSection: {
+    cyber: "EXPAND_MATRIX",
+    sakura: "開く",
+    ronin: "拡 (Expand)",
+    octane: "EXPAND",
+    journal: "Expand",
+    terminal: "EXPAND",
+    techie: "EXP_VIEW",
+    classic: "Expand",
+    "classic-white": "Expand",
+    professional: "Expand",
+    default: "Expand Section",
+  },
 };
 
 export function getLabel(key: LabelKey, theme: ThemeVariant): string {
@@ -1361,7 +1543,6 @@ export function getLabel(key: LabelKey, theme: ThemeVariant): string {
 
 const japaneseSubLabels: Record<string, { sakura?: string; ronin?: string }> = {
   home: { sakura: "ホーム", ronin: "家" },
-  explore: { sakura: "探索", ronin: "道" },
   library: { sakura: "保存", ronin: "蔵" },
   mySites: { sakura: "マイサイト", ronin: "城" },
   forYou: { sakura: "おすすめ", ronin: "選" },
