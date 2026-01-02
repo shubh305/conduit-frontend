@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 // Settings Sidebar
 export function getSettingsSidebarClasses(theme: ThemeVariant): string {
   const base =
-    "fixed top-0 right-0 h-full w-full max-w-md z-[101] shadow-2xl transform transition-transform duration-300 ease-out border-l flex flex-col"
+    "fixed top-0 right-0 h-full w-full md:max-w-md z-[150] shadow-2xl transform transition-transform duration-300 ease-out md:border-l flex flex-col";
 
   const styles = {
     techie: "bg-noir-bg border-noir-border text-foreground",

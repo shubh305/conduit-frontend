@@ -65,7 +65,8 @@ export function getButtonClasses(theme: ThemeVariant, variant: "primary" | "ghos
 }
 
 export function getToolbarButtonClasses(theme: ThemeVariant, isActive: boolean): string {
-  const base = "p-2 transition-all duration-200";
+  const base =
+    "flex items-center justify-center p-2.5 md:p-2 min-w-[36px] min-h-[36px] md:min-w-0 md:min-h-0 transition-all duration-200";
   
   if (theme === "cyber") {
     return cn(

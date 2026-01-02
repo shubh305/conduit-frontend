@@ -25,7 +25,7 @@ export function getTabButtonClasses(theme: ThemeVariant, isSelected: boolean): s
 }
 
 export function getPostItemClasses(theme: ThemeVariant): string {
-  const base = "group py-10 flex justify-between items-start transition-all duration-300 px-4 -mx-4";
+  const base = "group py-8 md:py-10 flex justify-between items-start transition-all duration-300 md:-mx-4 px-4";
   
   const styles = {
     journal: "hover:bg-accent/5",

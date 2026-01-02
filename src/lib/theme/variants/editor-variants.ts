@@ -13,7 +13,7 @@ export function getEditorContainerClasses(theme: ThemeVariant): string {
 }
 
 export function getEditorProseClasses(theme: ThemeVariant, isDark: boolean): string {
-  const base = "max-w-none focus:outline-none min-h-[500px] w-full";
+  const base = "max-w-none focus:outline-none min-h-[300px] md:min-h-[500px] w-full";
   
   switch (theme) {
     case "journal":
