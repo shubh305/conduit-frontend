@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Settings, LogOut, LayoutDashboard, UserIcon, LogIn, UserPlus, Bookmark } from "lucide-react";
+import { Settings, LogOut, LayoutDashboard, UserIcon, LogIn, UserPlus } from "lucide-react";
 import { useThemeHelpers } from "@/features/theme/ThemeProvider";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/features/auth/AuthProvider";
@@ -16,9 +16,13 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 
-export function UserNavWidget() {
+interface UserNavWidgetProps {
+  variant?: "top-nav" | "bottom-nav";
+}
+
+export function UserNavWidget({ variant = "top-nav" }: UserNavWidgetProps) {
   const pathname = usePathname();
-  const { theme } = useThemeHelpers();
+  const { theme, isRoninCopy } = useThemeHelpers();
   const { user, logout } = useAuth();
   const t = useThemeLabel();
 
@@ -31,63 +35,78 @@ export function UserNavWidget() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="outline-none">
-        <div
-          className={cn(
-            "w-9 h-9 flex items-center justify-center transition-all border shadow-lg overflow-hidden",
-            "bg-noir-panel border-noir-border text-foreground hover:border-accent hover:text-accent",
-            getRoundedClass(theme, "full"),
-          )}
-        >
-          {user ? (
-            <span className="font-mono text-xs font-bold transition-all group-hover:scale-110">{userInitial}</span>
-          ) : (
-            <UserIcon size={16} />
-          )}
-        </div>
+      <DropdownMenuTrigger className="outline-none cursor-pointer">
+        {variant === "top-nav" ? (
+          <div
+            className={cn(
+              "w-9 h-9 flex items-center justify-center transition-all border shadow-lg overflow-hidden",
+              "bg-noir-panel border-noir-border text-foreground hover:border-accent hover:text-accent",
+              getRoundedClass(theme, "full"),
+            )}
+          >
+            {user ? (
+              <span className="font-mono text-xs font-bold transition-all group-hover:scale-110">{userInitial}</span>
+            ) : (
+              <UserIcon size={16} />
+            )}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-1 text-foreground-muted hover:text-foreground transition-colors">
+            <UserIcon size={20} strokeWidth={1.5} />
+            <span className="text-[10px] uppercase tracking-wide">{user ? t("profile") : t("signIn")}</span>
+          </div>
+        )}
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        align="end"
+        align={variant === "top-nav" ? "end" : "center"}
+        side={variant === "top-nav" ? "bottom" : "top"}
+        sideOffset={variant === "top-nav" ? 4 : 12}
         className={cn(
-          "w-60 p-2 z-[200] transition-all animate-in fade-in slide-in-from-top-2 duration-300",
-          "bg-noir-panel border-noir-border border shadow-2xl backdrop-blur-md",
+          "w-64 p-2 z-[200] transition-all animate-in fade-in zoom-in-95 duration-200",
+          isRoninCopy
+            ? "bg-black/80 border-accent/40 border-2 shadow-[0_0_20px_rgba(var(--accent-rgb),0.2)] backdrop-blur-xl"
+            : "bg-noir-panel border-noir-border border shadow-2xl backdrop-blur-md",
           getRoundedClass(theme, "lg"),
         )}
       >
         {user ? (
           <>
-            <div className="px-4 py-3 border-b border-noir-border mb-1">
-              <div className="text-[10px] font-mono text-accent uppercase tracking-[0.3em] truncate">
+            <div className={cn("px-4 py-3 mb-1 border-b", isRoninCopy ? "border-accent/20" : "border-noir-border")}>
+              <div
+                className={cn(
+                  "text-[10px] uppercase tracking-[0.3em] truncate",
+                  isRoninCopy ? "text-accent font-serif italic" : "text-accent font-mono",
+                )}
+              >
                 @{user.username}
               </div>
-              <div className="text-[8px] text-foreground-subtle font-mono uppercase tracking-[0.1em] opacity-40 mt-0.5">
+              <div
+                className={cn(
+                  "text-[8px] uppercase tracking-[0.1em] opacity-40 mt-0.5",
+                  isRoninCopy ? "text-foreground font-serif" : "text-foreground-subtle font-mono",
+                )}
+              >
                 {t("activeSession")}
               </div>
             </div>
 
             <DropdownMenuItem
               asChild
-              className={cn("cursor-pointer focus:bg-noir-hover transition-colors", getRoundedClass(theme, "md"))}
+              className={cn(
+                "cursor-pointer transition-colors outline-none",
+                isRoninCopy ? "focus:bg-accent/10" : "focus:bg-noir-hover",
+                getRoundedClass(theme, "md"),
+              )}
             >
               <Link
                 href={`/u/${user.username}`}
-                className="flex items-center gap-3 px-4 py-2.5 text-xs text-foreground-subtle hover:text-foreground font-mono uppercase tracking-widest"
+                className={cn(
+                  "flex items-center gap-3 px-4 py-2.5 text-[10px] hover:text-foreground uppercase tracking-widest",
+                  isRoninCopy ? "font-serif italic text-foreground/80" : "font-mono text-foreground-subtle",
+                )}
               >
-                <UserIcon size={14} className="opacity-70" />
+                <UserIcon size={14} className={cn("opacity-70", isRoninCopy && "text-accent")} />
                 <span>{t("profile")}</span>
-              </Link>
-            </DropdownMenuItem>
-
-            <DropdownMenuItem
-              asChild
-              className={cn("cursor-pointer focus:bg-noir-hover transition-colors", getRoundedClass(theme, "md"))}
-            >
-              <Link
-                href="/me/library"
-                className="flex items-center gap-3 px-4 py-2.5 text-xs text-foreground-subtle hover:text-foreground font-mono uppercase tracking-widest"
-              >
-                <Bookmark size={14} className="opacity-70" />
-                <span>{t("library")}</span>
               </Link>
             </DropdownMenuItem>
 
@@ -122,11 +141,12 @@ export function UserNavWidget() {
             <DropdownMenuItem
               onClick={logout}
               className={cn(
-                "flex items-center gap-3 px-4 py-2.5 text-xs text-red-500 focus:text-red-400 cursor-pointer focus:bg-red-500/5 font-mono uppercase tracking-widest",
+                "flex items-center gap-3 px-4 py-2.5 text-[10px] text-red-500 focus:text-accent cursor-pointer font-mono uppercase tracking-widest outline-none",
+                isRoninCopy ? "focus:bg-accent/10 font-serif italic" : "focus:bg-red-500/5",
                 getRoundedClass(theme, "md"),
               )}
             >
-              <LogOut size={14} />
+              <LogOut size={14} className={isRoninCopy ? "text-accent" : ""} />
               <span>{t("signOut")}</span>
             </DropdownMenuItem>
           </>

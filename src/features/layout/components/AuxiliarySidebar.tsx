@@ -1,19 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { Search, ArrowUpRight } from "lucide-react";
-import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider"
+import { ArrowUpRight, Search } from "lucide-react";
+import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
 import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
-import { searchUsers } from "@/features/search/api";
+import { Suspense, useEffect, useState } from "react";
 import { getGlobalFeed } from "@/features/feed/api";
 import { Profile } from "@/features/profile/types";
-import { useState, useEffect, Suspense } from "react";
+import { searchUsers } from "@/features/search/api";
 import { useThemeLabel } from "@/components/theme";
 
-
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  const { isCyberCopy, isRoninCopy, isOctaneCopy, isJournalCopy, isTechieCopy } = useThemeHelpers()
+  const { isCyberCopy, isRoninCopy, isOctaneCopy, isJournalCopy, isTechieCopy } = useThemeHelpers();
 
   if (isTechieCopy) {
     return (
@@ -21,7 +20,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
         <div className="w-1.5 h-6 bg-accent shadow-[0_0_10px_rgba(var(--accent-rgb),0.5)]" />
         <h3 className="text-xl font-sans font-black text-white uppercase tracking-tighter italic">{children}</h3>
       </div>
-    )
+    );
   }
 
   return (
@@ -44,30 +43,59 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
     >
       {children}
     </h3>
-  )
+  );
 }
 
-function Wrapper({ children, className }: { children: React.ReactNode; className?: string }) {
-  const { isTerminalCopy, isJournalCopy, isTechieCopy } = useThemeHelpers()
+export function AuxiliarySidebar({ isOpen = false, onClose }: { isOpen?: boolean; onClose?: () => void }) {
+  return (
+    <Suspense
+      fallback={
+        <Wrapper isOpen={isOpen} className={cn(!isOpen && "hidden xl:flex")}>
+          <div className="animate-pulse h-20 bg-noir-hover rounded" />
+        </Wrapper>
+      }
+    >
+      <Wrapper isOpen={isOpen} className={cn(!isOpen && "translate-x-full xl:translate-x-0 xl:flex")}>
+        {/* Mobile Header */}
+        <div className="flex xl:hidden items-center justify-between mb-8 pb-4 border-b border-border-primary">
+          <span className="font-black tracking-tighter uppercase text-xl">Discovery</span>
+          <button onClick={onClose} className="p-2 -mr-2 text-foreground-muted hover:text-foreground cursor-pointer">
+            ✕
+          </button>
+        </div>
+        <AuxiliarySidebarContent />
+      </Wrapper>
+    </Suspense>
+  );
+}
 
-
+function Wrapper({ children, className, isOpen }: { children: React.ReactNode; className?: string; isOpen?: boolean }) {
+  const { config } = useTheme();
+  const { isTerminalCopy, isJournalCopy, isTechieCopy } = useThemeHelpers();
 
   return (
     <aside
       className={cn(
-        "hidden xl:flex flex-col min-h-screen fixed right-0 top-16 w-80 z-30 px-6 py-8 h-[calc(100vh-4rem)] overflow-y-auto no-scrollbar transition-colors duration-500",
-
+        "flex flex-col min-h-screen fixed right-0 top-0 xl:top-16 w-80 z-[170] xl:z-30 px-6 py-8 h-screen xl:h-[calc(100vh-4rem)] overflow-y-auto no-scrollbar transition-all duration-500 cursor-pointer",
+        !isOpen && "translate-x-full xl:translate-x-0",
         isTerminalCopy
           ? "border-l border-accent/20 bg-black text-accent font-mono"
           : isTechieCopy
-            ? "border-none shadow-[-10px_0_30px_rgba(0,0,0,0.4)] bg-noir-bg"
+            ? "border-none shadow-[-10px_0_30px_rgba(0,0,0,0.4)] bg-noir-bg backdrop-blur-xl"
             : isJournalCopy
-              ? "bg-journal-paper border-l-4 border-double border-accent/20 custom-scrollbar"
-              : "border-l border-border-primary bg-bg-sidebar",
+              ? "bg-[#FDF5E6] border-l-4 border-double border-accent/20 custom-scrollbar shadow-2xl"
+              : cn("border-l border-border-primary shadow-2xl", config.isDark ? "bg-bg-sidebar" : "bg-white"),
         className,
       )}
       style={{
-        backgroundColor: isTerminalCopy || isTechieCopy || isJournalCopy ? undefined : "var(--bg-sidebar)",
+        backgroundColor:
+          isTerminalCopy || isTechieCopy || isJournalCopy
+            ? isJournalCopy
+              ? "#FDF5E6"
+              : isTerminalCopy
+                ? "#000000"
+                : undefined
+            : "var(--bg-sidebar)",
         borderColor: isTerminalCopy || isTechieCopy || isJournalCopy ? undefined : "var(--border-primary)",
       }}
     >
@@ -80,42 +108,26 @@ function Wrapper({ children, className }: { children: React.ReactNode; className
   );
 }
 
-export function AuxiliarySidebar() {
-  return (
-    <Suspense
-      fallback={
-        <Wrapper>
-          <div className="animate-pulse h-20 bg-noir-hover rounded" />
-        </Wrapper>
-      }
-    >
-      <AuxiliarySidebarContent />
-    </Suspense>
-  );
-}
-
-function AuxiliarySidebarContent() {
-  const { config } = useTheme()
+export function AuxiliarySidebarContent() {
+  const { config } = useTheme();
   const searchParams = useSearchParams();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
 
   const query = searchParams.get("q");
 
-
-  const { isTerminalCopy, isJournalCopy, isTechieCopy } = useThemeHelpers()
-
+  const { isTerminalCopy, isJournalCopy, isTechieCopy } = useThemeHelpers();
 
   const t = useThemeLabel();
   const searchPlaceholder = t("search");
   const recommendedLabel = t("recommended");
   const signalSourcesLabel = t("signalSources");
 
-  const recommendedTitle = isTechieCopy ? "optimized_paths" : recommendedLabel
-  const signalSourcesTitle = isTechieCopy ? "peer_nodes" : signalSourcesLabel
+  const recommendedTitle = isTechieCopy ? "optimized_paths" : recommendedLabel;
+  const signalSourcesTitle = isTechieCopy ? "peer_nodes" : signalSourcesLabel;
   const noTagsText = t("noTags");
   const noUsersText = t("noUsers");
-
+  // Sync right sidebar: ShellLayout handles the state centrally
 
   useEffect(() => {
     if (query && query !== searchTerm) {
@@ -123,7 +135,6 @@ function AuxiliarySidebarContent() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
-
 
   const [tags, setTags] = useState<string[]>([]);
 
@@ -145,7 +156,6 @@ function AuxiliarySidebarContent() {
     }
   };
 
-
   const [whoToFollow, setWhoToFollow] = useState<Profile[]>([]);
 
   useEffect(() => {
@@ -159,7 +169,7 @@ function AuxiliarySidebarContent() {
   }, []);
 
   return (
-    <Wrapper>
+    <>
       {/* Search */}
       {/* Search */}
       <div
@@ -199,7 +209,7 @@ function AuxiliarySidebarContent() {
               ? "border-none text-accent placeholder:text-accent/50 pl-6 font-mono normal-case"
               : "border-b border-border-primary text-foreground focus:border-accent placeholder:text-foreground-subtle bg-transparent",
             isJournalCopy &&
-              "border-b border-accent/20 text-journal-ink placeholder:text-journal-ink/40 font-serif normal-case tracking-normal italic focus:border-accent",
+              "border-b border-accent/20 text-journal-ink placeholder:text-journal-ink/60 font-serif normal-case tracking-normal italic focus:border-accent",
             isTechieCopy && "border-none text-accent-secondary placeholder:text-accent-secondary/50 font-mono pl-6",
           )}
           style={{
@@ -223,7 +233,7 @@ function AuxiliarySidebarContent() {
                   key={tag}
                   href={`/search?q=${encodeURIComponent(tag)}`}
                   className={cn(
-                    "px-0 py-1 text-xs font-medium transition-all inline-block mr-4 mb-2 border-b border-transparent",
+                    "px-0 py-1 text-xs font-medium transition-all inline-block mr-4 mb-2 border-b border-transparent cursor-pointer",
                     isTerminalCopy
                       ? "px-3 py-1.5 border border-transparent text-accent hover:text-white hover:bg-accent/20 hover:border-accent !rounded-none"
                       : isActive
@@ -333,7 +343,7 @@ function AuxiliarySidebarContent() {
                   ) : (
                     <button
                       className={cn(
-                        "w-6 h-6 flex items-center justify-center border transition-all",
+                        "w-6 h-6 flex items-center justify-center border transition-all cursor-pointer",
                         isTerminalCopy
                           ? "border-transparent text-accent group-hover:text-white"
                           : "border-noir-border text-foreground-muted hover:text-accent hover:border-accent",
@@ -364,6 +374,6 @@ function AuxiliarySidebarContent() {
         {isTerminalCopy ? "" : <span>Legal</span>}
         {isTerminalCopy ? "" : <span>API</span>}
       </div>
-    </Wrapper>
+    </>
   );
 }

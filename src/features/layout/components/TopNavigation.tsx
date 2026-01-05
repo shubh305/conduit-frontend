@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Bell, Edit3, Menu } from "lucide-react";
+import { Bell, Edit3, Menu, Compass } from "lucide-react";
+import { WIP_LIMITS } from "@/lib/wip-limits";
+import { usePathname } from "next/navigation";
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
 import { cn } from "@/lib/utils";
 import { UserNavWidget } from "./UserNavWidget";
@@ -11,13 +13,17 @@ import { SearchInput } from "@/features/search/components/SearchInput";
 
 interface TopNavigationProps {
   onToggleSidebar?: () => void;
+  onToggleRightSidebar?: () => void;
 }
 
-export function TopNavigation({ onToggleSidebar }: TopNavigationProps) {
+export function TopNavigation({ onToggleSidebar, onToggleRightSidebar }: TopNavigationProps) {
   const { config } = useTheme();
-  const { isCyberCopy, isSakuraCopy, isRoninCopy, isOctaneCopy, isJournalCopy, isTechieCopy } = useThemeHelpers()
+  const { isCyberCopy, isSakuraCopy, isRoninCopy, isOctaneCopy, isJournalCopy, isTechieCopy } = useThemeHelpers();
   const router = useRouter();
+  const pathname = usePathname();
 
+  const isStudioRoute = pathname.startsWith("/studio");
+  const showRightSidebarToggle = pathname === "/" || pathname.startsWith("/search");
 
   const getWriteLabel = () => {
     if (isCyberCopy) return "NEW_NODE";
@@ -50,7 +56,10 @@ export function TopNavigation({ onToggleSidebar }: TopNavigationProps) {
       <div className="flex items-center gap-4">
         <button
           onClick={onToggleSidebar}
-          className="p-2 rounded-md transition-colors text-foreground-muted hover:text-foreground hover:bg-noir-hover"
+          className={cn(
+            "p-2 rounded-md transition-colors text-foreground-muted hover:text-foreground hover:bg-noir-hover cursor-pointer",
+            isStudioRoute ? "block" : "hidden md:block",
+          )}
           style={{ borderRadius: "var(--theme-radius-md)" }}
         >
           <Menu size={20} />
@@ -98,12 +107,10 @@ export function TopNavigation({ onToggleSidebar }: TopNavigationProps) {
       </div>
 
       {/* Center: Search Bar */}
-      <div className="flex-1 max-w-md mx-4 block">
+      <div className="flex-1 max-w-[180px] xs:max-w-[260px] sm:max-w-xs md:max-w-md lg:max-w-lg mx-2 hidden md:block">
         <SearchInput
-          placeholder={
-            isSakuraCopy ? "検索..." : isRoninCopy ? "Seek..." : isJournalCopy ? "Search entries..." : "Search..."
-          }
-          className={cn("w-full bg-transparent", isRoninCopy ? "rounded-sm px-0" : "rounded-full")}
+          placeholder={isSakuraCopy ? "検索..." : isRoninCopy ? "Seek..." : isJournalCopy ? "Search..." : "Search..."}
+          className={cn("w-full bg-transparent px-2", isRoninCopy ? "rounded-sm px-0" : "rounded-full")}
         />
       </div>
 
@@ -112,22 +119,39 @@ export function TopNavigation({ onToggleSidebar }: TopNavigationProps) {
         <Button
           variant="ghost"
           onClick={() => router.push("/dashboard?action=write")}
-          className="hidden md:flex items-center gap-2 text-foreground-muted hover:text-foreground hover:bg-noir-hover"
+          className="flex items-center gap-2 text-foreground-muted hover:text-foreground hover:bg-noir-hover px-2 md:px-4"
         >
           <Edit3 size={18} />
           <span
-            className={cn("text-xs tracking-wider", config.fontFamily === "mono" ? "font-mono" : "font-sans font-bold")}
+            className={cn(
+              "text-xs tracking-wider hidden sm:inline",
+              config.fontFamily === "mono" ? "font-mono" : "font-sans font-bold",
+            )}
           >
             {getWriteLabel()}
           </span>
         </Button>
 
-        <button className="transition-colors relative text-foreground-muted hover:text-foreground">
-          <Bell size={20} />
-          <span className="absolute top-0 right-0 w-2 h-2 bg-signal-red rounded-full border border-noir-bg" />
-        </button>
+        {!WIP_LIMITS.showNotifications ? null : (
+          <button className="transition-colors relative text-foreground-muted hover:text-foreground">
+            <Bell size={20} />
+            <span className="absolute top-0 right-0 w-2 h-2 bg-signal-red rounded-full border border-noir-bg" />
+          </button>
+        )}
 
-        <div className="pl-2">
+        {/* Right Sidebar Toggle (Mobile only) */}
+        {showRightSidebarToggle && (
+          <button
+            onClick={onToggleRightSidebar}
+            className="xl:hidden p-2 rounded-md transition-colors text-foreground-muted hover:text-foreground hover:bg-noir-hover cursor-pointer"
+            style={{ borderRadius: "var(--theme-radius-md)" }}
+            aria-label="Toggle Search and Discovery"
+          >
+            <Compass size={20} strokeWidth={1.5} />
+          </button>
+        )}
+
+        <div className="pl-2 hidden md:block">
           <UserNavWidget />
         </div>
       </div>
