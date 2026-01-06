@@ -11,6 +11,8 @@ import { FeedItem } from "@/features/feed/types";
 import { Profile } from "@/features/profile/types";
 import { Button } from "@/components/ui/button";
 import { useLibrary } from "@/features/library/context/LibraryContext";
+import { SearchInput } from "./SearchInput";
+import { useThemeLabel } from "@/components/theme";
 
 type Tab = "posts" | "publications" | "people";
 
@@ -30,16 +32,23 @@ export function SearchPageContainer() {
   const [activeTab, setActiveTab] = useState<Tab>("posts");
   const tabs: Tab[] = ["posts", "publications", "people"];
 
-  const sakuraTabs: Record<Tab, string> = {
-    posts: "投稿",
-    publications: "出版物",
-    people: "ユーザー",
+  const t = useThemeLabel();
+
+  const tabLabels: Record<Tab, string> = {
+    posts: t("postsTab"),
+    publications: t("publicationsTab"),
+    people: t("peopleTab"),
   };
 
   // --- TERMINAL HEADER ---
   if (isTerminalCopy) {
     return (
       <div className="min-h-screen bg-noir-bg text-accent font-mono p-4 pt-24 max-w-6xl mx-auto">
+        <div className="md:hidden mb-12">
+          <div className="text-[10px] text-accent/50 uppercase tracking-[0.3em] mb-4">{t("newSearch")}</div>
+          <SearchInput placeholder="root@conduit:~$ grep -r ..." autoFocus className="w-full" />
+        </div>
+
         <div className="border-b border-accent pb-4 mb-4">
           <div className="flex flex-wrap items-center gap-2 text-lg md:text-xl">
             <span className="text-accent">root@conduit:~$</span>
@@ -81,15 +90,21 @@ export function SearchPageContainer() {
       {/* Header Area */}
       <div className="pt-24 pb-8 px-6 md:px-0 border-b border-noir-border">
         <div className="max-w-4xl mx-auto">
+          {/* Mobile Specific Search Input */}
+          <div className="md:hidden mb-12">
+            <div className="text-[10px] font-mono text-foreground-subtle uppercase tracking-[0.3em] mb-4">
+              {t("newSearch")}
+            </div>
+            <SearchInput
+              placeholder={t("search")}
+              autoFocus
+              className="w-full"
+            />
+          </div>
+
           <div className="flex flex-col gap-4 mb-12">
             <span className="text-[10px] font-mono text-foreground-subtle uppercase tracking-[0.3em]">
-              {isSakuraCopy
-                ? "Search Results (検索結果)"
-                : isRoninCopy
-                  ? "Findings (発見)"
-                  : isJournalCopy
-                    ? "Search Results"
-                    : "SEARCH_RESULTS"}
+              {t("searchResults")}
             </span>
             <div className="flex items-baseline gap-4">
               <SearchIcon size={24} className="text-accent opacity-50" />
@@ -122,10 +137,7 @@ export function SearchPageContainer() {
                   isCyberCopy ? "font-mono" : "font-sans",
                 )}
               >
-                {tab}
-                {isSakuraCopy && (
-                  <span className="ml-2 text-[8px] opacity-70 font-normal normal-case">{sakuraTabs[tab]}</span>
-                )}
+                {tabLabels[tab]}
               </button>
             ))}
           </div>
@@ -144,6 +156,7 @@ function SearchResults({ query, tab }: { query: string; tab: Tab }) {
   const { config } = useTheme();
   const { isCyberCopy, isSakuraCopy, isDarkMode, isTerminalCopy } = useThemeHelpers();
   const { isUserFollowed, toggleUser } = useLibrary();
+  const t = useThemeLabel();
 
   const [posts, setPosts] = useState<FeedItem[]>([]);
   const [people, setPeople] = useState<Profile[]>([]);
@@ -171,7 +184,7 @@ function SearchResults({ query, tab }: { query: string; tab: Tab }) {
     return (
       <div className={cn("text-center py-20", isTerminalCopy ? "text-accent/50 text-sm" : "")}>
         <p className={cn("text-foreground-subtle font-mono text-xs uppercase tracking-widest animate-pulse", isTerminalCopy ? "text-accent/50" : "")}>
-          {isTerminalCopy ? "waiting_for_stdin..." : "Waiting for search signal..."}
+          {t("waitingForSignal")}
         </p>
       </div>
     );
@@ -185,15 +198,14 @@ function SearchResults({ query, tab }: { query: string; tab: Tab }) {
     return `/${post.tenantSlug}/${post.postSlug}`;
   };
 
-  // --- TERMINAL RESULTS ---
   if (isTerminalCopy) {
     return (
       <div className="space-y-2 font-mono text-xs md:text-sm">
-        {isLoading && <div className="text-accent animate-pulse">Running query on database shards...</div>}
+        {isLoading && <div className="text-accent animate-pulse">{t("searchingDatabase")}</div>}
 
         {!isLoading && tab === "posts" && (
           <>
-            {posts.length === 0 && <div className="text-accent/50">grep: {query}: No matches found</div>}
+            {posts.length === 0 && <div className="text-accent/50">{t("noStoriesFound")}</div>}
             {posts.map(post => (
               <div key={post.postId} className="group hover:bg-accent/10 p-1 -mx-1">
                 <Link href={getPostLink(post)} className="flex gap-2">
@@ -213,7 +225,7 @@ function SearchResults({ query, tab }: { query: string; tab: Tab }) {
         {!isLoading && tab === "people" && (
           <>
             {people.length === 0 && (
-              <div className="text-accent/50">grep: {query}: No user matches found in /etc/passwd</div>
+              <div className="text-accent/50">{t("noNodesFound")}</div>
             )}
             {people.map(person => (
               <div key={person.id} className="group hover:bg-accent/10 p-1 -mx-1 flex justify-between items-center">
@@ -237,7 +249,7 @@ function SearchResults({ query, tab }: { query: string; tab: Tab }) {
         )}
 
         {!isLoading && tab === "publications" && (
-          <div className="text-accent/50">grep: {query}: No publications found</div>
+          <div className="text-accent/50">{t("noFrequenciesFound")}</div>
         )}
       </div>
     );
@@ -248,13 +260,13 @@ function SearchResults({ query, tab }: { query: string; tab: Tab }) {
       {isLoading && (
         <div className="flex flex-col items-center gap-4 py-20">
           <div className="w-12 h-12 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
-          <div className="text-foreground-subtle font-mono text-[10px] uppercase tracking-[0.3em]">SEARCHING_DATABASE</div>
+          <div className="text-foreground-subtle font-mono text-[10px] uppercase tracking-[0.3em]">{t("searchingDatabase")}</div>
         </div>
       )}
 
       {!isLoading && tab === "posts" && (
         <div className="grid gap-16">
-          {posts.length === 0 && <div className="text-foreground-subtle text-center py-20 border border-dashed border-noir-border rounded-xl">No stories found matching &quot;{query}&quot;.</div>}
+          {posts.length === 0 && <div className="text-foreground-subtle text-center py-20 border border-dashed border-noir-border rounded-xl">{t("noStoriesFound")}</div>}
 
           {posts.map(post => {
             return (
@@ -332,7 +344,7 @@ function SearchResults({ query, tab }: { query: string; tab: Tab }) {
       {/* PEOPLE TAB */}
       {!isLoading && tab === "people" && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {people.length === 0 && <div className="col-span-full text-foreground-subtle text-center py-20 italic">No nodes identified with this signature.</div>}
+          {people.length === 0 && <div className="col-span-full text-foreground-subtle text-center py-20 italic">{t("noNodesFound")}</div>}
           {people.map(person => {
             const isFollowed = isUserFollowed(person.id);
             return (
@@ -372,7 +384,7 @@ function SearchResults({ query, tab }: { query: string; tab: Tab }) {
                   )}
                   onClick={() => toggleUser(person.id)}
                 >
-                  {isFollowed ? (isSakuraCopy ? "Following (フォロー中)" : "Linked") : isSakuraCopy ? "Follow (フォローする)" : "Link"}
+                  {isFollowed ? t("followingAction") : t("followAction")}
                 </Button>
               </div>
             );
@@ -383,7 +395,7 @@ function SearchResults({ query, tab }: { query: string; tab: Tab }) {
 
       {/* PUBLICATIONS TAB */}
       {!isLoading && tab === "publications" && (
-        <div className="grid gap-6">{publications.length === 0 && <div className="text-foreground-subtle text-center py-20 italic">No frequencies identified with this band.</div>}</div>
+        <div className="grid gap-6">{publications.length === 0 && <div className="text-foreground-subtle text-center py-20 italic">{t("noFrequenciesFound")}</div>}</div>
       )}
     </div>
   );
