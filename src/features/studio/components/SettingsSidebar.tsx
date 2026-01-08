@@ -106,7 +106,7 @@ export function SettingsSidebar({
     <>
       <div
         className={cn(
-          "fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] transition-opacity duration-300",
+          "fixed inset-0 bg-black/60 backdrop-blur-sm z-[140] transition-opacity duration-300",
           isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
         )}
         onClick={onClose}
@@ -144,7 +144,7 @@ export function SettingsSidebar({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-8 no-scrollbar">
+        <div className="flex-1 overflow-y-auto p-6 pb-[120px] space-y-8 no-scrollbar">
           <div className="space-y-3">
             <label className={getSettingsLabelClasses(theme)}>
               {isSakuraCopy
@@ -336,11 +336,11 @@ export function SettingsSidebar({
                 <Button
                   onClick={() => {
                     if (scheduleDate && onSchedule && status !== "scheduled") {
-                      onSchedule(scheduleDate)
+                      onSchedule(scheduleDate);
                     } else if (scheduleDate && onSchedule && status === "scheduled") {
-                      onSchedule(scheduleDate)
+                      onSchedule(scheduleDate);
                     } else if (onPublish) {
-                      onPublish()
+                      onPublish();
                     }
                   }}
                   disabled={isPublishing}
@@ -390,5 +390,5 @@ export function SettingsSidebar({
         </div>
       </div>
     </>
-  )
+  );
 }

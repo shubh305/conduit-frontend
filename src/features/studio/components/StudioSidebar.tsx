@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { LayoutDashboard, FileText, PenTool, User, LogOut, Palette, ChevronDown, Globe, Bell } from "lucide-react"
+import { LayoutDashboard, FileText, PenTool, User, LogOut, Palette, ChevronDown, Globe, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme, useStudioLabels, useThemeHelpers } from "@/features/theme/ThemeProvider"
 import { getSidebarClasses, getSidebarItemClasses, getTenantSwitcherClasses } from "@/lib/theme-variants"
 import { useAuth } from "@/features/auth/AuthProvider";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { StudioLabelKey } from "@/features/theme/studio-labels"
+import { SearchInput } from "@/features/search/components/SearchInput";
+import { WIP_LIMITS } from "@/lib/wip-limits";
 
 const navItemsConfig: { icon: React.ElementType; labelKey: StudioLabelKey; href: string }[] = [
   { icon: LayoutDashboard, labelKey: "overview", href: "/studio" },
@@ -21,34 +23,47 @@ const navItemsConfig: { icon: React.ElementType; labelKey: StudioLabelKey; href:
 ]
 
 
-export function StudioSidebar() {
-  const pathname = usePathname()
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const { theme, config } = useTheme()
-  const { getLabel } = useStudioLabels()
-  const { isCyberCopy, isOctaneCopy, isTechieCopy } = useThemeHelpers()
-  const { user, logout } = useAuth()
+interface StudioSidebarProps {
+  isOpen?: boolean;
+}
 
+export function StudioSidebar({ isOpen = true }: StudioSidebarProps) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { theme, config } = useTheme();
+  const { getLabel } = useStudioLabels();
+  const { isCyberCopy, isOctaneCopy, isTechieCopy } = useThemeHelpers();
+  const { user, logout } = useAuth();
 
-
-  const tenantId = searchParams.get("tenantId")
-  const tenants = user?.tenants || []
-  const currentTenant = tenants.find(t => t.id === tenantId) || tenants[0]
+  const tenantId = searchParams.get("tenantId");
+  const tenants = user?.tenants || [];
+  const currentTenant = tenants.find(t => t.id === tenantId) || tenants[0];
 
   const handleTenantSwitch = (id: string) => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.set("tenantId", id)
-    router.push(`${pathname}?${params.toString()}`)
-  }
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tenantId", id);
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
   return (
-    <aside className={getSidebarClasses(theme)}>
+    <aside
+      className={cn(
+        getSidebarClasses(theme),
+        // Mobile drawer behavior
+        "fixed inset-y-0 left-0 z-[170] pt-16 md:pt-0 transition-transform duration-300 ease-in-out border-r shadow-xl md:shadow-none overflow-hidden",
+        isOpen
+          ? "translate-x-0 w-64 pointer-events-auto opacity-100"
+          : "-translate-x-full w-64 pointer-events-none opacity-0 md:translate-x-0 md:w-20 md:pointer-events-auto md:opacity-100",
+        "md:flex",
+      )}
+    >
       <div className={cn("p-8 border-b", isTechieCopy ? "border-[var(--bg-panel)]" : "border-noir-border")}>
         <Link
           href="/"
           className={cn(
-            "font-black text-2xl tracking-tighter uppercase block transition-colors hover:text-accent",
+            "font-black text-2xl tracking-tighter uppercase transition-colors hover:text-accent",
+            isOpen ? "block" : "hidden",
             isCyberCopy || isTechieCopy
               ? "font-mono"
               : isOctaneCopy
@@ -61,7 +76,7 @@ export function StudioSidebar() {
         >
           {isTechieCopy ? `> ${getLabel("brand")}_` : getLabel("brand")}
         </Link>
-        <div className="flex items-center gap-2 mt-2">
+        <div className={cn("flex items-center gap-2 mt-2", !isOpen && "justify-center")}>
           <span
             className={cn(
               "w-2 h-2 rounded-full animate-pulse",
@@ -74,14 +89,16 @@ export function StudioSidebar() {
                     : "bg-accent/40",
             )}
           />
-          <span
-            className={cn(
-              "text-[9px] font-mono uppercase tracking-[0.2em]",
-              isTechieCopy ? "text-[var(--accent-secondary)]" : "text-foreground-subtle",
-            )}
-          >
-            {getLabel("status")}
-          </span>
+          {isOpen && (
+            <span
+              className={cn(
+                "text-[9px] font-mono uppercase tracking-[0.2em]",
+                isTechieCopy ? "text-[var(--accent-secondary)]" : "text-foreground-subtle",
+              )}
+            >
+              {getLabel("status")}
+            </span>
+          )}
         </div>
       </div>
 
@@ -91,7 +108,7 @@ export function StudioSidebar() {
           <DropdownMenu>
             <DropdownMenuTrigger className="w-full outline-none group text-left">
               <div className={getTenantSwitcherClasses(theme)}>
-                <div className="flex items-center gap-3 overflow-hidden">
+                <div className={cn("flex items-center gap-3 overflow-hidden", !isOpen && "justify-center")}>
                   <div
                     className={cn(
                       "w-6 h-6 rounded flex items-center justify-center shrink-0",
@@ -100,21 +117,27 @@ export function StudioSidebar() {
                   >
                     <Globe size={12} className={cn(isTechieCopy ? "text-[var(--accent)]" : "text-accent")} />
                   </div>
-                  <div className="truncate">
-                    <div className="text-[10px] font-bold truncate leading-none mb-1">{currentTenant?.name}</div>
-                    <div className="text-[8px] text-foreground-subtle truncate opacity-60">/{currentTenant?.slug}</div>
-                  </div>
+                  {isOpen && (
+                    <div className="truncate">
+                      <div className="text-[10px] font-bold truncate leading-none mb-1">{currentTenant?.name}</div>
+                      <div className="text-[8px] text-foreground-subtle truncate opacity-60">
+                        /{currentTenant?.slug}
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <ChevronDown
-                  size={14}
-                  className="text-foreground-subtle group-hover:text-accent transition-colors shrink-0"
-                />
+                {isOpen && (
+                  <ChevronDown
+                    size={14}
+                    className="text-foreground-subtle group-hover:text-accent transition-colors shrink-0"
+                  />
+                )}
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="start"
               className={cn(
-                "w-[224px] mt-1 p-2 z-[200] bg-noir-panel border-noir-border animate-in fade-in slide-in-from-top-2",
+                "w-[224px] mt-1 p-2 z-[175] bg-noir-panel border-noir-border animate-in fade-in slide-in-from-top-2",
                 isCyberCopy || isTechieCopy ? "rounded-none" : "rounded-2xl",
                 isTechieCopy && "bg-[var(--bg-primary)] border-[var(--bg-panel)]",
               )}
@@ -150,6 +173,13 @@ export function StudioSidebar() {
         </div>
       )}
 
+      {/* Search - WIP Indicator */}
+      {isOpen && WIP_LIMITS.showSidebarSearch && (
+        <div className="px-5 pt-6 pb-2">
+          <SearchInput placeholder="Search studio..." className="scale-95 origin-left" />
+        </div>
+      )}
+
       {/* Navigation */}
       {user && (
         <nav className="flex-1 p-4 space-y-2 mt-4">
@@ -167,13 +197,21 @@ export function StudioSidebar() {
             const linkHref = tenantId ? `${item.href}?tenantId=${tenantId}` : item.href;
 
             return (
-              <Link key={item.href} href={linkHref} className={getSidebarItemClasses(theme, isActive)}>
+              <Link
+                key={item.href}
+                href={linkHref}
+                className={cn(
+                  getSidebarItemClasses(theme, isActive),
+                  !isOpen && "justify-center px-0",
+                  "cursor-pointer",
+                )}
+              >
                 <item.icon
                   size={16}
                   className={cn(isActive && "scale-110", "transition-transform group-hover:scale-110")}
                 />
-                <span className="relative z-10">{formattedLabel}</span>
-                {isActive && !isTechieCopy && (
+                {isOpen && <span className="relative z-10">{formattedLabel}</span>}
+                {isActive && !isTechieCopy && isOpen && (
                   <div className="absolute inset-0 bg-gradient-to-r from-accent/5 to-transparent pointer-events-none" />
                 )}
               </Link>
@@ -207,13 +245,14 @@ export function StudioSidebar() {
           <button
             onClick={() => logout()}
             className={cn(
-              "flex items-center gap-3 px-5 py-3 text-xs transition-all w-full text-left group",
+              "flex items-center gap-3 px-5 py-3 text-xs transition-all w-full text-left group cursor-pointer",
               "text-foreground-subtle hover:text-accent font-mono uppercase tracking-[0.2em]",
               isTechieCopy && "hover:text-[var(--accent)]",
+              !isOpen && "justify-center px-0",
             )}
           >
             <LogOut size={16} className="group-hover:-translate-x-1 transition-transform" />
-            <span className="font-bold">{getLabel("logout")}</span>
+            {isOpen && <span className="font-bold">{getLabel("logout")}</span>}
           </button>
         </div>
       )}
