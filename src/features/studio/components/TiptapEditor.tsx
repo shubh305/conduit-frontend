@@ -23,9 +23,9 @@ interface TiptapEditorProps {
 }
 
 export function TiptapEditor({ content = "", onChange, className, tenantId }: TiptapEditorProps) {
-  const { theme, config } = useTheme()
-  const { isTerminalCopy, isTechieCopy, isCyberCopy } = useThemeHelpers()
-  const { getLabel } = useStudioLabels()
+  const { theme, config } = useTheme();
+  const { isTerminalCopy, isTechieCopy, isCyberCopy } = useThemeHelpers();
+  const { getLabel } = useStudioLabels();
 
   const editor = useEditor({
     extensions: [
@@ -52,29 +52,33 @@ export function TiptapEditor({ content = "", onChange, className, tenantId }: Ti
       },
     },
     onUpdate: ({ editor }) => {
-      onChange?.(editor.getJSON())
+      onChange?.(editor.getJSON());
     },
     immediatelyRender: false,
-  })
+  });
 
-  if (!editor) return null
+  if (!editor) return null;
 
   return (
     <div
-      className={cn(getEditorContainerClasses(theme), "flex flex-col min-h-[500px] overflow-x-hidden", className)}
+      className={cn(getEditorContainerClasses(theme), "flex flex-col flex-1 min-h-0", className)}
       style={{
         borderRadius: isCyberCopy || isTechieCopy ? "0" : undefined,
-        backgroundColor: theme === "journal" ? "var(--journal-paper)" : undefined,
+        backgroundColor: theme === "journal" || theme === "sakura" ? "var(--journal-paper)" : undefined,
       }}
     >
       {isTerminalCopy ? (
         <TerminalEditorShell editor={editor} />
       ) : (
         <>
-          <EditorToolbar editor={editor} tenantId={tenantId} className="px-8 md:px-12" />
+          <EditorToolbar
+            editor={editor}
+            tenantId={tenantId}
+            className="px-4 md:px-12 shrink-0 border-b border-[var(--editor-border)]"
+          />
           <EditorContent
             editor={editor}
-            className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar px-8 md:px-12 py-10"
+            className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar px-4 md:px-12 py-6 md:py-10"
           />
         </>
       )}

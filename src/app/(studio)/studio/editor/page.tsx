@@ -193,6 +193,8 @@ export default function EditorPage() {
     }
   };
 
+  const handlePreview = () => setIsPreviewOpen(true);
+
   const handlePublish = async () => {
     if (!tenantId) return;
 
@@ -306,7 +308,7 @@ export default function EditorPage() {
   // Terminal Layout
   if (isTerminalCopy) {
     return (
-      <div className="flex flex-col h-[calc(100vh-2rem)] w-full relative font-mono text-accent">
+      <div className="flex flex-col h-full w-full relative font-mono text-accent">
         {/* Main Terminal Window Frame */}
         <div className="flex-1 border-2 border-accent rounded-lg flex flex-col relative overflow-hidden shadow-[0_0_30px_rgba(74,246,38,0.15)] bg-black">
           {/* Top Bar */}
@@ -439,102 +441,103 @@ export default function EditorPage() {
 
   // Standard Layout
   return (
-    <ThemePage
-      className={cn(
-        "flex flex-col min-h-[calc(100vh-4rem)] p-4 md:p-8 text-foreground items-center justify-start",
-        (isTechieCopy || isCyberCopy) && "theme-grid-overlay",
-      )}
-    >
+    <ThemePage className="h-full">
       <div
         className={cn(
-          "flex flex-col w-full max-w-5xl editor-container rounded-3xl overflow-hidden shadow-2xl h-[85vh]",
-          getEditorContainerClasses(theme),
-          isCyberCopy && "rounded-none",
-          isTechieCopy && "rounded-xl bg-[var(--editor-bg)]/95 shadow-[var(--editor-glow)]",
+          "flex flex-col items-center justify-start h-full p-0 md:p-8 overflow-hidden",
+          theme !== "journal" && theme !== "sakura" && theme !== "classic" && "bg-black/20",
         )}
-        style={{ backgroundColor: theme === "journal" ? "var(--journal-paper)" : undefined }}
       >
-        <header
+        <div
           className={cn(
-            "flex items-center justify-between px-8 md:px-12 py-8 border-b border-[var(--editor-border)] bg-[var(--editor-bg)] shrink-0",
-            theme === "journal" && "bg-noir-bg border-accent/10",
+            "flex flex-col w-full max-w-5xl editor-container md:rounded-3xl overflow-hidden shadow-2xl flex-1 min-h-0 border-none",
+            getEditorContainerClasses(theme),
+            isCyberCopy && "md:rounded-none",
+            isTechieCopy && "md:rounded-xl bg-[var(--editor-bg)]/95 shadow-[var(--editor-glow)]",
           )}
+          style={{
+            backgroundColor: theme === "journal" || theme === "sakura" ? "var(--journal-paper)" : undefined,
+            height: "100%",
+          }}
         >
-          <div className="flex items-center gap-4">
-            <Link
-              href="/studio/posts"
-              className={cn("text-foreground-subtle hover:text-accent transition-colors flex items-center gap-2 group")}
-              title={getLabel("editor_back")}
-            >
-              <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-              <span className="text-[10px] font-mono group-hover:underline uppercase opacity-0 group-hover:opacity-60 transition-all">
-                {getLabel("editor_back")}
-              </span>
-            </Link>
-            <div>
-              <h1 className={cn("font-bold text-xl tracking-tight uppercase", getHeadingClasses(theme))}>
-                {newStoryLabel}
-              </h1>
-              <span className={cn("font-mono text-[10px] mt-1 block uppercase text-foreground-subtle")}>
-                {syncStatusText}
-              </span>
+          <header
+            className={cn(
+              "flex items-center justify-between px-4 md:px-12 py-2 md:py-6 border-b border-[var(--editor-border)] bg-[var(--editor-bg)] shrink-0",
+              (theme === "journal" || theme === "sakura") && "bg-noir-bg border-accent/10",
+            )}
+          >
+            <div className="flex items-center gap-4">
+              <Link
+                href="/studio/posts"
+                className={cn(
+                  "w-8 h-8 flex items-center justify-center rounded-full text-foreground-subtle hover:text-accent hover:bg-accent/10 transition-all group border border-transparent hover:border-accent/20",
+                )}
+              >
+                <ArrowLeft size={18} className="group-hover:-translate-x-0.5 transition-transform" />
+              </Link>
+              <div className="flex flex-col">
+                <h1 className={cn("font-bold text-lg md:text-xl tracking-tight uppercase", getHeadingClasses(theme))}>
+                  {newStoryLabel}
+                </h1>
+                <span
+                  className={cn("font-mono text-[9px] md:text-[10px] mt-0.5 block uppercase text-foreground-subtle")}
+                >
+                  {syncStatusText}
+                </span>
+              </div>
             </div>
-          </div>
 
-          <div className="flex gap-3">
-            <Button
-              variant="ghost"
-              onClick={() => setIsPreviewOpen(true)}
-              className={cn(
-                "h-9 px-6 text-xs uppercase transition-all",
-                isCyberCopy ? "font-mono hover:bg-accent/10 text-accent/70" : "hover:bg-noir-hover",
-                isJournalCopy &&
-                  "text-accent/60 hover:bg-accent/5 hover:text-accent font-serif italic border border-transparent hover:border-accent/10",
-                isTechieCopy &&
-                  "font-mono text-accent border border-noir-border hover:border-accent hover:text-noir-bg hover:bg-accent",
-              )}
-              style={{ borderRadius: isCyberCopy ? "0" : config.tokens.borderRadius }}
-            >
-              {previewLabel}
-            </Button>
-            <Button
-              onClick={handleSaveDraft}
-              disabled={isSaving}
-              variant="secondary"
-              className={cn(
-                "px-6 h-9 text-xs uppercase transition-all shadow-none border bg-transparent",
-                isCyberCopy
-                  ? "border-accent/30 text-accent hover:bg-accent/10 font-mono rounded-none"
-                  : "border-noir-border text-foreground hover:bg-noir-hover",
-                isJournalCopy && "border-accent/20 text-accent hover:bg-accent/5 font-serif italic",
-                isTechieCopy && "border-accent-secondary/50 text-accent hover:bg-accent-secondary/10 font-mono",
-              )}
-              style={{ borderRadius: isCyberCopy ? "0" : config.tokens.borderRadius }}
-            >
-              {draftLabel}
-            </Button>
-            <Button
-              onClick={() => setIsSidebarOpen(true)}
-              disabled={isSaving}
-              className={cn(
-                "px-8 h-9 text-xs uppercase transition-all shadow-none gap-2 font-bold",
-                isCyberCopy
-                  ? "bg-foreground text-noir-bg hover:bg-accent font-mono rounded-none"
-                  : "bg-accent text-noir-bg",
-                isJournalCopy &&
-                  "bg-accent text-[#FDF5E6] hover:bg-journal-ink-muted hover:text-white font-serif italic shadow-sm hover:shadow-md",
-                isTechieCopy && "bg-accent text-noir-bg hover:bg-accent-secondary hover:text-white font-mono",
-              )}
-              style={{ borderRadius: isCyberCopy ? "0" : config.tokens.borderRadius }}
-            >
-              <Settings size={14} />
-              {isSaving ? savingLabel : publishLabel}
-            </Button>
-          </div>
-        </header>
+            <div className="flex gap-2">
+              <div className="hidden md:flex gap-2">
+                <Button
+                  variant="ghost"
+                  onClick={handlePreview}
+                  className={cn(
+                    "px-4 md:px-6 h-8 md:h-9 text-[10px] md:text-xs uppercase font-bold tracking-wider",
+                    isCyberCopy
+                      ? "text-accent border border-accent/20 hover:bg-accent/10"
+                      : "text-foreground-subtle hover:text-accent hover:bg-accent/5",
+                  )}
+                  style={{ borderRadius: isCyberCopy ? "0" : config.tokens.borderRadius }}
+                >
+                  <span className="hidden xs:inline">{previewLabel}</span>
+                  <span className="xs:hidden">Preview</span>
+                </Button>
+                <Button
+                  onClick={handleSaveDraft}
+                  disabled={isSaving}
+                  className={cn(
+                    "px-4 md:px-6 h-8 md:h-9 text-[10px] md:text-xs uppercase font-bold tracking-wider",
+                    isCyberCopy
+                      ? "bg-noir-panel border border-accent/20 text-accent hover:bg-accent/5"
+                      : "bg-foreground/5 hover:bg-foreground/10 text-foreground border-none",
+                  )}
+                  style={{ borderRadius: isCyberCopy ? "0" : config.tokens.borderRadius }}
+                >
+                  {isSaving ? savingLabel : draftLabel}
+                </Button>
+                <Button
+                  onClick={() => setIsSidebarOpen(true)}
+                  disabled={isSaving}
+                  className={cn(
+                    "px-4 md:px-8 h-8 md:h-9 text-[10px] md:text-xs uppercase transition-all shadow-none gap-1.5 md:gap-2 font-bold",
+                    isCyberCopy
+                      ? "bg-accent text-noir-bg rounded-none hover:bg-accent/90 shadow-[0_0_15px_rgba(var(--accent-rgb),0.3)]"
+                      : isTechieCopy
+                        ? "bg-accent text-noir-bg rounded-none hover:bg-accent-secondary shadow-[0_0_12px_rgba(var(--accent-rgb),0.2)]"
+                        : isJournalCopy
+                          ? "bg-accent text-white rounded-full hover:bg-accent/90"
+                          : "bg-accent text-white rounded-full hover:bg-accent/90",
+                  )}
+                >
+                  <Settings size={14} className="shrink-0" />
+                  <span className="hidden sm:inline">{isSaving ? savingLabel : publishLabel}</span>
+                </Button>
+              </div>
+            </div>
+          </header>
 
-        <div className={cn("flex-1 flex flex-col gap-0 w-full overflow-y-auto overflow-x-hidden no-scrollbar")}>
-          <div className="flex flex-col px-8 md:px-12 pt-10">
+          <div className="flex flex-col px-4 md:px-12 pt-4 md:pt-8 shrink-0">
             <CoverImageManager
               value={featuredImage}
               attribution={featuredImageAttribution}
@@ -549,7 +552,7 @@ export default function EditorPage() {
             <Input
               placeholder={enterTitlePlaceholder}
               className={cn(
-                "text-4xl font-bold bg-transparent border-none px-0 h-auto focus:ring-0 w-full mb-8",
+                "text-2xl md:text-4xl font-bold bg-transparent border-none px-0 h-auto focus:ring-0 w-full mb-2 md:mb-4",
                 isCyberCopy
                   ? "placeholder:text-foreground-subtle/20 text-foreground uppercase tracking-tighter font-mono"
                   : isTechieCopy
@@ -569,74 +572,114 @@ export default function EditorPage() {
             onChange={setContent}
             tenantId={tenantId || undefined}
           />
-        </div>
 
-        <SettingsSidebar
-          isOpen={isSidebarOpen}
-          onClose={() => setIsSidebarOpen(false)}
-          slug={slug}
-          tags={tags}
-          featuredImage={featuredImage}
-          onUpdate={updates => {
-            if (updates.slug !== undefined) {
-              setSlug(updates.slug);
-              isSlugManuallyEdited.current = true;
-            }
-            if (updates.tags !== undefined) setTags(updates.tags);
-            if (updates.featuredImage !== undefined) setFeaturedImage(updates.featuredImage);
-          }}
-          tenantId={tenantId || undefined}
-          postTitle={title}
-          authorUsername={user.username}
-          onPublish={handlePublish}
-          readingTimeMinutes={readingTimeMinutes}
-          wordCount={wordCount}
-          paragraphsCount={paragraphsCount}
-          onSchedule={async date => {
-            if (!tenantId) return;
+          <SettingsSidebar
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+            slug={slug}
+            tags={tags}
+            featuredImage={featuredImage}
+            onUpdate={updates => {
+              if (updates.slug !== undefined) {
+                setSlug(updates.slug);
+                isSlugManuallyEdited.current = true;
+              }
+              if (updates.tags !== undefined) setTags(updates.tags);
+              if (updates.featuredImage !== undefined) setFeaturedImage(updates.featuredImage);
+            }}
+            tenantId={tenantId || undefined}
+            postTitle={title}
+            authorUsername={user.username}
+            onPublish={handlePublish}
+            readingTimeMinutes={readingTimeMinutes}
+            wordCount={wordCount}
+            paragraphsCount={paragraphsCount}
+            onSchedule={async date => {
+              if (!tenantId) return;
 
-            if (!tags || tags.length === 0) {
-              toast.error("At least one tag is required to schedule.");
-              return;
-            }
-
-            setIsSaving(true);
-            try {
-              const payload = {
-                title,
-                content,
-                status: "scheduled" as const,
-                slug,
-                tags,
-                featuredImage: featuredImage || undefined,
-                featuredImageAttribution: featuredImageAttribution || undefined,
-                scheduledAt: date,
-                wordCount,
-                paragraphsCount,
-                readingTimeMinutes,
-              };
-
-              if (postId) {
-                await updatePost(postId, payload, tenantId);
-                await schedulePost(postId, date, tenantId);
-              } else {
-                const { post } = await createPost(payload, tenantId);
-                if (post) setPostId(post.id);
+              if (!tags || tags.length === 0) {
+                toast.error("At least one tag is required to schedule.");
+                return;
               }
 
-              toast.success("Post scheduled successfully!");
-              setIsSidebarOpen(false);
-              setTimeout(() => router.push("/studio/posts"), 1000);
-            } catch (e) {
-              console.error(e);
-              toast.error("Failed to schedule.");
-            } finally {
-              setIsSaving(false);
-            }
-          }}
-          isPublishing={isSaving}
-          status="draft"
-        />
+              setIsSaving(true);
+              try {
+                const payload = {
+                  title,
+                  content,
+                  status: "scheduled" as const,
+                  slug,
+                  tags,
+                  featuredImage: featuredImage || undefined,
+                  featuredImageAttribution: featuredImageAttribution || undefined,
+                  scheduledAt: date,
+                  wordCount,
+                  paragraphsCount,
+                  readingTimeMinutes,
+                };
+
+                if (postId) {
+                  await updatePost(postId, payload, tenantId);
+                  await schedulePost(postId, date, tenantId);
+                } else {
+                  const { post } = await createPost(payload, tenantId);
+                  if (post) setPostId(post.id);
+                }
+
+                toast.success("Post scheduled successfully!");
+                setIsSidebarOpen(false);
+                setTimeout(() => router.push("/studio/posts"), 1000);
+              } catch (e) {
+                console.error(e);
+                toast.error("Failed to schedule.");
+              } finally {
+                setIsSaving(false);
+              }
+            }}
+            isPublishing={isSaving}
+            status="draft"
+          />
+
+          {/* Mobile Action Bar */}
+          <div
+            className={cn(
+              "md:hidden sticky bottom-0 left-0 right-0 z-[120] p-4 flex gap-3 border-t backdrop-blur-md",
+              "bg-[var(--editor-bg)]/90 border-[var(--editor-border)] shadow-[0_-4px_20px_rgba(0,0,0,0.1)]",
+            )}
+          >
+            <Button
+              variant="outline"
+              onClick={handlePreview}
+              className={cn(
+                "flex-1 h-12 text-[10px] font-black uppercase tracking-widest",
+                isCyberCopy ? "rounded-none border-accent/30 text-accent" : "rounded-xl border-foreground/10",
+              )}
+            >
+              {previewLabel}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleSaveDraft}
+              disabled={isSaving}
+              className={cn(
+                "flex-1 h-12 text-[10px] font-black uppercase tracking-widest",
+                isCyberCopy ? "rounded-none border-accent/30 text-accent" : "rounded-xl border-foreground/10",
+              )}
+            >
+              {isSaving ? savingLabel : "Save Draft"}
+            </Button>
+            <Button
+              onClick={() => setIsSidebarOpen(true)}
+              disabled={isSaving}
+              className={cn(
+                "flex-1 h-12 text-[10px] font-black uppercase tracking-widest bg-accent text-noir-bg",
+                isCyberCopy ? "rounded-none" : "rounded-xl",
+              )}
+            >
+              {publishLabel}
+            </Button>
+          </div>
+        </div>
       </div>
     </ThemePage>
   );

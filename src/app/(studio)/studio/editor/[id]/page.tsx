@@ -5,27 +5,29 @@ import { Input } from "@/components/ui/input";
 import { TiptapEditor } from "@/features/studio/components/TiptapEditor";
 import { toast } from "sonner";
 import { useState, use, useEffect, useRef, useCallback } from "react";
-import { ArrowLeft, PanelRight, ExternalLink } from "lucide-react";
+import { ArrowLeft, Settings, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { getPost, updatePost, schedulePost } from "@/features/blog/api";
 import { Post, TiptapContent } from "@/features/blog/types";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { useSearchParams, useRouter } from "next/navigation";
-import { cn, getMediaUrl } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
 import { SettingsSidebar } from "@/features/studio/components/SettingsSidebar";
-import { useThemeLabel } from "@/components/theme/ThemeLabel";
-import { getRoundedClass } from "@/lib/theme-variants";
+import { useThemeLabel } from "@/components/theme";
+import { getEditorContainerClasses } from "@/lib/theme-variants";
 import { calculateReadingStats, generateSlug } from "@/features/blog/utils";
+import { ThemePage } from "@/components/theme/ThemePage";
+import { CoverImageManager } from "@/features/studio/components/CoverImageManager";
 
 export default function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { user, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const queryTenantId = searchParams.get("tenant") || searchParams.get("tenantId")
+  const queryTenantId = searchParams.get("tenant") || searchParams.get("tenantId");
   const { theme, config } = useTheme();
-  const { isCyberCopy } = useThemeHelpers();
+  const { isCyberCopy, isTechieCopy, isJournalCopy } = useThemeHelpers();
   const t = useThemeLabel();
 
   const [isSaving, setIsSaving] = useState(false);
@@ -34,11 +36,10 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   const [error, setError] = useState("");
   const [post, setPost] = useState<Post | null>(null);
 
-
   const [title, setTitle] = useState("");
   const [content, setContent] = useState<TiptapContent>({ type: "doc", content: [] });
   const [featuredImage, setFeaturedImage] = useState<string | null>(null);
-
+  const [featuredImageAttribution, setFeaturedImageAttribution] = useState<{ name: string; url: string } | null>(null);
 
   const [slug, setSlug] = useState("");
   const [tags, setTags] = useState<string[]>([]);
@@ -47,29 +48,18 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   const lastSavedJsonRef = useRef("");
   const isSlugManuallyEdited = useRef(false);
 
-
   const [wordCount, setWordCount] = useState(0);
   const [paragraphsCount, setParagraphsCount] = useState(0);
   const [readingTimeMinutes, setReadingTimeMinutes] = useState(1);
 
+  const previewLabel = t("preview");
+  const draftLabel = t("saveDraft");
+  const publishLabel = t("publish");
+  const savingLabel = t("saving");
+
   const getActiveTenantId = useCallback(() => {
     return queryTenantId || user?.tenantId || (user?.tenants && user.tenants.length > 0 ? user.tenants[0].id : null);
   }, [user, queryTenantId]);
-
-  const generateExcerpt = (content: TiptapContent): string => {
-    try {
-      const texts: string[] = [];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const traverse = (node: any) => {
-        if (node.text) texts.push(node.text);
-        if (node.content) node.content.forEach(traverse);
-      };
-      content.content.forEach(traverse);
-      return texts.join(" ").slice(0, 160) + "...";
-    } catch {
-      return "";
-    }
-  };
 
   const activeTenantId = getActiveTenantId();
 
@@ -83,14 +73,13 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
 
       setIsSaving(true);
       try {
-        const excerpt = generateExcerpt(content);
         await updatePost(
           post.id,
           {
             title,
             content,
-            excerpt,
             featuredImage: featuredImage || undefined,
+            featuredImageAttribution: featuredImageAttribution || undefined,
             slug,
             tags,
             wordCount,
@@ -117,6 +106,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
       title,
       content,
       featuredImage,
+      featuredImageAttribution,
       slug,
       tags,
       getActiveTenantId,
@@ -132,25 +122,18 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
     if (!post || !post.id || !tenantId) return;
 
     if (tags.length === 0) {
-      toast.warning(t("addTagWarning"), {
-        action: {
-          label: t("addTags"),
-          onClick: () => setIsSidebarOpen(true),
-        },
-      });
+      toast.warning(t("addTagWarning"));
       setIsSidebarOpen(true);
       return;
     }
 
     setIsSaving(true);
     try {
-      const excerpt = generateExcerpt(content);
       await updatePost(
         post.id,
         {
           title,
           content,
-          excerpt,
           featuredImage: featuredImage || undefined,
           status: "published",
           publishedAt: post.publishedAt || new Date().toISOString(),
@@ -188,6 +171,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
           setTitle(post.title || "");
           setContent(post.content || { type: "doc", content: [] });
           setFeaturedImage(post.featuredImage || null);
+          setFeaturedImageAttribution(post.featuredImageAttribution || null);
           setSlug(post.slug || "");
           setTags(post.tags || []);
 
@@ -211,26 +195,24 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   }, [id, getActiveTenantId]);
 
   useEffect(() => {
-    if (!isAuthLoading && !user) router.push("/login");
-  }, [isAuthLoading, user, router]);
+    if (!isAuthLoading && !user) router.push("/login?redirect=/studio/editor/" + id);
+  }, [isAuthLoading, user, router, id]);
 
   useEffect(() => {
-    if (isLoading || isAuthLoading || !post) return
+    if (isLoading || isAuthLoading || !post) return;
 
-
-    const stats = calculateReadingStats(content)
-    setWordCount(stats.wordCount)
-    setParagraphsCount(stats.paragraphsCount)
-    setReadingTimeMinutes(stats.readingTimeMinutes)
-
+    const stats = calculateReadingStats(content);
+    setWordCount(stats.wordCount);
+    setParagraphsCount(stats.paragraphsCount);
+    setReadingTimeMinutes(stats.readingTimeMinutes);
 
     if (title && !isSlugManuallyEdited.current && !slug) {
-      setSlug(generateSlug(title))
+      setSlug(generateSlug(title));
     }
 
-    const timer = setTimeout(() => handleSave(true), 5000)
-    return () => clearTimeout(timer)
-  }, [title, content, featuredImage, slug, tags, handleSave, isLoading, isAuthLoading, post])
+    const timer = setTimeout(() => handleSave(true), 5000);
+    return () => clearTimeout(timer);
+  }, [title, content, featuredImage, slug, tags, handleSave, isLoading, isAuthLoading, post]);
 
   if (isLoading || isAuthLoading) {
     return (
@@ -248,181 +230,246 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
     );
   }
 
+  const syncStatusText = isSaving ? t("syncing") : lastSaved ? `${t("saved")} ${lastSaved.toLocaleTimeString()}` : "";
+
   return (
-    <div className={cn("flex flex-col h-[calc(100vh-0rem)] bg-noir-bg text-foreground")}>
-      <header className="flex items-center justify-between px-6 h-16 border-b border-noir-border shrink-0">
-        <div className="flex items-center gap-4">
-          <Link href="/studio/posts" className="text-foreground-subtle hover:text-accent transition-colors">
-            <ArrowLeft size={20} />
-          </Link>
-          <div className="flex flex-col">
-            <span
-              className={cn(
-                "text-[10px] font-bold uppercase tracking-widest",
-                post.status === "published"
-                  ? "text-emerald-500"
-                  : post.status === "scheduled"
-                    ? "text-sky-500"
-                    : "text-amber-500",
-              )}
-            >
-              {post.status === "draft" ? t("draft") : post.status === "scheduled" ? t("scheduled") : t("published")}
-            </span>
-            {lastSaved && (
-              <span className="text-[10px] uppercase font-mono mt-0.5 text-foreground-subtle">
-                {isSaving ? t("syncing") : t("saved")}
-              </span>
-            )}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Button
-            onClick={handlePreview}
-            variant="ghost"
-            className="h-9 text-xs uppercase gap-2 hidden md:flex text-foreground-subtle hover:text-accent hover:bg-noir-hover"
-          >
-            {t("preview")} <ExternalLink size={14} />
-          </Button>
-
-          <div className="w-px h-6 mx-2 bg-noir-border" />
-
-          <Button
-            onClick={() => setIsSidebarOpen(true)}
-            variant="ghost"
-            className="h-9 text-xs uppercase gap-2 px-3 text-foreground-subtle hover:text-accent hover:bg-noir-hover"
-          >
-            <span className="flex items-center gap-2">
-              <PanelRight size={16} />
-              {t("settings")}
-            </span>
-          </Button>
-
-          <Button
-            onClick={handlePublish}
-            disabled={isSaving}
+    <ThemePage className="h-full">
+      <div className="flex flex-col items-center justify-start h-full p-0 pt-12 md:pt-8 md:p-8 bg-black/20 overflow-hidden">
+        <div
+          className={cn(
+            "flex flex-col w-full max-w-5xl editor-container md:rounded-3xl overflow-hidden shadow-2xl flex-1 min-h-0 border-none",
+            getEditorContainerClasses(theme),
+            isCyberCopy && "md:rounded-none",
+            isTechieCopy && "md:rounded-xl bg-[var(--editor-bg)]/95 shadow-[var(--editor-glow)]",
+          )}
+          style={{ backgroundColor: theme === "journal" ? "var(--journal-paper)" : undefined }}
+        >
+          <header
             className={cn(
-              "px-6 h-9 text-xs uppercase transition-all shadow-none font-bold",
-              isCyberCopy
-                ? "bg-foreground text-noir-bg hover:bg-accent font-mono rounded-none"
-                : "bg-accent text-noir-bg",
+              "flex items-center justify-between px-4 md:px-12 py-2 md:py-6 border-b border-[var(--editor-border)] bg-[var(--editor-bg)] shrink-0",
+              theme === "journal" && "bg-noir-bg border-accent/10",
             )}
-            style={{ borderRadius: isCyberCopy ? "0" : "var(--theme-radius-full)" }}
           >
-            {isSaving ? "..." : t("publish")}
-          </Button>
-        </div>
-      </header>
-
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-32">
-        <div className="max-w-3xl mx-auto py-12 px-6 flex flex-col gap-6 min-h-full">
-          {featuredImage && (
-            <div
-              className={cn(
-                "w-full aspect-video overflow-hidden relative mb-4 group cursor-pointer border border-noir-border",
-                getRoundedClass(theme, "lg"),
-              )}
-              onClick={() => setIsSidebarOpen(true)}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={getMediaUrl(featuredImage)} className="w-full h-full object-cover" alt="cover" />
-              <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-[10px] uppercase font-bold tracking-widest text-white">
-                {t("changeCover")}
+            <div className="flex items-center gap-2 md:gap-4">
+              <Link
+                href="/studio/posts"
+                className={cn(
+                  "w-8 h-8 flex items-center justify-center rounded-full text-foreground-subtle hover:text-accent hover:bg-accent/10 transition-all group border border-transparent hover:border-accent/20",
+                )}
+              >
+                <ArrowLeft size={18} className="group-hover:-translate-x-0.5 transition-transform" />
+              </Link>
+              <div className="flex flex-col">
+                <span
+                  className={cn(
+                    "text-[10px] font-bold uppercase tracking-widest",
+                    post.status === "published"
+                      ? "text-emerald-500"
+                      : post.status === "scheduled"
+                        ? "text-sky-500"
+                        : "text-amber-500",
+                  )}
+                >
+                  {post.status === "draft" ? t("draft") : post.status === "scheduled" ? t("scheduled") : t("published")}
+                </span>
+                <span
+                  className={cn("font-mono text-[9px] md:text-[10px] mt-0.5 block uppercase text-foreground-subtle")}
+                >
+                  {syncStatusText}
+                </span>
               </div>
             </div>
-          )}
 
-          <Input
-            placeholder={t("articleTitlePlaceholder")}
-            className={cn(
-              "text-4xl md:text-5xl font-bold bg-transparent border-none px-0 h-auto focus:ring-0 leading-tight resize-none shadow-none",
-              isCyberCopy
-                ? "placeholder:text-foreground-subtle/20 text-foreground font-mono uppercase tracking-tighter"
-                : config.fontFamily === "serif"
-                  ? "font-serif italic"
-                  : "font-sans",
-            )}
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-          />
+            <div className="flex gap-2">
+              <div className="hidden md:flex gap-2">
+                <Button
+                  onClick={handlePreview}
+                  variant="ghost"
+                  className={cn(
+                    "px-4 md:px-6 h-8 md:h-9 text-[10px] md:text-xs uppercase font-bold tracking-wider",
+                    isCyberCopy
+                      ? "text-accent border border-accent/20 hover:bg-accent/10"
+                      : "text-foreground-subtle hover:text-accent hover:bg-accent/5",
+                  )}
+                  style={{ borderRadius: isCyberCopy ? "0" : config.tokens.borderRadius }}
+                >
+                  {previewLabel} <ExternalLink size={14} className="ml-2" />
+                </Button>
+                <Button
+                  onClick={() => handleSave()}
+                  disabled={isSaving}
+                  className={cn(
+                    "px-4 md:px-6 h-8 md:h-9 text-[10px] md:text-xs uppercase font-bold tracking-wider",
+                    isCyberCopy
+                      ? "bg-noir-panel border border-accent/20 text-accent hover:bg-accent/5"
+                      : "bg-foreground/5 hover:bg-foreground/10 text-foreground border-none",
+                  )}
+                  style={{ borderRadius: isCyberCopy ? "0" : config.tokens.borderRadius }}
+                >
+                  {isSaving ? savingLabel : draftLabel}
+                </Button>
+                <Button
+                  onClick={() => setIsSidebarOpen(true)}
+                  disabled={isSaving}
+                  className={cn(
+                    "px-4 md:px-8 h-8 md:h-9 text-[10px] md:text-xs uppercase transition-all shadow-none gap-1.5 md:gap-2 font-bold",
+                    isCyberCopy
+                      ? "bg-accent text-noir-bg rounded-none hover:bg-accent/90 shadow-[0_0_15px_rgba(var(--accent-rgb),0.3)]"
+                      : isTechieCopy
+                        ? "bg-accent text-noir-bg rounded-none hover:bg-accent-secondary shadow-[0_0_12px_rgba(var(--accent-rgb),0.2)]"
+                        : isJournalCopy
+                          ? "bg-accent text-white rounded-full hover:bg-accent/90"
+                          : "bg-accent text-white rounded-full hover:bg-accent/90",
+                  )}
+                >
+                  <Settings size={14} className="shrink-0" />
+                  <span className="hidden sm:inline">{t("settings")}</span>
+                </Button>
+              </div>
+            </div>
+          </header>
+
+          <div className="flex flex-col px-4 md:px-12 pt-4 md:pt-8 shrink-0">
+            <CoverImageManager
+              value={featuredImage}
+              attribution={featuredImageAttribution}
+              onChange={(url, attr) => {
+                setFeaturedImage(url);
+                setFeaturedImageAttribution(attr || null);
+              }}
+              tenantId={activeTenantId || undefined}
+              variant="editor"
+            />
+
+            <Input
+              placeholder={t("articleTitlePlaceholder")}
+              className={cn(
+                "text-2xl md:text-4xl font-bold bg-transparent border-none px-0 h-auto focus:ring-0 w-full mb-2 md:mb-4",
+                isCyberCopy
+                  ? "placeholder:text-foreground-subtle/20 text-foreground uppercase tracking-tighter font-mono"
+                  : isTechieCopy
+                    ? "font-mono uppercase tracking-tighter text-foreground placeholder:text-noir-border"
+                    : config.fontFamily === "serif"
+                      ? "font-serif italic"
+                      : "font-sans",
+              )}
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+            />
+          </div>
 
           <TiptapEditor
-            className="flex-1 min-h-[50vh] text-lg leading-relaxed"
+            className="flex-1 min-h-0"
             content={content}
             onChange={setContent}
             tenantId={activeTenantId || undefined}
           />
+
+          <SettingsSidebar
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+            slug={slug}
+            tags={tags}
+            featuredImage={featuredImage}
+            onUpdate={updates => {
+              if (updates.slug !== undefined) {
+                setSlug(updates.slug);
+                isSlugManuallyEdited.current = true;
+              }
+              if (updates.tags !== undefined) setTags(updates.tags);
+              if (updates.featuredImage !== undefined) setFeaturedImage(updates.featuredImage);
+            }}
+            tenantId={activeTenantId || undefined}
+            postTitle={title}
+            authorUsername={user.username}
+            onPublish={handlePublish}
+            readingTimeMinutes={readingTimeMinutes}
+            wordCount={wordCount}
+            paragraphsCount={paragraphsCount}
+            onSchedule={async date => {
+              const tenantId = getActiveTenantId();
+              if (!post || !post.id || !tenantId) return;
+
+              if (tags.length === 0) {
+                toast.warning(t("addTagWarningSchedule"));
+                setIsSidebarOpen(true);
+                return;
+              }
+
+              setIsSaving(true);
+              try {
+                await updatePost(
+                  post.id,
+                  {
+                    title,
+                    content,
+                    featuredImage: featuredImage || undefined,
+                    slug,
+                    tags,
+                    status: "scheduled",
+                    scheduledAt: date,
+                    wordCount,
+                    paragraphsCount,
+                    readingTimeMinutes,
+                  },
+                  tenantId,
+                );
+                await schedulePost(post.id, date, tenantId);
+                toast.success("Post scheduled successfully!");
+                router.push("/studio/posts");
+              } catch (e) {
+                console.error(e);
+                toast.error("Failed to schedule.");
+              } finally {
+                setIsSaving(false);
+              }
+            }}
+            scheduledAt={post.scheduledAt}
+            isPublishing={isSaving}
+            status={post.status}
+          />
+
+          {/* Mobile Action Bar */}
+          <div
+            className={cn(
+              "md:hidden fixed bottom-0 left-0 right-0 z-[120] p-4 flex gap-3 border-t backdrop-blur-md",
+              "bg-[var(--editor-bg)]/90 border-[var(--editor-border)] shadow-[0_-4px_20px_rgba(0,0,0,0.3)]",
+            )}
+          >
+            <Button
+              variant="outline"
+              onClick={handlePreview}
+              className={cn(
+                "flex-1 h-12 text-[10px] font-black uppercase tracking-widest",
+                isCyberCopy ? "rounded-none border-accent/30 text-accent" : "rounded-xl border-foreground/10",
+              )}
+            >
+              {previewLabel}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => handleSave()}
+              disabled={isSaving}
+              className={cn(
+                "flex-1 h-12 text-[10px] font-black uppercase tracking-widest",
+                isCyberCopy ? "rounded-none border-accent/30 text-accent" : "rounded-xl border-foreground/10",
+              )}
+            >
+              {isSaving ? savingLabel : "Save Draft"}
+            </Button>
+            <Button
+              onClick={() => setIsSidebarOpen(true)}
+              disabled={isSaving}
+              className={cn(
+                "flex-1 h-12 text-[10px] font-black uppercase tracking-widest bg-accent text-noir-bg",
+                isCyberCopy ? "rounded-none" : "rounded-xl",
+              )}
+            >
+              {publishLabel}
+            </Button>
+          </div>
         </div>
       </div>
-
-      <SettingsSidebar
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
-        slug={slug}
-        tags={tags}
-        featuredImage={featuredImage}
-        onUpdate={updates => {
-          if (updates.slug !== undefined) {
-            setSlug(updates.slug);
-            isSlugManuallyEdited.current = true;
-          }
-          if (updates.tags !== undefined) setTags(updates.tags);
-          if (updates.featuredImage !== undefined) setFeaturedImage(updates.featuredImage);
-        }}
-        tenantId={activeTenantId || undefined}
-        postTitle={title}
-        authorUsername={user.username}
-        onPublish={handlePublish}
-        onSchedule={async date => {
-          const tenantId = getActiveTenantId();
-          if (!post || !post.id || !tenantId) return;
-
-          if (tags.length === 0) {
-            toast.warning(t("addTagWarningSchedule"), {
-              action: {
-                label: t("addTags"),
-                onClick: () => setIsSidebarOpen(true),
-              },
-            });
-            setIsSidebarOpen(true);
-            return;
-          }
-
-          setIsSaving(true);
-          try {
-            await updatePost(
-              post.id,
-              {
-                title,
-                content,
-                featuredImage: featuredImage || undefined,
-                slug,
-                tags,
-                status: "scheduled",
-                scheduledAt: date,
-                wordCount,
-                paragraphsCount,
-                readingTimeMinutes,
-              },
-              tenantId,
-            );
-            await schedulePost(post.id, date, tenantId);
-            toast.success("Post scheduled successfully!");
-            router.push("/studio/posts");
-          } catch (e) {
-            console.error(e);
-            toast.error("Failed to schedule.");
-          } finally {
-            setIsSaving(false);
-          }
-        }}
-        scheduledAt={post.scheduledAt}
-        isPublishing={isSaving}
-        status={post.status}
-        readingTimeMinutes={readingTimeMinutes}
-        wordCount={wordCount}
-        paragraphsCount={paragraphsCount}
-      />
-    </div>
+    </ThemePage>
   );
 }

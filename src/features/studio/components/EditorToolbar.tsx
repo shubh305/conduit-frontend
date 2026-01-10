@@ -136,7 +136,7 @@ export function EditorToolbar({
   return (
     <div
       className={cn(
-        "flex items-center gap-1 p-2 border-b sticky top-0 z-10 flex-wrap relative transition-colors",
+        "flex items-center gap-1 p-2 border-b sticky top-0 z-10 relative transition-colors overflow-x-auto md:flex-wrap no-scrollbar",
         "bg-[var(--editor-bg)] border-[var(--editor-border)]",
         isSakuraCopy && "bg-white/50 backdrop-blur-sm",
         isOctaneCopy && "octane-panel border-b-accent-warm/20",

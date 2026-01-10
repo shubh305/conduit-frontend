@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { WIP_LIMITS } from "@/lib/wip-limits";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { restorePost } from "@/features/blog/api";
 import { toast } from "sonner";
@@ -65,7 +66,9 @@ export function PostsList({ posts, onDelete, onRestore }: PostsListProps) {
     }
   }
 
-  const tabs: Tab[] = ["published", "drafts", "scheduled", "unlisted", "deleted"]
+  const tabs: Tab[] = (["published", "drafts", "scheduled", "unlisted", "deleted"] as Tab[]).filter(
+    t => t !== "unlisted" || WIP_LIMITS.showUnlistedFilter,
+  );
 
 
   const statusLabels: Record<Tab, string> = {
@@ -145,19 +148,19 @@ export function PostsList({ posts, onDelete, onRestore }: PostsListProps) {
   return (
     <div className="w-full">
       {/* Tabs / Filter Navigation */}
-      <div className="flex items-center gap-3 mb-12 overflow-x-auto no-scrollbar pb-2">
+      <div className="flex items-center gap-2 md:gap-3 mb-6 md:mb-12 overflow-x-auto no-scrollbar pb-2 md:-mx-4 md:px-4">
         {tabs.map(tab => {
           const count = posts.filter(p => {
-            const s = p.status?.toLowerCase()
-            if (tab === "drafts") return s === "draft" && !p.deletedAt
-            if (tab === "published") return s === "published" && !p.deletedAt
-            if (tab === "scheduled") return s === "scheduled" && !p.deletedAt
-            if (tab === "unlisted") return s === "unlisted" && !p.deletedAt
-            if (tab === "deleted") return !!p.deletedAt
-            return false
-          }).length
+            const s = p.status?.toLowerCase();
+            if (tab === "drafts") return s === "draft" && !p.deletedAt;
+            if (tab === "published") return s === "published" && !p.deletedAt;
+            if (tab === "scheduled") return s === "scheduled" && !p.deletedAt;
+            if (tab === "unlisted") return s === "unlisted" && !p.deletedAt;
+            if (tab === "deleted") return !!p.deletedAt;
+            return false;
+          }).length;
 
-          const isSelected = activeTab === tab
+          const isSelected = activeTab === tab;
 
           return (
             <button key={tab} onClick={() => setActiveTab(tab)} className={getTabButtonClasses(theme, isSelected)}>
@@ -173,7 +176,7 @@ export function PostsList({ posts, onDelete, onRestore }: PostsListProps) {
                 </span>
               )}
             </button>
-          )
+          );
         })}
       </div>
 
@@ -223,8 +226,14 @@ export function PostsList({ posts, onDelete, onRestore }: PostsListProps) {
         ) : (
           <div className={cn("divide-y divide-noir-border/50", (isJournalCopy || isTechieCopy) && "divide-accent/10")}>
             {filteredPosts.map((post, index) => (
-              <div key={post.id || `post-${index}`} className={getPostItemClasses(theme)}>
-                <div className="flex-1 pr-10">
+              <div
+                key={post.id || `post-${index}`}
+                className={cn(
+                  getPostItemClasses(theme),
+                  "border-b border-noir-border/30 last:border-none px-4 md:px-4",
+                )}
+              >
+                <div className="flex-1 pr-4 md:pr-10">
                   <div className="flex flex-col h-full">
                     <Link
                       href={
@@ -373,5 +382,5 @@ export function PostsList({ posts, onDelete, onRestore }: PostsListProps) {
         )}
       </div>
     </div>
-  )
+  );
 }

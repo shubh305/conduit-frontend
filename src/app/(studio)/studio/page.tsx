@@ -114,14 +114,14 @@ export default function DashboardPage() {
   return (
     <ThemePage
       className={cn(
-        "max-w-7xl mx-auto px-6 py-8 md:py-12",
+        "max-w-7xl mx-auto px-4 md:px-6 py-4 md:py-12",
         isTechieCopy &&
           "bg-[linear-gradient(rgba(var(--bg-rgb),0.8)_50%,rgba(0,0,0,0.9)_100%),linear-gradient(90deg,rgba(var(--accent-rgb),0.03)_1px,transparent_1px),linear-gradient(rgba(var(--accent-rgb),0.03)_1px,transparent_1px)] bg-[length:100%_100%,40px_40px,40px_40px] border-x border-noir-border/30 min-h-screen",
       )}
     >
       <header
         className={cn(
-          "flex flex-col md:flex-row md:items-end justify-between gap-6 pb-10 border-b border-noir-border transition-all",
+          "flex flex-col md:flex-row md:items-end justify-between gap-6 pb-4 md:pb-10 border-b border-noir-border transition-all",
           isTechieCopy && "border-noir-border",
         )}
       >
@@ -143,11 +143,11 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <div className="mt-12">
+      <div className="mt-4 md:mt-12">
         <DashboardStats stats={stats} />
       </div>
 
-      <div className="grid grid-cols-1 gap-12 mt-16">
+      <div className="grid grid-cols-1 gap-6 md:gap-12 mt-6 md:mt-16">
         {/* Main Analytics Visualization */}
         <section className="space-y-8">
           <div className="flex items-center gap-3">
@@ -180,7 +180,7 @@ export default function DashboardPage() {
         </section>
       </div>
     </ThemePage>
-  )
+  );
 }
 
 // =============================================================================

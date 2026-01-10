@@ -223,7 +223,7 @@ export function CoverImageManager({ value, attribution, onChange, tenantId, vari
               className={cn(
                 variant === "sidebar"
                   ? "flex items-center gap-2 px-4 h-9 text-[9px] font-black uppercase tracking-[0.15em] transition-all"
-                  : "flex items-center gap-1.5 px-0 h-8 text-[11px] font-bold uppercase tracking-wider transition-all hover:bg-transparent hover:text-accent",
+                  : "flex items-center gap-1.5 px-2 md:px-0 h-8 text-[11px] font-bold uppercase tracking-wider transition-all hover:bg-transparent hover:text-accent",
                 getRoundedClass(theme, "full"),
                 variant === "sidebar" &&
                   (isCyberCopy
@@ -248,7 +248,7 @@ export function CoverImageManager({ value, attribution, onChange, tenantId, vari
                   className={cn(
                     variant === "sidebar"
                       ? "flex items-center gap-2 px-4 h-9 text-[9px] font-black uppercase tracking-[0.15em] transition-all"
-                      : "flex items-center gap-1.5 px-0 h-8 text-[11px] font-bold uppercase tracking-wider transition-all hover:bg-transparent hover:text-accent",
+                      : "flex items-center gap-1.5 px-2 md:px-0 h-8 text-[11px] font-bold uppercase tracking-wider transition-all hover:bg-transparent hover:text-accent",
                     getRoundedClass(theme, "full"),
                     variant === "sidebar" &&
                       (isCyberCopy

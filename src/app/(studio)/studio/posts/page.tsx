@@ -3,6 +3,7 @@
 import { PostsList } from "@/features/studio/components/PostsList";
 import { getPosts, deletePost } from "@/features/blog/api";
 import { useAuth } from "@/features/auth/AuthProvider";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Post } from "@/features/blog/types";
 import { useTheme, useStudioLabels } from "@/features/theme/ThemeProvider"
@@ -11,9 +12,12 @@ import { toast } from "sonner";
 import { DeleteDialog } from "@/components/ui/delete-dialog";
 import { getHeadingClasses, ThemePage } from "@/components/theme"
 import { getSubtitleClasses, ThemeVariant } from "@/lib/theme-variants"
+import { useSearchParams } from "next/navigation";
 
 export default function PostsPage() {
   const { user } = useAuth()
+  const searchParams = useSearchParams();
+  const currentTenantId = searchParams.get("tenantId") || user?.tenants?.[0]?.id;
   const { theme } = useTheme()
   const { getLabel } = useStudioLabels()
   const [posts, setPosts] = useState<Post[]>([])
@@ -97,11 +101,48 @@ export default function PostsPage() {
   }
 
   return (
-    <ThemePage className="max-w-7xl mx-auto px-6 py-8 md:py-12">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-10 border-b border-noir-border transition-all">
-        <div>
-          <h1 className={cn("text-4xl font-bold tracking-tighter", getHeadingClasses(theme))}>{title}</h1>
-          <p className={cn("text-sm mt-2", getSubtitleClasses(theme as ThemeVariant))}>{subtitle}</p>
+    <ThemePage className="max-w-7xl mx-auto px-4 md:px-6 py-2 md:py-12">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 md:pb-10 border-b border-noir-border transition-all">
+        <div className="flex-1">
+          <div className="flex items-center justify-between md:block">
+            <h1 className={cn("text-3xl md:text-4xl font-bold tracking-tighter", getHeadingClasses(theme))}>{title}</h1>
+            {/* Mobile New Post Action */}
+            <Link
+              href={`/studio/editor${currentTenantId ? `?tenantId=${currentTenantId}` : ""}`}
+              className="md:hidden flex items-center justify-center w-10 h-10 rounded-full bg-accent text-noir-bg shadow-lg"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </Link>
+          </div>
+          <p className={cn("text-xs md:text-sm mt-2 max-w-xl", getSubtitleClasses(theme as ThemeVariant))}>
+            {subtitle}
+          </p>
+        </div>
+
+        {/* Desktop Actions */}
+        <div className="hidden md:flex items-center gap-4">
+          <Link
+            href={`/studio/editor${currentTenantId ? `?tenantId=${currentTenantId}` : ""}`}
+            className={cn(
+              "px-6 py-2.5 text-xs font-bold uppercase tracking-widest bg-accent text-noir-bg transition-all hover:opacity-90",
+              theme === "cyber" || theme === "techie" ? "rounded-none" : "rounded-full",
+            )}
+          >
+            {getLabel("new_post_btn")}
+          </Link>
         </div>
       </header>
 
@@ -124,5 +165,5 @@ export default function PostsPage() {
         isDeleting={isDeleting}
       />
     </ThemePage>
-  )
+  );
 }
