@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export function getMediaUrl(url: string | undefined): string | undefined {
   if (!url) return undefined;
-  const storageUrl = process.env.NEXT_PUBLIC_STORAGE_URL || "https://storage.octanebrew.dev";
+  const storageUrl = process.env.NEXT_PUBLIC_STORAGE_URL;
   if (url.startsWith("http")) return url;
   const cleanPath = url.startsWith("/") ? url : `/${url}`;
 

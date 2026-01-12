@@ -1,4 +1,8 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+const IS_SERVER = typeof window === "undefined";
+const PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL;
+const INTERNAL_API_URL = process.env.CONDUIT_INTERNAL_API_URL;
+
+const API_URL = IS_SERVER && INTERNAL_API_URL ? INTERNAL_API_URL : PUBLIC_API_URL;
 
 interface FetchOptions extends RequestInit {
   tenantId?: string;
@@ -16,7 +20,6 @@ export class ApiError extends Error {
     this.name = "ApiError";
   }
 }
-
 
 const DEFAULT_TENANT_ID = process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID;
 
