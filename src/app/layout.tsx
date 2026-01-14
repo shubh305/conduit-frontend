@@ -48,7 +48,7 @@ export const metadata: Metadata = {
 };
 
 import { FluidicWrapper } from "@/features/theme/FluidicWrapper";
-import { GlobalStatusBar } from "@/features/layout/components/GlobalStatusBar";
+import { StatusBarLoader } from "@/features/layout/components/StatusBarLoader";
 
 export default function RootLayout({
   children,
@@ -72,7 +72,7 @@ export default function RootLayout({
           <ThemeProvider>
             <AuthProvider>
               <LibraryProvider>
-                <GlobalStatusBar />
+                <StatusBarLoader />
                 <FluidicWrapper>
                   <LayoutWrapper>
                     {children}
@@ -85,5 +85,5 @@ export default function RootLayout({
         </QueryProvider>
       </body>
     </html>
-  )
+  );
 }

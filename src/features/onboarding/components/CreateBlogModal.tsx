@@ -12,6 +12,7 @@ import { handleApiError } from "@/lib/error-utils";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { uploadImage } from "@/features/media/api";
 import { ThemeVariant, getHeadingClasses } from "@/lib/theme-variants"
+import { fetchApi } from "@/lib/api-client";
 
 interface CreateBlogModalProps {
     isOpen: boolean;
@@ -66,8 +67,7 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
           return;
         }
         try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/tenants/check-slug?slug=${subdomain}`);
-          const data = await response.json();
+          const data = await fetchApi<{ available: boolean }>(`/tenants/check-slug?slug=${subdomain}`);
           setIsSubdomainAvailable(data.available);
         } catch (e) {
           console.error("Failed to check slug", e);
