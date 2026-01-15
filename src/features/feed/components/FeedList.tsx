@@ -198,9 +198,11 @@ export function FeedList({
                 !isSakuraCopy && !isJournalCopy && !isTechieCopy && "p-4 md:p-8",
               )}
             >
-              <div className={cn(isTechieCopy && "col-span-full")}>
-                <FeedCard item={featured} variant={isTechieCopy ? "default" : "default"} />
-              </div>
+              {featured && (
+                <div className={cn(isTechieCopy && "col-span-full")}>
+                  <FeedCard item={featured} variant={isTechieCopy ? "default" : "default"} />
+                </div>
+              )}
 
               {items.slice(1).map(item => (
                 <FeedCard key={item.postId} item={item} />

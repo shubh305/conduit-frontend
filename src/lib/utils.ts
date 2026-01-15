@@ -14,10 +14,14 @@ export function getMediaUrl(url: string | undefined): string | undefined {
   return `${storageUrl}${cleanPath}`;
 }
 
-export function getPostUrl(item: { tenantSlug?: string; authorUsername?: string; postSlug: string }): string {
+export function getPostUrl(
+  item: { tenantSlug?: string; authorUsername?: string; postSlug: string } | undefined | null,
+): string {
+  if (!item) return "/";
   if (item.tenantSlug === "default" && item.authorUsername) {
     return `/u/${item.authorUsername}/${item.postSlug}`;
   }
   const slug = item.tenantSlug || "public";
-  return `/${slug}/${item.postSlug}`;
+  const postSlug = item.postSlug || "undefined";
+  return `/${slug}/${postSlug}`;
 }

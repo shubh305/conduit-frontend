@@ -214,7 +214,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<ThemeId>("cyber");
+  const [theme, setThemeState] = useState<ThemeId>("classic");
   const [mounted, setMounted] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
   const [themeHubVisible, setThemeHubVisibleState] = useState(false);
@@ -269,9 +269,9 @@ export function useTheme() {
 
     if (typeof window === "undefined") {
       return {
-        theme: "cyber" as ThemeId,
+        theme: "classic" as ThemeId,
         setTheme: () => {},
-        config: THEME_REGISTRY["cyber"],
+        config: THEME_REGISTRY["classic"],
         focusMode: false,
         setFocusMode: () => {},
         themeHubVisible: false,

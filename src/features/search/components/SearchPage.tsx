@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
-import { cn, getMediaUrl } from "@/lib/utils";
+import { cn, getMediaUrl, getPostUrl } from "@/lib/utils";
 import { Search as SearchIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -191,12 +191,7 @@ function SearchResults({ query, tab }: { query: string; tab: Tab }) {
 
   const publications: Publication[] = [];
 
-  const getPostLink = (post: FeedItem) => {
-    if (post.tenantSlug === "default" && post.authorUsername) {
-      return `/u/${post.authorUsername}/${post.postSlug}`;
-    }
-    return `/${post.tenantSlug}/${post.postSlug}`;
-  };
+  const getPostLink = (post: FeedItem) => getPostUrl(post);
 
   if (isTerminalCopy) {
     return (
