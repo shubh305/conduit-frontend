@@ -43,19 +43,21 @@ export const buttonVariants: Record<ThemeVariant, ButtonVariantStyles> = {
       "bg-transparent text-accent border border-accent/40 font-mono uppercase tracking-wider rounded-md hover:bg-accent/10",
   },
   classic: {
-    primary: "bg-black text-white border border-white/20 rounded-lg hover:bg-white/10 font-medium tracking-tight",
+    primary:
+      "bg-white text-black border border-white/10 rounded-lg hover:bg-white/90 font-sans font-bold tracking-tight shadow-[0_4px_20px_rgba(255,255,255,0.15)]",
     ghost:
-      "bg-transparent text-foreground border border-noir-border rounded-lg hover:bg-noir-hover font-medium tracking-tight",
+      "bg-transparent text-foreground border border-noir-border rounded-lg hover:bg-noir-hover font-sans font-medium tracking-tight",
   },
   "classic-white": {
-    primary: "bg-white text-black border border-black/10 rounded-lg hover:bg-black/5 font-medium tracking-tight",
+    primary:
+      "bg-white text-black border border-black/10 rounded-lg hover:bg-black/5 font-sans font-medium tracking-tight",
     ghost:
-      "bg-transparent text-foreground border border-black/10 rounded-lg hover:bg-black/5 font-medium tracking-tight",
+      "bg-transparent text-foreground border border-black/10 rounded-lg hover:bg-black/5 font-sans font-medium tracking-tight",
   },
   professional: {
-    primary: "bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium tracking-tight",
+    primary: "bg-blue-600 text-white rounded-md hover:bg-blue-700 font-sans font-medium tracking-tight",
     ghost:
-      "bg-transparent text-blue-600 border border-blue-600/20 rounded-md hover:bg-blue-50 font-medium tracking-tight",
+      "bg-transparent text-blue-600 border border-blue-600/20 rounded-md hover:bg-blue-50 font-sans font-medium tracking-tight",
   },
 };
 
@@ -72,7 +74,7 @@ export function getToolbarButtonClasses(theme: ThemeVariant, isActive: boolean):
     return cn(
       base,
       "rounded-none",
-      isActive ? "bg-accent/20 text-accent" : "text-foreground-subtle hover:bg-accent/10 hover:text-accent"
+      isActive ? "bg-accent/20 text-accent" : "text-foreground/70 hover:bg-accent/10 hover:text-accent",
     );
   }
   
@@ -80,7 +82,7 @@ export function getToolbarButtonClasses(theme: ThemeVariant, isActive: boolean):
     return cn(
       base,
       "rounded-none font-mono",
-      isActive ? "bg-accent text-black" : "text-accent/60 hover:bg-accent/20 hover:text-accent"
+      isActive ? "bg-accent text-black" : "text-accent/70 hover:bg-accent/20 hover:text-accent",
     );
   }
 
@@ -88,13 +90,13 @@ export function getToolbarButtonClasses(theme: ThemeVariant, isActive: boolean):
     return cn(
       base,
       "rounded-md",
-      isActive ? "bg-accent/10 text-accent" : "text-foreground-subtle hover:bg-accent/5 hover:text-accent"
+      isActive ? "bg-accent/10 text-accent" : "text-foreground/70 hover:bg-accent/5 hover:text-accent",
     );
   }
 
   return cn(
     base,
     "rounded-lg",
-    isActive ? "bg-black/5 text-foreground" : "text-foreground-subtle hover:bg-black/5 hover:text-foreground"
+    isActive ? "bg-black/10 text-foreground" : "text-foreground/60 hover:bg-black/5 hover:text-foreground",
   );
 }

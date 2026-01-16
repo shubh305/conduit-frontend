@@ -20,12 +20,12 @@ export function getHeadingClasses(theme: ThemeVariant): string {
     case "terminal":
       return "font-mono tracking-tighter text-accent terminal-scanline-text terminal-glow"
     case "ronin":
-      return "font-serif italic text-accent"
+      return "font-serif text-accent";
     case "sakura":
     case "journal":
-      return "font-serif italic text-[#5d4037]"
+      return "font-serif text-[#5d4037]";
     case "classic":
-      return "font-serif italic text-foreground"
+      return "font-serif text-foreground";
     case "techie":
       return "font-mono uppercase tracking-tighter text-accent"
     default:
@@ -47,7 +47,7 @@ export function getSubtitleClasses(theme: ThemeVariant): string {
     case "journal":
     case "sakura":
     case "ronin":
-      return "font-serif italic capitalize tracking-wider opacity-80"
+      return "font-serif capitalize tracking-wider opacity-80";
     default:
       return "font-sans text-xs uppercase tracking-widest opacity-60"
   }
@@ -98,11 +98,14 @@ export function getTabsListClasses(theme: ThemeVariant): string {
 export function getTabsTriggerClasses(theme: ThemeVariant): string {
   const base = "pb-4 text-xs font-bold uppercase tracking-widest transition-all relative outline-none";
   const styles = {
-    cyber: "data-[state=active]:text-accent data-[state=active]:after:absolute data-[state=active]:after:bottom-0 data-[state=active]:after:left-0 data-[state=active]:after:w-full data-[state=active]:after:h-0.5 data-[state=active]:after:bg-accent text-foreground-subtle hover:text-foreground",
+    cyber:
+      "data-[state=active]:text-accent data-[state=active]:after:absolute data-[state=active]:after:bottom-0 data-[state=active]:after:left-0 data-[state=active]:after:w-full data-[state=active]:after:h-0.5 data-[state=active]:after:bg-accent text-foreground-subtle hover:text-foreground",
     terminal: "data-[state=active]:text-accent text-accent/40 hover:text-accent font-mono",
-    techie: "data-[state=active]:text-accent data-[state=active]:after:absolute data-[state=active]:after:bottom-0 data-[state=active]:after:left-0 data-[state=active]:after:w-full data-[state=active]:after:h-0.5 data-[state=active]:after:bg-accent text-foreground-subtle hover:text-foreground font-mono",
-    journal: "font-serif italic capitalize tracking-normal text-foreground/60 data-[state=active]:text-accent",
-    default: "text-foreground-subtle data-[state=active]:text-foreground data-[state=active]:after:absolute data-[state=active]:after:bottom-0 data-[state=active]:after:left-0 data-[state=active]:after:w-full data-[state=active]:after:h-0.5 data-[state=active]:after:bg-accent",
+    techie:
+      "data-[state=active]:text-accent data-[state=active]:after:absolute data-[state=active]:after:bottom-0 data-[state=active]:after:left-0 data-[state=active]:after:w-full data-[state=active]:after:h-0.5 data-[state=active]:after:bg-accent text-foreground-subtle hover:text-foreground font-mono",
+    journal: "font-serif capitalize tracking-normal text-foreground/60 data-[state=active]:text-accent",
+    default:
+      "text-foreground-subtle data-[state=active]:text-foreground data-[state=active]:after:absolute data-[state=active]:after:bottom-0 data-[state=active]:after:left-0 data-[state=active]:after:w-full data-[state=active]:after:h-0.5 data-[state=active]:after:bg-accent",
   };
   
   return cn(base, styles[theme as keyof typeof styles] || styles.default);
@@ -127,7 +130,7 @@ export function getAttributionLinkClasses(theme: ThemeVariant): string {
     cyber: "bg-noir-bg/80 border-accent/30 text-accent font-mono uppercase rounded-none",
     terminal: "bg-black/80 border-accent/30 text-accent font-mono rounded-none",
     techie: "bg-noir-bg/80 border-noir-border text-foreground-subtle font-mono uppercase rounded-none",
-    journal: "bg-white/80 border-accent/10 text-accent font-serif italic rounded-full",
+    journal: "bg-white/80 border-accent/10 text-accent font-serif rounded-full",
     default: "bg-black/40 border-white/10 text-white rounded-full",
   };
   
@@ -154,10 +157,10 @@ export function getLayoutSelectorButtonClasses(theme: ThemeVariant, isSelected: 
   if (theme === "journal") {
     return cn(
       base,
-      "rounded-xl font-serif italic",
+      "rounded-xl font-serif",
       isSelected
         ? "bg-accent/5 border-accent text-accent shadow-inner"
-        : "bg-white/40 border-accent/10 text-foreground/60 hover:bg-white/60 hover:border-accent/30"
+        : "bg-white/40 border-accent/10 text-foreground/60 hover:bg-white/60 hover:border-accent/30",
     );
   }
 

@@ -41,7 +41,7 @@ export function getSidebarClasses(theme: ThemeVariant): string {
 }
 
 export function getSidebarItemClasses(theme: ThemeVariant, isActive: boolean): string {
-  const base = "flex items-center gap-3 px-4 py-2 text-sm transition-all";
+  const base = "flex items-center gap-3 px-4 py-2 text-sm transition-all cursor-pointer group";
   
   if (theme === "cyber") {
     return cn(
@@ -62,12 +62,12 @@ export function getSidebarItemClasses(theme: ThemeVariant, isActive: boolean): s
   return cn(
     base,
     "rounded-lg",
-    isActive ? "bg-black/5 text-foreground font-medium" : "text-foreground-subtle hover:bg-black/5 hover:text-foreground"
+    isActive ? "bg-black/5 text-foreground font-medium" : "text-foreground/70 hover:bg-black/5 hover:text-foreground",
   );
 }
 
 export function getTenantSwitcherClasses(theme: ThemeVariant): string {
-  const base = "w-full flex items-center justify-between p-2 mb-6 border transition-all";
+  const base = "w-full flex items-center justify-between p-2 mb-6 border transition-all cursor-pointer group";
   
   if (theme === "cyber") return cn(base, "rounded-none border-accent/20 hover:border-accent");
   if (theme === "terminal") return cn(base, "rounded-none border-accent/20 hover:border-accent font-mono");

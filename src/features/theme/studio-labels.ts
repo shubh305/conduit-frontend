@@ -74,6 +74,8 @@ export type StudioLabelKey =
   | "stats_30_days"
   | "stats_7_days"
   | "stats_engagement"
+  | "publication_updated_success"
+  | "input_active_status";
 
 export const STUDIO_LABELS: Record<StudioLabelKey, Record<string, string>> = {
   brand: {
@@ -116,14 +118,14 @@ export const STUDIO_LABELS: Record<StudioLabelKey, Record<string, string>> = {
     techie: "Posts",
   },
   create_post: {
-    default: "Create Post",
-    sakura: "New Story",
-    octane: "Initialize Blueprint",
-    journal: "Write New",
-    cyber: "INIT_SIGNAL",
-    terminal: "$ vim new",
-    ronin: "CHRONICLE_INK",
-    techie: "Create Post",
+    default: "Create",
+    sakura: "Transmit",
+    octane: "Ignite",
+    journal: "Inscribe",
+    cyber: "INIT",
+    terminal: "$ vim",
+    ronin: "RECORD",
+    techie: "CREATE",
   },
   publications: {
     default: "Publications",
@@ -240,24 +242,24 @@ export const STUDIO_LABELS: Record<StudioLabelKey, Record<string, string>> = {
     techie: "Modify user identification and metadata across the grid.",
   },
   new_post_btn: {
-    default: "Create New Post",
-    sakura: "New Story",
-    octane: "Initialize Blueprint",
-    journal: "Begin Entry",
-    cyber: "OPEN_NEW_GATE",
-    terminal: "+ NEW_FILE",
-    ronin: "NEW CHRONICLE",
-    techie: "Initialize New File",
+    default: "Create",
+    sakura: "Transmit",
+    octane: "Ignite",
+    journal: "Inscribe",
+    cyber: "INIT",
+    terminal: "$ vim",
+    ronin: "RECORD",
+    techie: "CREATE",
   },
   new_publication_btn: {
-    default: "Create New Publication",
-    sakura: "Initialize New Transmission",
-    octane: "Establish Channel",
-    journal: "Start New Journal",
-    cyber: "INITIALIZE_RELAY_NODE",
-    terminal: "$ mk_node",
-    ronin: "ESTABLISH TERRITORY",
-    techie: "Create New Node",
+    default: "Create",
+    sakura: "Transmit",
+    octane: "Ignite",
+    journal: "Inscribe",
+    cyber: "INIT",
+    terminal: "$ mk",
+    ronin: "ESTABLISH",
+    techie: "INIT",
   },
   analytics: {
     default: "Analytics",
@@ -798,6 +800,22 @@ export const STUDIO_LABELS: Record<StudioLabelKey, Record<string, string>> = {
     terminal: "ENGAGEMENT",
     techie: "ENGAGEMENT",
   },
+  publication_updated_success: {
+    default: "Publication updated!",
+    octane: "Specs Updated!",
+    cyber: "METADATA_SYNC_COMPLETE.",
+    terminal: "SUCCESS: CONFIG_UPDATED",
+    techie: "NODE_RECORD_SAVED",
+    journal: "Journal Updated",
+    sakura: "配信を更新しました！",
+    ronin: "RECORD_SYNCED.",
+  },
+  input_active_status: {
+    default: "",
+    cyber: "[INPUT_ACTIVE]",
+    terminal: "[ACTIVE]",
+    techie: "[READY]",
+  },
 };
 
 export function getStudioLabel(key: StudioLabelKey, theme: ThemeId): string {
@@ -805,3 +823,4 @@ export function getStudioLabel(key: StudioLabelKey, theme: ThemeId): string {
   if (!themeLabels) return key;
   return themeLabels[theme] || themeLabels.default || key;
 }
+

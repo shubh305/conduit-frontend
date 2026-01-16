@@ -189,7 +189,8 @@ export function getConfigItemHeadingClasses(theme: ThemeVariant): string {
 }
 
 export function getAddButtonClasses(theme: ThemeVariant): string {
-  const base = "flex items-center gap-3 px-8 py-4 font-bold uppercase tracking-[0.2em] transition-all"
+  const base =
+    "flex items-center gap-3 px-4 md:px-8 py-2.5 md:py-4 font-bold uppercase tracking-[0.2em] transition-all";
   const styles = {
     cyber:
       "bg-accent text-noir-bg font-mono rounded-none hover:bg-accent/90 shadow-[0_0_20px_rgba(var(--accent-rgb),0.3)]",

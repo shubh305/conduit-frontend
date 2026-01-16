@@ -2,17 +2,21 @@
 
 import { useState, KeyboardEvent } from "react";
 import { X } from "lucide-react";
-import { cn } from "@/lib/utils";
+
+import { ThemeVariant, getTagClasses, getTagInputClasses, getTagRemoveButtonClasses } from "@/lib/theme-variants";
+import { useThemeHelpers, useStudioLabels } from "@/features/theme/ThemeProvider";
 
 interface TagInputProps {
   tags: string[];
   onChange: (tags: string[]) => void;
-  isNoir: boolean;
+  theme: ThemeVariant;
   disabled?: boolean;
 }
 
-export function TagInput({ tags, onChange, isNoir, disabled }: TagInputProps) {
+export function TagInput({ tags, onChange, theme, disabled }: TagInputProps) {
   const [input, setInput] = useState("");
+  const { isTerminalCopy, isCyberCopy, isTechieCopy } = useThemeHelpers();
+  const { getLabel } = useStudioLabels();
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" || e.key === ",") {
@@ -32,48 +36,40 @@ export function TagInput({ tags, onChange, isNoir, disabled }: TagInputProps) {
   };
 
   const removeTag = (tagToRemove: string) => {
-    onChange(tags.filter((t) => t !== tagToRemove));
+    onChange(tags.filter(t => t !== tagToRemove));
   };
+
+  const activeStatus = getLabel("input_active_status");
 
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap gap-2 mb-2">
-        {tags.map((tag) => (
-          <span
-            key={tag}
-            className={cn(
-              "inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full border",
-              isNoir
-                ? "bg-white/10 border-white/20 text-white"
-                : "bg-signal-green/10 border-signal-green/30 text-signal-green"
-            )}
-          >
-            #{tag}
-            <button
-              onClick={() => removeTag(tag)}
-              disabled={disabled}
-              className="hover:text-red-400 focus:outline-none"
-            >
-              <X size={12} />
+        {tags.map(tag => (
+          <span key={tag} className={getTagClasses(theme)}>
+            {isTerminalCopy && ">"} #{tag}
+            <button onClick={() => removeTag(tag)} disabled={disabled} className={getTagRemoveButtonClasses(theme)}>
+              <X size={10} strokeWidth={3} />
             </button>
           </span>
         ))}
       </div>
-      <input
-        type="text"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={addTag}
-        disabled={disabled}
-        placeholder={tags.length === 0 ? "Add tags (tech, webdev)..." : "Add more..."}
-        className={cn(
-          "w-full bg-transparent border-b px-0 py-2 text-sm focus:outline-none focus:ring-0",
-          isNoir
-            ? "border-white/20 text-white placeholder:text-white/20 focus:border-white"
-            : "border-gray-800 text-white placeholder:text-gray-600 focus:border-signal-green"
+      <div className="relative">
+        <input
+          type="text"
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onBlur={addTag}
+          disabled={disabled}
+          placeholder={tags.length === 0 ? "Add tags (tech, webdev)..." : "Add more..."}
+          className={getTagInputClasses(theme)}
+        />
+        {activeStatus && (isCyberCopy || isTerminalCopy || isTechieCopy) && (
+          <div className="absolute right-0 bottom-2 text-[8px] font-mono text-accent/30 pointer-events-none uppercase">
+            {activeStatus}
+          </div>
         )}
-      />
+      </div>
     </div>
   );
 }

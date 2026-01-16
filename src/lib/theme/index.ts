@@ -11,3 +11,4 @@ export * from "./variants/layout-variants";
 export * from "./variants/studio-variants";
 export * from "./variants/popover-variants";
 export * from "./variants/input-variants";
+export * from "./variants/tag-variants";
