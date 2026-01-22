@@ -26,24 +26,37 @@ export default function LibraryPage() {
   const router = useRouter();
 
   const [activeTab, setActiveTab] = useState<"lists" | "history">("lists")
-  const [lists, setLists] = useState<ReadingList[]>([])
+  const [cachedLists, setCachedLists] = useState<{ lists: ReadingList[] }>({ lists: [] });
+  const [fetchedTabs, setFetchedTabs] = useState<Set<"lists" | "history">>(new Set());
   const [loading, setLoading] = useState(true);
   const [showListDialog, setShowListDialog] = useState(false);
   const [editingList, setEditingList] = useState<ReadingList | undefined>(undefined);
 
+  const hasFetchedLists = fetchedTabs.has("lists");
+
   useEffect(() => {
-    if (user && activeTab === "lists") {
-      fetchLists()
+    if (user) {
+      if (activeTab === "lists") {
+        if (!hasFetchedLists) {
+          fetchLists();
+        } else {
+          setLoading(false);
+        }
+      } else if (activeTab === "history") {
+        setFetchedTabs(prev => new Set(prev).add("history"));
+        setLoading(false);
+      }
     } else {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [user, activeTab]);
+  }, [user, activeTab, hasFetchedLists]);
 
   const fetchLists = async () => {
     setLoading(true);
     try {
       const res = await getMyLists();
-      setLists(res);
+      setCachedLists({ lists: res });
+      setFetchedTabs(prev => new Set(prev).add("lists"));
     } catch (error) {
       console.error(error);
     } finally {
@@ -53,9 +66,13 @@ export default function LibraryPage() {
 
   const handleListSuccess = (list: ReadingList) => {
     if (editingList) {
-      setLists(prev => prev.map(l => (l._id === list._id ? list : l)));
+      setCachedLists(prev => ({
+        lists: prev.lists.map(l => (l._id === list._id ? list : l)),
+      }));
     } else {
-      setLists(prev => [list, ...prev]);
+      setCachedLists(prev => ({
+        lists: [list, ...prev.lists],
+      }));
     }
     setEditingList(undefined);
   };
@@ -86,21 +103,20 @@ export default function LibraryPage() {
     );
   }
 
-  // Terminal Layout Check
   if (isTerminalCopy) {
     return (
       <>
         <TerminalLibraryLayout
           items={activeTab === "history" ? readingHistory : []}
-          lists={lists}
+          lists={cachedLists.lists}
           loading={loading}
           activeTab={activeTab === "history" ? "history" : "lists"}
           setActiveTab={tab => setActiveTab(tab as "lists" | "history")}
           username={user?.username || "guest"}
           onEditList={handleEditList}
           onNewList={() => {
-            setEditingList(undefined)
-            setShowListDialog(true)
+            setEditingList(undefined);
+            setShowListDialog(true);
           }}
         />
         <ListDialog
@@ -110,14 +126,19 @@ export default function LibraryPage() {
           initialData={editingList}
         />
       </>
-    )
+    );
   }
 
   return (
-    <ThemePage className="max-w-7xl mx-auto px-6 py-8 md:px-12 md:py-16">
+    <ThemePage className="max-w-7xl mx-auto px-0 md:px-8 py-6 md:py-16">
       <div className="max-w-5xl mx-auto">
-        <header className={cn("flex items-center justify-between mb-12", isJournalCopy && "border-accent/20")}>
-          <div className="flex flex-col gap-4">
+        <header
+          className={cn(
+            "flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12",
+            isJournalCopy && "border-accent/20",
+          )}
+        >
+          <div className="flex flex-col gap-2 md:gap-4">
             <span
               className={cn(
                 "text-[10px] font-mono text-accent uppercase tracking-[0.3em]",
@@ -128,7 +149,7 @@ export default function LibraryPage() {
             </span>
             <h1
               className={cn(
-                "text-5xl md:text-7xl font-black leading-none",
+                "text-4xl md:text-7xl font-black leading-none",
                 getHeadingClasses(theme),
                 isJournalCopy && "font-serif font-bold italic",
               )}
@@ -138,45 +159,51 @@ export default function LibraryPage() {
           </div>
 
           {activeTab === "lists" && (
-            <ThemedButton
-              onClick={() => {
-                setEditingList(undefined);
-                setShowListDialog(true);
-              }}
-              className="px-6"
-            >
-              <Plus size={18} className="mr-2" />
-              {isCyberCopy ? "NEW_INDEX" : "New list"}
-            </ThemedButton>
+            <div className="w-full md:w-auto">
+              <ThemedButton
+                onClick={() => {
+                  setEditingList(undefined);
+                  setShowListDialog(true);
+                }}
+                className="w-full md:w-auto px-6"
+              >
+                <Plus size={18} className="mr-2" />
+                {isCyberCopy ? "NEW_INDEX" : "New list"}
+              </ThemedButton>
+            </div>
           )}
         </header>
 
-        {/* Tabs */}
-        <div className={cn("flex items-center gap-8 mb-12", isJournalCopy && "border-accent/20")}>
+        <div
+          className={cn(
+            "flex items-center gap-4 md:gap-8 mb-8 md:mb-12 border-b md:border-none",
+            isJournalCopy && "border-accent/20",
+          )}
+        >
           <button
             onClick={() => setActiveTab("lists")}
             className={cn(
-              "pb-4 text-sm font-bold transition-all flex items-center gap-2",
+              "pb-4 text-sm font-bold transition-all flex items-center gap-1 md:gap-2 cursor-pointer",
               activeTab === "lists" ? "text-foreground" : "text-muted-foreground hover:text-foreground",
               isJournalCopy && "font-serif tracking-wide",
               isJournalCopy && activeTab === "lists" && "border-accent text-accent italic",
               isJournalCopy && activeTab !== "lists" && "text-journal-ink-muted hover:text-foreground",
             )}
           >
-            <Bookmark size={16} />
+            <Bookmark size={14} />
             {isSakuraCopy ? "リスト" : "Your lists"}
           </button>
           <button
             onClick={() => setActiveTab("history")}
             className={cn(
-              "pb-4 text-sm font-bold transition-all flex items-center gap-2",
+              "pb-4 text-sm font-bold transition-all flex items-center gap-1 md:gap-2 cursor-pointer",
               activeTab === "history" ? "text-foreground" : "text-muted-foreground hover:text-foreground",
               isJournalCopy && "font-serif tracking-wide",
               isJournalCopy && activeTab === "history" && "border-accent text-accent italic",
               isJournalCopy && activeTab !== "history" && "text-journal-ink-muted hover:text-foreground",
             )}
           >
-            <History size={16} />
+            <History size={14} />
             {isSakuraCopy ? "履歴" : "History"}
           </button>
         </div>
@@ -189,12 +216,12 @@ export default function LibraryPage() {
           </div>
         ) : activeTab === "lists" ? (
           <div className="grid grid-cols-1 gap-6">
-            {lists.map(list => (
+            {cachedLists.lists.map(list => (
               <div
                 key={list._id}
                 onClick={() => router.push(`/me/library/list/${list._id}`)}
                 className={cn(
-                  "group p-8 relative overflow-hidden transition-all duration-300 cursor-pointer hover:scale-[1.01]",
+                  "group p-6 md:p-8 relative overflow-hidden transition-all duration-300 cursor-pointer hover:scale-[1.01]",
                   getCardClasses(theme),
                   isJournalCopy && "border-double border-4",
                 )}
@@ -203,13 +230,13 @@ export default function LibraryPage() {
                   <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/handmade-paper.png')] mix-blend-multiply -z-10" />
                 )}
 
-                <div className="flex justify-between items-start">
-                  <div className="space-y-3 relative z-10 w-full">
+                <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+                  <div className="space-y-3 relative z-10 w-full flex-1">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <h3
                           className={cn(
-                            "text-2xl font-bold",
+                            "text-xl md:text-2xl font-bold",
                             isCyberCopy && "font-mono",
                             isJournalCopy && "font-serif text-foreground",
                           )}
@@ -217,12 +244,12 @@ export default function LibraryPage() {
                           {list.name}
                         </h3>
                         {list.isPrivate && (
-                          <Lock size={16} className={cn("text-muted-foreground", isJournalCopy && "text-accent/60")} />
+                          <Lock size={14} className={cn("text-muted-foreground", isJournalCopy && "text-accent/60")} />
                         )}
                         {list.isSystem && (
                           <span
                             className={cn(
-                              "text-[10px] bg-accent/20 text-accent px-2 py-0.5 rounded-full uppercase tracking-wider font-bold",
+                              "text-[8px] md:text-[10px] bg-accent/20 text-accent px-2 py-0.5 rounded-full uppercase tracking-wider font-bold",
                               isJournalCopy && "font-serif italic",
                             )}
                           >
@@ -235,7 +262,7 @@ export default function LibraryPage() {
                         variant="ghost"
                         size="sm"
                         className={cn(
-                          "opacity-0 group-hover:opacity-100 transition-opacity border-none relative z-20 cursor-pointer",
+                          "opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity border-none relative z-20 cursor-pointer",
                           isJournalCopy && "text-foreground hover:bg-noir-hover",
                         )}
                         onClick={e => handleEditList(e, list)}
@@ -247,7 +274,7 @@ export default function LibraryPage() {
                     {list.description && (
                       <p
                         className={cn(
-                          "text-muted-foreground max-w-xl",
+                          "text-sm md:text-base text-muted-foreground max-w-xl line-clamp-2 md:line-clamp-none",
                           isJournalCopy && "font-serif text-journal-ink-muted",
                         )}
                       >
@@ -257,37 +284,18 @@ export default function LibraryPage() {
 
                     <div
                       className={cn(
-                        "flex items-center gap-4 pt-4 text-sm font-medium text-muted-foreground",
+                        "flex items-center gap-4 pt-2 md:pt-4 text-xs md:text-sm font-medium text-muted-foreground",
                         isJournalCopy && "font-serif italic text-accent/80",
                       )}
                     >
                       <span>{list.items?.length || 0} stories</span>
                     </div>
                   </div>
-
-                  <div className="flex -space-x-3 relative z-10">
-                    {(list.items || []).slice(0, 3).map((item, i) => (
-                      <div
-                        key={item.postId + i}
-                        className={cn(
-                          "w-12 h-12 rounded-full border-2 border-background bg-muted flex items-center justify-center overflow-hidden",
-                          isJournalCopy && "border-journal-paper shadow-sm",
-                        )}
-                      >
-                        <div
-                          className={cn(
-                            "w-full h-full bg-gradient-to-br from-gray-200 to-gray-300",
-                            isJournalCopy && "from-noir-hover to-accent/20",
-                          )}
-                        />
-                      </div>
-                    ))}
-                  </div>
                 </div>
               </div>
             ))}
 
-            {lists.length === 0 && (
+            {cachedLists.lists.length === 0 && (
               <div
                 className={cn(
                   "text-center py-20 bg-muted/10 rounded-3xl border border-dashed border-border/30",
@@ -403,13 +411,19 @@ function TerminalLibraryLayout({ items, lists, loading, activeTab, setActiveTab,
             <div className="flex gap-4">
               <button
                 onClick={() => setActiveTab("lists")}
-                className={cn(activeTab === "lists" ? "text-accent border-b border-accent" : "text-muted-foreground")}
+                className={cn(
+                  "cursor-pointer",
+                  activeTab === "lists" ? "text-accent border-b border-accent" : "text-muted-foreground",
+                )}
               >
                 [lists]
               </button>
               <button
                 onClick={() => setActiveTab("history")}
-                className={cn(activeTab === "history" ? "text-accent border-b border-accent" : "text-muted-foreground")}
+                className={cn(
+                  "cursor-pointer",
+                  activeTab === "history" ? "text-accent border-b border-accent" : "text-muted-foreground",
+                )}
               >
                 [history]
               </button>
@@ -427,5 +441,5 @@ function TerminalLibraryLayout({ items, lists, loading, activeTab, setActiveTab,
         )}
       />
     </div>
-  )
+  );
 }

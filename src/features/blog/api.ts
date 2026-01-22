@@ -1,12 +1,12 @@
 import { fetchApi } from "@/lib/api-client";
-import { Post, Tenant } from "./types";
+import { Post, Tenant, PostStatus } from "./types";
 
 export async function getTenant(slug: string) {
-  const res = await fetchApi<Tenant & { _id?: string } | null>(`/tenants/${slug}`);
+  const res = await fetchApi<(Tenant & { _id?: string }) | null>(`/tenants/${slug}`);
   if (!res) return { tenant: null };
   const tenant = {
-      ...res,
-      id: res.id || res._id || ""
+    ...res,
+    id: res.id || res._id || "",
   };
   return { tenant };
 }
@@ -24,12 +24,23 @@ export function deleteTenant(id: string) {
   });
 }
 
+export function updateTenant(id: string, data: Partial<Tenant>) {
+  return fetchApi<{ tenant: Tenant }>(`/tenants/${id}`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
 export function getMyTenants() {
-  return fetchApi<Tenant[]>("/tenants/me").then(res => (res ? res.map((t: Tenant & { _id?: string }) => ({ ...t, id: t.id || t._id || "" })) : []));
+  return fetchApi<Tenant[]>("/tenants/me").then(res =>
+    res ? res.map((t: Tenant & { _id?: string }) => ({ ...t, id: t.id || t._id || "" })) : [],
+  );
 }
 
 export function getUserTenants(userId: string) {
-  return fetchApi<Tenant[]>(`/tenants/user/${userId}`).then(res => (res ? res.map((t: Tenant & { _id?: string }) => ({ ...t, id: t.id || t._id || "" })) : []));
+  return fetchApi<Tenant[]>(`/tenants/user/${userId}`).then(res =>
+    res ? res.map((t: Tenant & { _id?: string }) => ({ ...t, id: t.id || t._id || "" })) : [],
+  );
 }
 
 type RawPost = Post & { _id?: string };
@@ -43,35 +54,41 @@ const mapPost = (p: RawPost | null): Post | null => {
   };
 };
 
-export function getPosts(tenantId: string, params: { page?: number; limit?: number; status?: string; author?: string } = {}) {
+export function getPosts(
+  tenantId: string,
+  params: { page?: number; limit?: number; status?: PostStatus; author?: string } = {},
+) {
   const searchParams = new URLSearchParams();
   if (params.page) searchParams.set("page", params.page.toString());
   if (params.limit) searchParams.set("limit", params.limit.toString());
   if (params.status) searchParams.set("status", params.status);
   if (params.author) searchParams.set("author", params.author);
 
-  return fetchApi<{ data: RawPost[]; meta: { total: number; page: number; limit: number; totalPages: number } }>(`/posts?${searchParams.toString()}`, {
-    tenantId,
-    headers: { "x-tenant-id": tenantId },
-    cache: "no-store"
-  }).then(res => ({
+  return fetchApi<{ data: RawPost[]; meta: { total: number; page: number; limit: number; totalPages: number } }>(
+    `/posts?${searchParams.toString()}`,
+    {
+      tenantId,
+      headers: { "x-tenant-id": tenantId },
+      cache: "no-store",
+    },
+  ).then(res => ({
     ...res,
-    data: res.data ? res.data.map(p => mapPost(p) as Post).filter(Boolean) : []
+    data: res.data ? res.data.map(p => mapPost(p) as Post).filter(Boolean) : [],
   }));
 }
 
 export function getPost(slug: string, tenantId?: string) {
   return fetchApi<RawPost | null>(`/posts/${slug}`, {
     tenantId,
-    cache: "no-store"
+    cache: "no-store",
   }).then(p => ({ post: mapPost(p) }));
-} 
+}
 
 export function createPost(data: Partial<Post>, tenantId: string) {
   return fetchApi<RawPost>("/posts", {
     method: "POST",
     body: JSON.stringify(data),
-    tenantId
+    tenantId,
   }).then(p => ({ post: mapPost(p) }));
 }
 
@@ -79,7 +96,7 @@ export function updatePost(id: string, data: Partial<Post>, tenantId: string) {
   return fetchApi<RawPost>(`/posts/${id}`, {
     method: "PATCH",
     body: JSON.stringify(data),
-    tenantId
+    tenantId,
   }).then(p => ({ post: mapPost(p) }));
 }
 export function deletePost(id: string, tenantId: string) {
@@ -102,3 +119,4 @@ export function restorePost(id: string, tenantId?: string) {
     tenantId,
   });
 }
+

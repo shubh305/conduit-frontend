@@ -6,8 +6,7 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw, MoreHorizontal, Trash2, ExternalLink, Pencil, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
-import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { cn, formatDate } from "@/lib/utils";
 import { WIP_LIMITS } from "@/lib/wip-limits";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { restorePost } from "@/features/blog/api";
@@ -24,33 +23,23 @@ import {
   getHeadingClasses,
 } from "@/lib/theme-variants"
 
-type Tab = "drafts" | "published" | "scheduled" | "unlisted" | "deleted";
+export type Tab = "drafts" | "published" | "scheduled" | "unlisted" | "deleted";
 
 interface PostsListProps {
   posts: Post[];
+  counts: Record<string, number>;
+  activeTab: Tab;
+  onTabChange: (tab: Tab) => void;
   onDelete?: (id: string) => void;
   onRestore?: (id: string) => void;
 }
 
-export function PostsList({ posts, onDelete, onRestore }: PostsListProps) {
-  const { theme } = useTheme()
-  const { isCyberCopy, isSakuraCopy, isTerminalCopy, isJournalCopy, isTechieCopy, fontFamily } = useThemeHelpers()
-  const { user } = useAuth()
-  const [activeTab, setActiveTab] = useState<Tab>("published")
+export function PostsList({ posts, counts, activeTab, onTabChange, onDelete, onRestore }: PostsListProps) {
+  const { theme } = useTheme();
+  const { isCyberCopy, isSakuraCopy, isTerminalCopy, isJournalCopy, isTechieCopy, fontFamily } = useThemeHelpers();
+  const { user } = useAuth();
 
-
-
-  const filteredPosts = posts.filter(post => {
-    const s = (post.status || "").toLowerCase().trim()
-    const tab = activeTab.toLowerCase().trim()
-
-    if (tab === "drafts") return s === "draft" && !post.deletedAt
-    if (tab === "published") return s === "published" && !post.deletedAt
-    if (tab === "scheduled") return s === "scheduled" && !post.deletedAt
-    if (tab === "unlisted") return s === "unlisted" && !post.deletedAt
-    if (tab === "deleted") return !!post.deletedAt
-    return false
-  })
+  const filteredPosts = posts;
 
   const t = useThemeLabel();
   const noDataTitle = t("noData");
@@ -58,18 +47,17 @@ export function PostsList({ posts, onDelete, onRestore }: PostsListProps) {
 
   const handleRestore = async (id: string, tenantId?: string) => {
     try {
-      await restorePost(id, tenantId)
-      toast.success(getStudioLabel("delete_success", theme))
-      onRestore?.(id)
+      await restorePost(id, tenantId);
+      toast.success(getStudioLabel("delete_success", theme));
+      onRestore?.(id);
     } catch {
-      toast.error("Failed to restore")
+      toast.error("Failed to restore");
     }
-  }
+  };
 
   const tabs: Tab[] = (["published", "drafts", "scheduled", "unlisted", "deleted"] as Tab[]).filter(
     t => t !== "unlisted" || WIP_LIMITS.showUnlistedFilter,
   );
-
 
   const statusLabels: Record<Tab, string> = {
     published: t("statusPublished"),
@@ -82,14 +70,9 @@ export function PostsList({ posts, onDelete, onRestore }: PostsListProps) {
   // --- TERMINAL LAYOUT ---
   if (isTerminalCopy) {
     const terminalItems = filteredPosts.map((post): TerminalListItem => {
-      const perms = post.status === "published" ? "-rwxr-xr-x" : "-rw-------"
-      const size = ((post.excerpt?.length || 0) + 1024).toString()
-      const date = new Date(post.publishedAt || post.createdAt).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
+      const perms = post.status === "published" ? "-rwxr-xr-x" : "-rw-------";
+      const size = ((post.excerpt?.length || 0) + 1024).toString();
+      const date = formatDate(post.status === "published" ? post.publishedAt : post.updatedAt || post.createdAt);
 
       return {
         id: post.id,
@@ -115,8 +98,8 @@ export function PostsList({ posts, onDelete, onRestore }: PostsListProps) {
             )}
           </div>
         ),
-      }
-    })
+      };
+    });
 
     return (
       <TerminalDirectory
@@ -130,7 +113,7 @@ export function PostsList({ posts, onDelete, onRestore }: PostsListProps) {
             {tabs.map(tab => (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => onTabChange(tab)}
                 className={cn(
                   "hover:text-white hover:bg-accent hover:text-black px-1 transition-colors",
                   activeTab === tab ? "bg-accent/20 text-accent font-bold" : "text-foreground-muted",
@@ -142,7 +125,7 @@ export function PostsList({ posts, onDelete, onRestore }: PostsListProps) {
           </div>
         )}
       />
-    )
+    );
   }
 
   return (
@@ -150,20 +133,15 @@ export function PostsList({ posts, onDelete, onRestore }: PostsListProps) {
       {/* Tabs / Filter Navigation */}
       <div className="flex items-center gap-2 md:gap-3 mb-6 md:mb-12 overflow-x-auto no-scrollbar pb-2 md:-mx-4 md:px-4">
         {tabs.map(tab => {
-          const count = posts.filter(p => {
-            const s = p.status?.toLowerCase();
-            if (tab === "drafts") return s === "draft" && !p.deletedAt;
-            if (tab === "published") return s === "published" && !p.deletedAt;
-            if (tab === "scheduled") return s === "scheduled" && !p.deletedAt;
-            if (tab === "unlisted") return s === "unlisted" && !p.deletedAt;
-            if (tab === "deleted") return !!p.deletedAt;
-            return false;
-          }).length;
-
+          const count = counts[tab] || 0;
           const isSelected = activeTab === tab;
 
           return (
-            <button key={tab} onClick={() => setActiveTab(tab)} className={getTabButtonClasses(theme, isSelected)}>
+            <button
+              key={tab}
+              onClick={() => onTabChange(tab)}
+              className={cn(getTabButtonClasses(theme, isSelected), "cursor-pointer")}
+            >
               <span>{statusLabels[tab]}</span>
               {count > 0 && (
                 <span
@@ -185,7 +163,7 @@ export function PostsList({ posts, onDelete, onRestore }: PostsListProps) {
         {filteredPosts.length === 0 ? (
           <div
             className={cn(
-              "py-40 flex flex-col items-center justify-center border border-dashed bg-noir-hover/30",
+              "py-20 md:py-40 flex flex-col items-center justify-center border border-dashed bg-noir-hover/30",
               isCyberCopy || isTechieCopy ? "rounded-none border-accent/20" : "rounded-[2rem] border-noir-border",
               isJournalCopy && "bg-accent/5 border-accent/10",
             )}
@@ -290,18 +268,18 @@ export function PostsList({ posts, onDelete, onRestore }: PostsListProps) {
                           {post.tenantName || post.tenantSlug || "Default Site"}
                         </span>
                         <span className="opacity-20 text-foreground">•</span>
-                        <span className={getPostStatusBadgeClasses(theme, post.status || "")}>{post.status}</span>
+                        <span className={cn(getPostStatusBadgeClasses(theme, post.status || ""), "cursor-pointer")}>
+                          {post.status}
+                        </span>
                         <span className="opacity-20 text-foreground">•</span>
                         <span
                           className={
                             isJournalCopy || isTechieCopy ? "font-serif italic capitalize tracking-normal" : ""
                           }
                         >
-                          {new Date(post.publishedAt || post.createdAt).toLocaleDateString(undefined, {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
+                          {formatDate(
+                            post.status === "published" ? post.publishedAt : post.updatedAt || post.createdAt,
+                          )}
                         </span>
                       </div>
                     </div>
@@ -355,7 +333,7 @@ export function PostsList({ posts, onDelete, onRestore }: PostsListProps) {
                           onClick={() => handleRestore(post.id, post.tenantId)}
                           className={cn(
                             getPostActionMenuClasses(theme),
-                            "text-emerald-500 hover:text-emerald-500 focus:text-noir-bg focus:bg-emerald-500",
+                            "flex items-center gap-3 text-emerald-500 hover:text-emerald-500 focus:text-noir-bg focus:bg-emerald-500",
                           )}
                         >
                           <RefreshCw size={16} />
@@ -366,7 +344,7 @@ export function PostsList({ posts, onDelete, onRestore }: PostsListProps) {
                           onClick={() => onDelete?.(post.id)}
                           className={cn(
                             getPostActionMenuClasses(theme),
-                            "text-red-500 hover:text-red-500 focus:text-noir-bg focus:bg-red-500",
+                            "flex items-center gap-3 text-red-500 hover:text-red-500 focus:text-noir-bg focus:bg-red-500",
                           )}
                         >
                           <Trash2 size={16} />

@@ -24,7 +24,7 @@ export function PostsTable({ posts, onDelete }: { posts: Post[]; onDelete?: (id:
         <thead
           className={cn(
             "border-b font-mono text-[10px] uppercase tracking-[0.2em] transition-colors",
-            "bg-noir-panel border-noir-border text-foreground-subtle",
+            "bg-noir-panel border-noir-border text-foreground/40",
           )}
         >
           <tr>
@@ -53,7 +53,7 @@ export function PostsTable({ posts, onDelete }: { posts: Post[]; onDelete?: (id:
                 >
                   {post.title}
                 </div>
-                <div className="font-mono text-[9px] text-foreground-subtle mt-1 uppercase tracking-widest opacity-50">
+                <div className="font-mono text-[9px] text-foreground/40 mt-1 uppercase tracking-tighter">
                   /{post.slug}
                 </div>
               </td>
@@ -63,7 +63,7 @@ export function PostsTable({ posts, onDelete }: { posts: Post[]; onDelete?: (id:
                     "font-mono text-[9px] uppercase px-3 py-1 border transition-all shadow-sm",
                     post.status === "published"
                       ? "border-accent/40 text-accent bg-accent/5 font-bold"
-                      : "border-noir-border text-foreground-subtle bg-noir-panel/50",
+                      : "border-noir-border text-foreground/40 bg-noir-panel/50",
                     isCyberCopy ? "rounded-none" : "rounded-full",
                   )}
                 >
@@ -123,5 +123,5 @@ export function PostsTable({ posts, onDelete }: { posts: Post[]; onDelete?: (id:
         </tbody>
       </table>
     </div>
-  )
+  );
 }

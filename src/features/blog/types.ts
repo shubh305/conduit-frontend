@@ -16,6 +16,8 @@ export type TiptapContent = {
   content: any[];
 };
 
+export type PostStatus = "draft" | "published" | "archived" | "scheduled" | "deleted" | "unlisted";
+
 export interface Post {
   id: string;
   slug: string;
@@ -24,6 +26,7 @@ export interface Post {
   theme: "classic" | "cyber";
   logo?: string;
   createdAt: string;
+  updatedAt: string;
   excerpt: string;
   featuredImage?: string;
   featuredImageAttribution?: {
