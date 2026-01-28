@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Loader2, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useThemeHelpers } from "@/features/theme/ThemeProvider";
+import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
 import { fetchApi } from "@/lib/api-client";
 import Image from "next/image";
 
@@ -46,6 +46,7 @@ export function UnsplashSelector({ onSelect, tenantId }: UnsplashSelectorProps) 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   
+  const { theme } = useTheme();
   const { isCyberCopy, isOctaneCopy, isTerminalCopy } = useThemeHelpers();
 
   const searchPhotos = useCallback(async (searchQuery: string, pageNum: number, append = false) => {
@@ -102,29 +103,37 @@ export function UnsplashSelector({ onSelect, tenantId }: UnsplashSelectorProps) 
     <div className="flex flex-col h-full overflow-hidden bg-noir-bg">
       <div className="p-10 border-b border-noir-border bg-noir-bg/50 backdrop-blur-xl shrink-0">
         <form onSubmit={handleSearch} className="flex flex-col items-center gap-8 max-w-2xl mx-auto">
-          
-          
           <div className="flex gap-3 w-full">
             <div className="relative flex-1 group">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-foreground-subtle group-focus-within:text-accent transition-colors" size={20} />
+              <Search
+                className="absolute left-5 top-1/2 -translate-y-1/2 text-foreground-subtle group-focus-within:text-accent transition-colors"
+                size={20}
+              />
               <Input
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={e => setQuery(e.target.value)}
                 placeholder="Search high-res assets..."
                 className={cn(
                   "pl-14 bg-noir-bg/50 border-noir-border h-14 text-sm transition-all focus:ring-1 focus:ring-accent/30",
-                  isCyberCopy ? "rounded-none font-mono uppercase border-accent/20" : isOctaneCopy ? "rounded-lg" : "rounded-2xl"
+                  isCyberCopy
+                    ? "rounded-none font-mono uppercase border-accent/20"
+                    : isOctaneCopy
+                      ? "rounded-lg"
+                      : "rounded-2xl",
                 )}
               />
             </div>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={loading || !query}
               className={cn(
                 "h-14 px-10 font-black uppercase text-[10px] tracking-widest transition-all",
-                isCyberCopy 
-                  ? "bg-accent text-noir-bg rounded-none hover:skew-x-[-10deg]" 
-                  : "bg-accent text-white rounded-2xl hover:scale-105 shadow-lg shadow-accent/20"
+                isCyberCopy
+                  ? "bg-accent text-noir-bg rounded-none hover:skew-x-[-10deg]"
+                  : cn(
+                      "bg-accent rounded-2xl hover:scale-105 shadow-lg shadow-accent/20",
+                      theme === "classic" ? "text-black" : "text-white",
+                    ),
               )}
             >
               {loading ? <Loader2 className="animate-spin" size={20} /> : "Search"}
@@ -136,14 +145,14 @@ export function UnsplashSelector({ onSelect, tenantId }: UnsplashSelectorProps) 
       <div className="flex-1 overflow-y-auto p-8 no-scrollbar scroll-smooth">
         {photos.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-            {photos.map((photo) => (
-              <div 
+            {photos.map(photo => (
+              <div
                 key={photo.id}
                 onClick={() => handleSelect(photo)}
                 className={cn(
                   "group relative aspect-video cursor-pointer overflow-hidden border transition-all",
                   "border-noir-border hover:border-accent",
-                  isCyberCopy ? "rounded-none" : "rounded-xl"
+                  isCyberCopy ? "rounded-none" : "rounded-xl",
                 )}
               >
                 <Image
@@ -155,12 +164,12 @@ export function UnsplashSelector({ onSelect, tenantId }: UnsplashSelectorProps) 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3">
                   <div className="flex items-center justify-between text-[10px] text-white/90">
                     <span className="font-medium truncate">by {photo.user.name}</span>
-                    <a 
+                    <a
                       href={`${photo.user.links.html}?utm_source=conduit&utm_medium=referral`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="hover:text-accent transition-colors"
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={e => e.stopPropagation()}
                     >
                       <ExternalLink size={10} />
                     </a>
@@ -173,10 +182,12 @@ export function UnsplashSelector({ onSelect, tenantId }: UnsplashSelectorProps) 
           <div className="text-center py-20 text-foreground font-mono text-xs uppercase tracking-widest">
             No transmissions found
           </div>
-        ) : !loading && (
-          <div className="text-center py-20 text-foreground-subtle font-mono text-xs uppercase tracking-widest">
-            {isTerminalCopy ? "> WAITING_FOR_INPUT..." : "Start searching Unsplash"}
-          </div>
+        ) : (
+          !loading && (
+            <div className="text-center py-20 text-foreground-subtle font-mono text-xs uppercase tracking-widest">
+              {isTerminalCopy ? "> WAITING_FOR_INPUT..." : "Start searching Unsplash"}
+            </div>
+          )
         )}
 
         {hasMore && (
@@ -187,7 +198,7 @@ export function UnsplashSelector({ onSelect, tenantId }: UnsplashSelectorProps) 
               disabled={loading}
               className={cn(
                 "uppercase text-xs font-bold tracking-widest",
-                isCyberCopy ? "font-mono h-10 border border-accent/20 rounded-none" : "rounded-xl"
+                isCyberCopy ? "font-mono h-10 border border-accent/20 rounded-none" : "rounded-xl",
               )}
             >
               {loading ? <Loader2 className="animate-spin mr-2" size={12} /> : "Load More"}
@@ -195,9 +206,17 @@ export function UnsplashSelector({ onSelect, tenantId }: UnsplashSelectorProps) 
           </div>
         )}
       </div>
-      
+
       <div className="p-4 border-t border-noir-border text-center text-[10px] text-foreground font-black uppercase tracking-widest bg-noir-bg">
-        Photos provided by <a href="https://unsplash.com" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">Unsplash</a>
+        Photos provided by{" "}
+        <a
+          href="https://unsplash.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-accent hover:underline"
+        >
+          Unsplash
+        </a>
       </div>
     </div>
   );

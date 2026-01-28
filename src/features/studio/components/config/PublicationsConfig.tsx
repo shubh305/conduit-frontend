@@ -1,17 +1,21 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Plus, ExternalLink, Trash2, LayoutGrid } from "lucide-react";
+import { Plus, ExternalLink, Trash2, LayoutGrid, Settings2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tenant } from "@/features/blog/types";
 import Link from "next/link";
 import { useThemeHelpers, useStudioLabels, useTheme } from "@/features/theme/ThemeProvider"
+import { WIP_LIMITS } from "@/lib/wip-limits";
+import { useState } from "react";
+import { EditTenantModal } from "./EditTenantModal";
 
 
 interface PublicationsConfigProps {
-  tenants: Tenant[]
-  loading: boolean
-  onDelete: (tenant: { id: string; name: string }) => void
+  tenants: Tenant[];
+  loading: boolean;
+  onDelete: (tenant: { id: string; name: string }) => void;
+  onRefresh: () => void;
 }
 
 import {
@@ -21,10 +25,11 @@ import {
   getThemeCardClasses,
 } from "@/lib/theme-variants"
 
-export function PublicationsConfig({ tenants, loading, onDelete }: PublicationsConfigProps) {
-  const { theme } = useTheme()
-  const { isCyberCopy, isTechieCopy, isTerminalCopy } = useThemeHelpers()
-  const { getLabel } = useStudioLabels()
+export function PublicationsConfig({ tenants, loading, onDelete, onRefresh }: PublicationsConfigProps) {
+  const { theme } = useTheme();
+  const { isCyberCopy, isTechieCopy, isTerminalCopy } = useThemeHelpers();
+  const { getLabel } = useStudioLabels();
+  const [editTarget, setEditTarget] = useState<Tenant | null>(null);
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -57,16 +62,27 @@ export function PublicationsConfig({ tenants, loading, onDelete }: PublicationsC
                 </div>
               </div>
               <div className="flex items-center gap-3 text-foreground-subtle">
-                <Link href={`/${tenant.slug}`} target="_blank">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="w-11 h-11 p-0 transition-all hover:text-accent hover:bg-accent/10"
-                  >
-                    <ExternalLink size={20} />
-                  </Button>
-                </Link>
+                {WIP_LIMITS.showRedirectionArrow && (
+                  <Link href={`/${tenant.slug}`} target="_blank">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="w-11 h-11 p-0 transition-all hover:text-accent hover:bg-accent/10"
+                    >
+                      <ExternalLink size={20} />
+                    </Button>
+                  </Link>
+                )}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="w-11 h-11 p-0 transition-all hover:text-accent hover:bg-accent/10"
+                  onClick={() => setEditTarget(tenant)}
+                >
+                  <Settings2 size={20} />
+                </Button>
                 <Button
                   type="button"
                   variant="ghost"
@@ -104,8 +120,21 @@ export function PublicationsConfig({ tenants, loading, onDelete }: PublicationsC
               </Button>
             </Link>
           </div>
+
+          {editTarget && (
+            <EditTenantModal
+              isOpen={!!editTarget}
+              tenant={editTarget}
+              onClose={() => setEditTarget(null)}
+              onUpdate={() => {
+                onRefresh();
+                setEditTarget(null);
+              }}
+            />
+          )}
         </div>
       )}
     </div>
-  )
+  );
 }
+

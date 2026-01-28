@@ -7,9 +7,11 @@ import Link from "@tiptap/extension-link";
 import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
 import Youtube from "@tiptap/extension-youtube";
+import BubbleMenuExtension from "@tiptap/extension-bubble-menu";
 import { EditorToolbar } from "./EditorToolbar";
 import { TerminalEditorShell } from "./TerminalEditorShell"
 import { cn } from "@/lib/utils";
+import { DictionaryPopup } from "./DictionaryPopup";
 import { TiptapContent } from "@/features/blog/types";
 import { useTheme, useThemeHelpers, useStudioLabels } from "@/features/theme/ThemeProvider"
 import { getEditorContainerClasses, getEditorProseClasses } from "@/lib/theme-variants"
@@ -44,6 +46,7 @@ export function TiptapEditor({ content = "", onChange, className, tenantId }: Ti
       Youtube.configure({
         controls: false,
       }),
+      BubbleMenuExtension,
     ],
     content,
     editorProps: {
@@ -78,10 +81,12 @@ export function TiptapEditor({ content = "", onChange, className, tenantId }: Ti
           />
           <EditorContent
             editor={editor}
-            className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar px-4 md:px-12 py-6 md:py-10"
+            className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar px-4 md:px-12 py-6 md:py-10 pb-32 md:pb-10"
           />
+          <DictionaryPopup editor={editor} />
         </>
       )}
     </div>
   );
 }
+

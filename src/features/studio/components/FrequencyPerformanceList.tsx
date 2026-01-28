@@ -95,7 +95,7 @@ export function FrequencyPerformanceList({ posts, isLoading, title }: FrequencyP
       {/* Table Header */}
       <div
         className={cn(
-          "grid grid-cols-1 md:grid-cols-[1fr_repeat(3,80px)] lg:grid-cols-[1fr_repeat(3,100px)] gap-4 px-6 py-4 border-b border-noir-border transition-all",
+          "grid grid-cols-[1fr_80px] md:grid-cols-[1fr_repeat(3,80px)] lg:grid-cols-[1fr_repeat(3,100px)] gap-4 px-4 md:px-6 py-4 border-b border-noir-border transition-all",
           isCyberCopy
             ? "text-accent/60 font-mono text-[9px] uppercase tracking-widest"
             : "text-foreground-muted font-bold text-[10px]",
@@ -105,8 +105,12 @@ export function FrequencyPerformanceList({ posts, isLoading, title }: FrequencyP
       >
         <div>{isSakuraCopy ? "記事" : isCyberCopy ? "ARTICLE" : "Post"}</div>
         <div className="text-right">{isSakuraCopy ? "ビュー" : isCyberCopy ? "VIEWS" : "Views"}</div>
-        <div className="text-right">{isSakuraCopy ? "コメント" : isCyberCopy ? "COMMENTS" : "Comments"}</div>
-        <div className="text-right">{isSakuraCopy ? "いいね" : isCyberCopy ? "REACTIONS" : "Reactions"}</div>
+        <div className="text-right hidden md:block">
+          {isSakuraCopy ? "コメント" : isCyberCopy ? "COMMENTS" : "Comments"}
+        </div>
+        <div className="text-right hidden md:block">
+          {isSakuraCopy ? "いいね" : isCyberCopy ? "REACTIONS" : "Reactions"}
+        </div>
       </div>
 
       {/* List */}
@@ -131,7 +135,7 @@ export function FrequencyPerformanceList({ posts, isLoading, title }: FrequencyP
             <div
               key={post.id}
               className={cn(
-                "grid grid-cols-1 md:grid-cols-[1fr_repeat(3,80px)] lg:grid-cols-[1fr_repeat(3,100px)] gap-4 px-6 py-8 items-center transition-all group",
+                "grid grid-cols-[1fr_80px] md:grid-cols-[1fr_repeat(3,80px)] lg:grid-cols-[1fr_repeat(3,100px)] gap-4 px-4 md:px-6 py-8 items-center transition-all group",
                 "hover:bg-noir-hover",
                 isJournalCopy && "hover:bg-accent/5",
                 isTechieCopy && "hover:bg-noir-panel/30 hover:shadow-[inset_2px_0_0_0_var(--accent)]",
@@ -180,7 +184,7 @@ export function FrequencyPerformanceList({ posts, isLoading, title }: FrequencyP
               </div>
               <div
                 className={cn(
-                  "text-right font-bold text-sm text-foreground-muted",
+                  "text-right font-bold text-sm text-foreground-muted hidden md:block",
                   isCyberCopy ? "font-mono" : "",
                   isTechieCopy && "font-mono text-foreground/50",
                 )}
@@ -189,7 +193,7 @@ export function FrequencyPerformanceList({ posts, isLoading, title }: FrequencyP
               </div>
               <div
                 className={cn(
-                  "text-right font-bold text-sm text-foreground-muted",
+                  "text-right font-bold text-sm text-foreground-muted hidden md:block",
                   isCyberCopy ? "font-mono" : "",
                   isTechieCopy && "font-mono text-foreground/50",
                 )}
@@ -225,9 +229,9 @@ export function FrequencyPerformanceList({ posts, isLoading, title }: FrequencyP
               ? "End of the records."
               : isTechieCopy
                 ? "// END_OF_LOG"
-                : "You've reached the end! 👋"}
+                : "You've reached the end!"}
         </p>
       </div>
     </div>
-  )
+  );
 }
