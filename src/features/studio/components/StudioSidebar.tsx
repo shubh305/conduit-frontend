@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { LayoutDashboard, FileText, PenTool, User, LogOut, Palette, ChevronDown, Globe, Bell } from "lucide-react";
+import { FileText, PenTool, User, LogOut, Palette, ChevronDown, Globe, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme, useStudioLabels, useThemeHelpers } from "@/features/theme/ThemeProvider"
 import { getSidebarClasses, getSidebarItemClasses, getTenantSwitcherClasses } from "@/lib/theme-variants"
@@ -13,14 +13,14 @@ import { SearchInput } from "@/features/search/components/SearchInput";
 import { WIP_LIMITS } from "@/lib/wip-limits";
 
 const navItemsConfig: { icon: React.ElementType; labelKey: StudioLabelKey; href: string }[] = [
-  { icon: LayoutDashboard, labelKey: "overview", href: "/studio" },
+  // { icon: LayoutDashboard, labelKey: "overview", href: "/studio" }, // Temp: Hidden
   { icon: FileText, labelKey: "posts", href: "/studio/posts" },
   { icon: PenTool, labelKey: "create_post", href: "/studio/editor" },
   { icon: Globe, labelKey: "publications", href: "/studio/config?tab=transmissions" },
   { icon: Palette, labelKey: "appearance", href: "/studio/config?tab=appearance" },
   { icon: Bell, labelKey: "notifications", href: "/studio/config?tab=notifications" },
   { icon: User, labelKey: "profile", href: "/studio/settings" },
-]
+];
 
 
 interface StudioSidebarProps {
@@ -195,6 +195,8 @@ export function StudioSidebar({ isOpen = true }: StudioSidebarProps) {
               isCyberCopy || isTechieCopy ? displayLabel.toUpperCase().replace(" ", "_") : displayLabel;
 
             const linkHref = tenantId ? `${item.href}?tenantId=${tenantId}` : item.href;
+
+            if (item.labelKey === "notifications" && !WIP_LIMITS.showNotifications) return null;
 
             return (
               <Link

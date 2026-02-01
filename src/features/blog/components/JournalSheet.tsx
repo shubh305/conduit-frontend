@@ -6,7 +6,7 @@ import { FeedActionBar } from "@/features/feed/components/FeedActionBar"
 import { PostContent } from "@/features/blog/components/PostContent"
 import { FeedItem } from "@/features/feed/types"
 import { TiptapContent } from "@/features/blog/types"
-import { cn, getMediaUrl } from "@/lib/utils"
+import { cn, getMediaUrl } from "@/lib/utils";
 import { motion } from "framer-motion"
 import { forwardRef } from "react"
 import { useTheme } from "@/features/theme/ThemeProvider";
@@ -52,7 +52,7 @@ export const JournalSheet = forwardRef<HTMLDivElement, JournalSheetProps>(
         {/* Content Scroller */}
         <div
           className={cn(
-            "flex-1 px-8 xs:px-12 md:px-20 lg:px-32 pt-16 xs:pt-24 pb-20 selection:bg-accent/20 selection:text-foreground",
+            "flex-1 px-6 xs:px-12 md:px-20 lg:px-32 pt-2 md:pt-16 xs:pt-24 pb-20 selection:bg-accent/20 selection:text-foreground",
             isStatic ? "overflow-hidden" : "overflow-y-auto custom-scrollbar relative z-20",
           )}
         >
@@ -70,7 +70,7 @@ export const JournalSheet = forwardRef<HTMLDivElement, JournalSheetProps>(
           ) : (
             <div className={cn("mx-auto transition-all duration-700", focusMode ? "max-w-7xl" : "max-w-5xl")}>
               {/* Journal Navigation */}
-              <div className="mb-12 flex items-center justify-between">
+              <div className="mb-8 md:mb-12 flex items-center justify-between">
                 <button
                   onClick={() => {
                     if (typeof window !== "undefined" && window.history.length > 2) {
@@ -79,7 +79,7 @@ export const JournalSheet = forwardRef<HTMLDivElement, JournalSheetProps>(
                       window.location.href = `/${tenantSlug}`;
                     }
                   }}
-                  className="flex items-center gap-2 group text-accent hover:text-journal-ink transition-colors font-serif italic"
+                  className="flex items-center gap-2 group text-accent hover:text-journal-ink transition-colors font-serif"
                 >
                   <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
                   <span className="text-sm border-b border-accent/20 group-hover:border-journal-ink/40">
@@ -93,13 +93,13 @@ export const JournalSheet = forwardRef<HTMLDivElement, JournalSheetProps>(
               </div>
 
               {/* Header Section */}
-              <header className="mb-[1.5rem] relative">
+              <header className="mb-[1rem] md:mb-[1.5rem] relative">
                 {post.tags && post.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-3 mb-6">
+                  <div className="flex flex-wrap gap-2 md:gap-3 mb-4 md:mb-6">
                     {post.tags.map(tag => (
                       <span
                         key={tag}
-                        className="px-3 py-1 bg-accent/5 border border-accent/10 rounded-sm text-[10px] uppercase tracking-widest font-serif text-accent/70 hover:bg-accent/10 transition-colors cursor-default"
+                        className="px-2 py-0.5 md:px-3 md:py-1 bg-accent/5 border border-accent/10 rounded-sm text-[8px] md:text-[10px] uppercase tracking-widest font-serif text-accent/70 hover:bg-accent/10 transition-colors cursor-default"
                       >
                         #{tag}
                       </span>
@@ -108,43 +108,40 @@ export const JournalSheet = forwardRef<HTMLDivElement, JournalSheetProps>(
                 )}
 
                 {/* Retro Stamp Date */}
-                <div className="absolute top-0 right-0 md:-right-4 rotate-3 z-20 scale-75 xs:scale-100 origin-top-right">
-                  <div className="border-[3px] border-journal-accent/30 p-2 md:p-3 rounded-sm flex flex-col items-center bg-journal-paper shadow-sm font-serif min-w-[80px]">
-                    <span className="text-[9px] uppercase font-bold tracking-[0.2em] text-journal-accent/50 mb-1 border-b border-journal-accent/10 w-full text-center pb-1">
+                <div className="absolute top-0 right-[-1rem] xs:right-0 md:-right-4 rotate-3 z-20 scale-50 xs:scale-75 md:scale-100 origin-top-right">
+                  <div className="border-[3px] border-journal-accent/30 p-2 md:p-3 rounded-sm flex flex-col items-center bg-journal-paper shadow-sm font-serif min-w-[70px] md:min-w-[80px]">
+                    <span className="text-[8px] md:text-[9px] uppercase font-bold tracking-[0.2em] text-journal-accent/50 mb-0.5 md:mb-1 border-b border-journal-accent/10 w-full text-center pb-0.5 md:pb-1">
                       RECORDED
                     </span>
-                    <div className="flex flex-col items-center leading-none py-1">
-                      <span className="text-3xl font-black text-journal-ink">
+                    <div className="flex flex-col items-center leading-none py-0.5 md:py-1">
+                      <span className="text-2xl md:text-3xl font-black text-journal-ink">
                         {post.publishedAt ? new Date(post.publishedAt).getDate() : "--"}
                       </span>
-                      <span className="text-xs uppercase font-bold text-journal-accent/80 mt-1">
+                      <span className="text-[10px] md:text-xs uppercase font-bold text-journal-accent/80 mt-0.5 md:mt-1">
                         {post.publishedAt
                           ? new Date(post.publishedAt).toLocaleString("default", { month: "short" })
                           : "---"}
-                      </span>
-                      <span className="text-[9px] text-journal-accent/40 mt-1">
-                        {post.publishedAt ? new Date(post.publishedAt).getFullYear() : "----"}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <h1 className="text-3xl sm:text-4xl md:text-6xl font-serif font-black text-foreground mb-[2rem] leading-[1.1] tracking-tight pr-24 xs:pr-32 md:pr-48 relative z-30 break-words">
+                <h1 className="text-2xl xs:text-3xl md:text-6xl font-serif font-black text-foreground mb-[1.5rem] md:mb-[2rem] leading-[1.1] tracking-tight pr-20 xs:pr-32 md:pr-48 relative z-30 break-words">
                   {post.title}
                 </h1>
 
-                <div className="flex items-center gap-6 text-accent/80 font-serif italic text-base md:text-lg border-b border-accent/20 pb-[2rem]">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-foreground text-journal-paper flex items-center justify-center font-black not-italic shadow-md">
+                <div className="flex items-center gap-4 md:gap-6 text-accent/80 font-serif text-sm md:text-lg border-b border-accent/20 pb-4 md:pb-[2rem]">
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-foreground text-journal-paper flex items-center justify-center font-black not-italic shadow-md text-xs md:text-base">
                       {post.authorName?.charAt(0) || "?"}
                     </div>
                     <span className="font-bold underline decoration-accent/30 underline-offset-4 cursor-pointer">
                       {post.authorName}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Clock size={18} className="text-accent" />
-                    <span>{post.readingTimeMinutes} minute journey</span>
+                  <div className="flex items-center gap-1.5 md:gap-2">
+                    <Clock size={16} className="text-accent" />
+                    <span>{post.readingTimeMinutes} min journey</span>
                   </div>
                 </div>
               </header>

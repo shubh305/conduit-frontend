@@ -111,7 +111,7 @@ function CompactLayout({
   return (
     <div
       className={cn(
-        "group relative flex flex-row items-center gap-4 p-4 transition-all duration-300 overflow-hidden w-full h-32",
+        "group relative flex flex-row items-center gap-2 md:gap-4 p-2 md:p-4 transition-all duration-300 overflow-hidden w-full min-h-[90px] md:h-32",
         v.base,
         v.border,
         v.radius,
@@ -119,22 +119,24 @@ function CompactLayout({
         className,
       )}
     >
-      <Link href={postUrl} className="shrink-0 w-32 h-full relative overflow-hidden rounded-md block">
-        <PostHeroImage
-          data={item}
-          theme={theme}
-          isDarkMode={isDarkMode}
-          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-        />
-      </Link>
+      {item.featuredImage && (
+        <Link href={postUrl} className="shrink-0 w-24 md:w-32 h-24 md:h-full relative overflow-hidden rounded-md block">
+          <PostHeroImage
+            data={item}
+            theme={theme}
+            isDarkMode={isDarkMode}
+            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        </Link>
+      )}
 
-      <div className="flex-1 min-w-0 flex flex-col justify-between h-full py-1">
-        <div>
+      <div className="flex-1 min-w-0 flex flex-col justify-between h-full py-0.5 md:py-1">
+        <div className="space-y-1">
           <PostMeta data={item} theme={theme} />
-          <Link href={postUrl} className="block group/title mt-1">
+          <Link href={postUrl} className="block group/title">
             <h3
               className={cn(
-                "text-base md:text-lg font-bold leading-tight transition-colors line-clamp-2",
+                "text-sm md:text-lg font-bold leading-tight transition-colors line-clamp-2",
                 getHeadingClasses(theme),
                 "group-hover/title:text-accent",
               )}
@@ -144,15 +146,17 @@ function CompactLayout({
           </Link>
         </div>
 
-        <div className="flex items-center justify-between mt-auto w-full">
-          <PostAuthor data={item} theme={theme} />
-          <div className="ml-auto">
+        <div className="flex items-center justify-between mt-2 md:mt-auto w-full gap-2">
+          <div className="truncate shrink-0">
+            <PostAuthor data={item} theme={theme} />
+          </div>
+          <div className="ml-auto shrink-0 scale-90 md:scale-100 origin-right">
             <PostActions data={item} onRemove={onRemove} compact className="border-none pt-0 mt-0" />
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function CardLayout({
@@ -190,9 +194,11 @@ function CardLayout({
         <PostCardContent>
           <PostMeta data={item} theme={theme} />
 
-          <Link href={postUrl} className="block mb-4">
-            <PostHeroImage data={item} theme={theme} isDarkMode={isDarkMode} />
-          </Link>
+          {item.featuredImage && (
+            <Link href={postUrl} className="block mb-4">
+              <PostHeroImage data={item} theme={theme} isDarkMode={isDarkMode} />
+            </Link>
+          )}
 
           <div className="flex-1 flex flex-col justify-end">
             <Link href={postUrl} className="block group/title">
@@ -210,14 +216,13 @@ function CardLayout({
             <PostTags data={item} theme={theme} />
             <PostAuthor data={item} theme={theme} />
 
-
             <div className="relative z-20">
               <PostActions data={item} onRemove={onRemove} />
             </div>
           </div>
         </PostCardContent>
       </div>
-    )
+    );
   }
 
   return (
@@ -235,7 +240,7 @@ function CardLayout({
     >
       <PostCardContent>
         <PostMeta data={item} theme={theme} />
-        <PostHeroImage data={item} theme={theme} isDarkMode={isDarkMode} />
+        {item.featuredImage && <PostHeroImage data={item} theme={theme} isDarkMode={isDarkMode} />}
         <div className="flex-1 flex flex-col justify-end">
           <h3
             className={cn(
@@ -253,7 +258,7 @@ function CardLayout({
         </div>
       </PostCardContent>
     </Link>
-  )
+  );
 }
 
 function RowLayout({
@@ -279,7 +284,8 @@ function RowLayout({
     <Link
       href={postUrl}
       className={cn(
-        "group grid grid-cols-1 md:grid-cols-[1fr_300px] gap-8 py-12 border-b items-start transition-colors",
+        "group grid grid-cols-1 gap-8 py-12 border-b items-start transition-colors",
+        item.featuredImage && "md:grid-cols-[1fr_300px]",
         isTerminalCopy
           ? "border-accent/20 hover:bg-black/50 font-mono text-accent"
           : "border-noir-border hover:bg-noir-hover",
@@ -318,7 +324,10 @@ function RowLayout({
         </PostCardContent>
       </div>
 
-      <PostHeroImage data={item} theme={theme} isDarkMode={isDarkMode} className="aspect-[3/2]" />
+      {item.featuredImage && (
+        <PostHeroImage data={item} theme={theme} isDarkMode={isDarkMode} className="aspect-[3/2]" />
+      )}
     </Link>
-  )
+  );
 }
+

@@ -221,7 +221,7 @@ export function FeedList({
                   onClick={handleLoadMore}
                   disabled={isLoadingMore}
                   className={cn(
-                    "font-mono text-[10px] uppercase px-12 py-4 tracking-widest transition-all flex items-center gap-3",
+                    "font-mono text-[10px] uppercase px-12 py-4 tracking-widest transition-all flex items-center gap-3 cursor-pointer",
                     isCyberCopy
                       ? "bg-noir-panel border border-noir-border text-foreground hover:bg-noir-hover"
                       : "bg-accent text-noir-bg hover:shadow-lg hover:shadow-accent/20 rounded-full",
@@ -258,3 +258,4 @@ export function FeedList({
     />
   );
 }
+

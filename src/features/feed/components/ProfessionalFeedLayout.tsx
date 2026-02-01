@@ -172,7 +172,7 @@ export function ProfessionalFeedLayout({
             <button
               onClick={onLoadMore}
               disabled={isLoadingMore}
-              className="px-8 py-3 bg-bg-panel border border-border-primary text-foreground font-sans font-bold text-sm uppercase tracking-widest hover:border-accent hover:text-accent transition-all disabled:opacity-50"
+              className="px-8 py-3 bg-bg-panel border border-border-primary text-foreground font-sans font-bold text-sm uppercase tracking-widest hover:border-accent hover:text-accent transition-all disabled:opacity-50 cursor-pointer"
             >
               {isLoadingMore ? "Loading Entries..." : loadMoreText || "Load More Stories"}
             </button>

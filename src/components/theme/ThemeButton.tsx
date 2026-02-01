@@ -22,8 +22,12 @@ export function ThemeButton({
   const { theme } = useTheme()
   
   return (
-    <Button className={cn("h-10 px-6", getButtonClasses(theme as ThemeVariant, themeVariant), className)} {...props}>
+    <Button
+      variant="none"
+      className={cn("h-10 px-6", getButtonClasses(theme as ThemeVariant, themeVariant), className)}
+      {...props}
+    >
       {children}
     </Button>
-  )
+  );
 }

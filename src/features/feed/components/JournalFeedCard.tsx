@@ -29,20 +29,16 @@ export function JournalFeedCard({ item, className, variant = "default", onRemove
 
         <Link href={postUrl} className="flex items-center flex-1 h-full min-w-0">
           {/* Left Visual: Hero Image */}
-          <div className="relative w-40 h-full overflow-hidden shrink-0 border-r border-noir-border/20">
-            {item.featuredImage ? (
+          {item.featuredImage && (
+            <div className="relative w-40 h-full overflow-hidden shrink-0 border-r border-noir-border/20">
               <Image
                 src={getMediaUrl(item.featuredImage) || ""}
                 alt={item.title}
                 fill
                 className="object-cover sepia-[0.2] contrast-[1.05] group-hover:sepia-0 group-hover:scale-105 transition-all duration-700"
               />
-            ) : (
-              <div className="absolute inset-0 bg-noir-hover/50 flex items-center justify-center">
-                <span className="text-accent/20 font-serif italic text-sm">No Illustration</span>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Right Content */}
           <div className="flex-1 min-w-0 p-4 flex flex-col justify-between h-full relative z-20">
@@ -77,7 +73,7 @@ export function JournalFeedCard({ item, className, variant = "default", onRemove
           </div>
         </Link>
       </div>
-    )
+    );
   }
 
 
@@ -106,25 +102,21 @@ export function JournalFeedCard({ item, className, variant = "default", onRemove
         </div>
 
         {/* 2. Visual Layer */}
-        <Link
-          href={postUrl}
-          className="block relative aspect-[16/10] w-full overflow-hidden m-3 self-center max-w-[calc(100%-1.5rem)] shadow-inner"
-        >
-          {item.featuredImage ? (
+        {item.featuredImage && (
+          <Link
+            href={postUrl}
+            className="block relative aspect-[16/10] w-full overflow-hidden m-3 self-center max-w-[calc(100%-1.5rem)] shadow-inner"
+          >
             <Image
               src={getMediaUrl(item.featuredImage) || ""}
               alt={item.title}
               fill
               className="object-cover sepia-[0.3] contrast-[1.1] brightness-[0.98] group-hover:sepia-0 group-hover:scale-105 transition-all duration-1000 ease-out"
             />
-          ) : (
-            <div className="absolute inset-0 bg-noir-hover/30 flex items-center justify-center border border-dashed border-accent/20">
-              <span className="text-accent/20 font-serif italic text-lg tracking-widest uppercase">The Archive</span>
-            </div>
-          )}
-          {/* Subtle Vignette on Image */}
-          <div className="absolute inset-0 shadow-[inset_0_0_40px_rgba(0,0,0,0.1)] pointer-events-none" />
-        </Link>
+            {/* Subtle Vignette on Image */}
+            <div className="absolute inset-0 shadow-[inset_0_0_40px_rgba(0,0,0,0.1)] pointer-events-none" />
+          </Link>
+        )}
 
         {/* 3. Content Section */}
         <div className="px-5 pb-5 flex flex-col flex-1">

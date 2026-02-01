@@ -275,7 +275,7 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
                     "border-b border-noir-border focus:border-accent text-foreground font-bold text-lg placeholder:text-foreground-subtle/20",
                     isJournalCopy
                       ? "font-serif h-12 text-xl border border-accent/20 rounded-lg px-4 bg-noir-hover/20"
-                      : "px-0 bg-noir-panel",
+                      : "px-4 bg-noir-panel",
                     isCyberCopy ? "font-mono h-12" : isRoninCopy ? "font-serif h-12 text-2xl" : "font-sans h-10",
                   )}
                   autoFocus
@@ -437,3 +437,4 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
     </div>
   );
 }
+

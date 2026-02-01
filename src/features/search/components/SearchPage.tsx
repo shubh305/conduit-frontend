@@ -88,18 +88,14 @@ export function SearchPageContainer() {
       )}
     >
       {/* Header Area */}
-      <div className="pt-24 pb-8 px-6 md:px-0 border-b border-noir-border">
+      <div className="pt-8 md:pt-24 pb-8 px-6 md:px-0 border-b border-noir-border">
         <div className="max-w-4xl mx-auto">
           {/* Mobile Specific Search Input */}
           <div className="md:hidden mb-12">
             <div className="text-[10px] font-mono text-foreground-subtle uppercase tracking-[0.3em] mb-4">
               {t("newSearch")}
             </div>
-            <SearchInput
-              placeholder={t("search")}
-              autoFocus
-              className="w-full"
-            />
+            <SearchInput placeholder={t("search")} autoFocus className="w-full" />
           </div>
 
           <div className="flex flex-col gap-4 mb-12">
@@ -265,49 +261,83 @@ function SearchResults({ query, tab }: { query: string; tab: Tab }) {
 
           {posts.map(post => {
             return (
-              <div key={post.postId} className={cn("group flex justify-between gap-12 items-start transition-all", isSakuraCopy ? "card p-8 rounded-3xl border-transparent" : "")}>
+              <div
+                key={post.postId}
+                className={cn(
+                  "group flex justify-between gap-12 items-start transition-all",
+                  isSakuraCopy ? "card p-8 rounded-3xl border-transparent" : "",
+                )}
+              >
                 <div className="flex-1 space-y-4">
-
-                  {/* Author Line */}
                   <div className="flex items-center gap-4 mb-2">
-                    <Link href={`/u/${post.authorUsername}`} className="flex items-center gap-2 hover:text-accent transition-all group/author">
-                      <div className={cn("w-6 h-6 flex items-center justify-center text-[10px] font-bold border border-noir-border bg-noir-panel", isCyberCopy ? "rounded-none" : "rounded-full")}>
+                    <Link
+                      href={`/u/${post.authorUsername}`}
+                      className="flex items-center gap-2 hover:text-accent transition-all group/author"
+                    >
+                      <div
+                        className={cn(
+                          "w-6 h-6 flex items-center justify-center text-[10px] font-bold border border-noir-border bg-noir-panel",
+                          isCyberCopy ? "rounded-none" : "rounded-full",
+                        )}
+                      >
                         {post.authorName?.[0]}
                       </div>
-                      <span className={cn("text-[10px] font-bold uppercase tracking-widest", isCyberCopy ? "font-mono" : "font-sans")}>{post.authorName}</span>
+                      <span
+                        className={cn(
+                          "text-[10px] font-bold uppercase tracking-widest",
+                          isCyberCopy ? "font-mono" : "font-sans",
+                        )}
+                      >
+                        {post.authorName}
+                      </span>
                     </Link>
                     <span className="text-noir-border text-[10px]">/</span>
-                    <span className="text-[10px] text-foreground-subtle font-mono">{new Date(post.publishedAt).toLocaleDateString()}</span>
+                    <span className="text-[10px] text-foreground-subtle font-mono">
+                      {new Date(post.publishedAt).toLocaleDateString()}
+                    </span>
                   </div>
 
-
                   {/* Title & Excerpt */}
-                  <Link href={getPostLink(post)} className="block space-y-3 group-hover:bg-accent/5 p-2 -ml-2 rounded-xl transition-all">
+                  <Link
+                    href={getPostLink(post)}
+                    className="block space-y-3 group-hover:bg-accent/5 p-2 -ml-2 rounded-xl transition-all"
+                  >
                     <h2
                       className={cn(
                         "text-2xl font-bold leading-tight group-hover:text-accent transition-colors",
-                        isCyberCopy ? "font-mono uppercase tracking-tighter" : config.fontFamily === "serif" ? "font-serif italic" : "font-sans",
+                        isCyberCopy
+                          ? "font-mono uppercase tracking-tighter"
+                          : config.fontFamily === "serif"
+                            ? "font-serif italic"
+                            : "font-sans",
                       )}
                     >
                       {post.title}
                     </h2>
-                    <p className={cn("text-sm line-clamp-2 leading-relaxed text-foreground-muted", config.fontFamily === "serif" ? "font-serif" : "font-sans")}>{post.excerpt}</p>
+                    <p
+                      className={cn(
+                        "text-sm line-clamp-2 leading-relaxed text-foreground-muted",
+                        config.fontFamily === "serif" ? "font-serif" : "font-sans",
+                      )}
+                    >
+                      {post.excerpt}
+                    </p>
                   </Link>
-
 
                   {/* Meta / Actions */}
                   <div className="flex items-center gap-3 pt-2">
                     <span
                       className={cn(
                         "px-2 py-0.5 text-[8px] uppercase tracking-widest font-black border",
-                        isCyberCopy ? "border-accent/30 text-accent font-mono" : "border-noir-border text-foreground-subtle rounded-md",
+                        isCyberCopy
+                          ? "border-accent/30 text-accent font-mono"
+                          : "border-noir-border text-foreground-subtle rounded-md",
                       )}
                     >
                       {post.tags?.[0] || "Story"}
                     </span>
                   </div>
                 </div>
-
 
                 {/* Aspect Ratio Controlled Image */}
                 {post.featuredImage && (
@@ -324,7 +354,9 @@ function SearchResults({ query, tab }: { query: string; tab: Tab }) {
                       alt=""
                       className={cn(
                         "w-full h-full object-cover transition-all duration-700",
-                        isDarkMode ? "grayscale group-hover:grayscale-0 opacity-80 group-hover:opacity-100" : "opacity-90 group-hover:opacity-100",
+                        isDarkMode
+                          ? "grayscale group-hover:grayscale-0 opacity-80 group-hover:opacity-100"
+                          : "opacity-90 group-hover:opacity-100",
                       )}
                     />
                   </Link>

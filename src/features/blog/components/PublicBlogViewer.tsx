@@ -17,8 +17,9 @@ const feedItemToPost = (item: FeedItem): Post => ({
   title: item.title,
   excerpt: item.excerpt,
   featuredImage: item.featuredImage,
+  featuredImageAttribution: item.featuredImageAttribution,
   publishedAt: item.publishedAt,
-  readingTimeMinutes: 5,
+  readingTimeMinutes: item.readingTimeMinutes || 5,
   tags: item.tags || [],
   authorName: item.authorName,
   authorUsername: item.authorUsername || "",
@@ -28,10 +29,11 @@ const feedItemToPost = (item: FeedItem): Post => ({
   content: { type: "doc", content: [] },
   theme: "classic",
   createdAt: item.publishedAt,
+  updatedAt: item.publishedAt,
   status: "published",
   authorId: "",
   viewsCount: item.viewsCount,
-})
+});
 
 interface PublicBlogViewerProps {
   tenant: Tenant

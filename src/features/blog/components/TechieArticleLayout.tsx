@@ -9,7 +9,7 @@ import { FeedActionBar } from "@/features/feed/components/FeedActionBar";
 import { useState } from "react";
 import { CommentSection } from "@/features/feed/components/CommentSection";
 import { useSearchParams, useRouter } from "next/navigation";
-import { cn, getMediaUrl } from "@/lib/utils";
+import { cn, getMediaUrl, formatDate } from "@/lib/utils";
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
 import { useTableOfContents } from "@/features/blog/hooks/useTableOfContents";
 import { TechieMoreFromAuthor } from "./techie/TechieMoreFromAuthor";
@@ -39,7 +39,7 @@ export function TechieArticleLayout({ post, tenant, isPreview: isPreviewProp }: 
         <div className="container mx-auto max-w-[1600px]">
           <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[500px]">
             {/* Header Left: Content */}
-            <div className="p-6 sm:p-8 lg:p-16 flex flex-col justify-center gap-6 sm:gap-8 relative overflow-hidden">
+            <div className="p-4 sm:p-8 lg:p-16 flex flex-col justify-center gap-6 sm:gap-8 relative overflow-hidden">
               {/* Background Grid Decoration */}
               <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--border-primary)_1px,transparent_1px),linear-gradient(to_bottom,var(--border-primary)_1px,transparent_1px)] bg-[size:40px_40px] opacity-[0.05] pointer-events-none" />
 
@@ -89,7 +89,7 @@ export function TechieArticleLayout({ post, tenant, isPreview: isPreviewProp }: 
                 <div className="flex items-center gap-8 text-[10px] font-mono text-foreground/50">
                   <div>
                     <span className="text-accent/40 uppercase mr-2.5">Date:</span>
-                    <span className="text-white/80">{new Date(post.publishedAt).toLocaleDateString()}</span>
+                    <span className="text-white/80">{formatDate(post.publishedAt)}</span>
                   </div>
                   <div>
                     <span className="text-accent/40 uppercase mr-2.5">Read:</span>
@@ -100,7 +100,7 @@ export function TechieArticleLayout({ post, tenant, isPreview: isPreviewProp }: 
             </div>
 
             {/* Header Right: Cover Image */}
-            <div className="relative h-[300px] lg:h-auto border-l lg:border-l border-white/5 overflow-hidden group shadow-[inset_0_0_100px_rgba(0,0,0,0.5)]">
+            <div className="relative h-[200px] lg:h-auto border-l lg:border-l border-white/5 overflow-hidden group shadow-[inset_0_0_100px_rgba(0,0,0,0.5)]">
               <div className="absolute inset-0 bg-noir-panel/20 z-10 group-hover:bg-transparent transition-colors duration-700" />
 
               {/* Tech HUD overlay */}

@@ -97,7 +97,7 @@ export default function EditorPage() {
       setIsSaving(true);
       try {
         const payload = {
-          title,
+          title: title.trim() || "[Untitled]",
           content,
           status: "draft" as const,
           slug,
@@ -162,7 +162,7 @@ export default function EditorPage() {
     setIsSaving(true);
     try {
       const payload = {
-        title,
+        title: title.trim() || "[Untitled]",
         content,
         status: "draft" as const,
         slug,
@@ -206,7 +206,7 @@ export default function EditorPage() {
     setIsSaving(true);
     try {
       const payload = {
-        title,
+        title: title.trim() || "[Untitled]",
         content,
         status: "published" as const,
         slug,
@@ -441,10 +441,10 @@ export default function EditorPage() {
 
   // Standard Layout
   return (
-    <ThemePage className="h-full">
+    <ThemePage className="fixed inset-0 h-[100dvh] w-full md:relative md:h-full md:inset-auto z-0 overflow-hidden">
       <div
         className={cn(
-          "flex flex-col items-center justify-start h-full p-0 md:p-8 overflow-hidden",
+          "flex flex-col items-center justify-start h-full w-full p-0 pt-[env(safe-area-inset-top)] md:pt-8 md:p-8 overflow-hidden relative",
           theme !== "journal" && theme !== "sakura" && theme !== "classic" && "bg-black/20",
         )}
       >
@@ -457,7 +457,6 @@ export default function EditorPage() {
           )}
           style={{
             backgroundColor: theme === "journal" || theme === "sakura" ? "var(--journal-paper)" : undefined,
-            height: "100%",
           }}
         >
           <header
@@ -476,7 +475,9 @@ export default function EditorPage() {
                 <ArrowLeft size={18} className="group-hover:-translate-x-0.5 transition-transform" />
               </Link>
               <div className="flex flex-col">
-                <h1 className={cn("font-bold text-lg md:text-xl tracking-tight uppercase", getHeadingClasses(theme))}>
+                <h1
+                  className={cn("font-bold text-[10px] md:text-xl tracking-tight uppercase", getHeadingClasses(theme))}
+                >
                   {newStoryLabel}
                 </h1>
                 <span
@@ -526,8 +527,8 @@ export default function EditorPage() {
                       : isTechieCopy
                         ? "bg-accent text-noir-bg rounded-none hover:bg-accent-secondary shadow-[0_0_12px_rgba(var(--accent-rgb),0.2)]"
                         : isJournalCopy
-                          ? "bg-accent text-white rounded-full hover:bg-accent/90"
-                          : "bg-accent text-white rounded-full hover:bg-accent/90",
+                          ? "rounded-lg bg-[#8B4513] text-[#fdf5e6] hover:bg-[#A0522D] font-serif shadow-md hover:shadow-lg border border-transparent"
+                          : "rounded-full bg-accent hover:bg-accent/80 text-noir-bg",
                   )}
                 >
                   <Settings size={14} className="shrink-0" />
@@ -552,7 +553,7 @@ export default function EditorPage() {
             <Input
               placeholder={enterTitlePlaceholder}
               className={cn(
-                "text-2xl md:text-4xl font-bold bg-transparent border-none px-0 h-auto focus:ring-0 w-full mb-2 md:mb-4",
+                "text-2xl md:text-4xl font-bold bg-transparent border-none px-4 h-auto focus:ring-0 w-full mb-2 md:mb-4",
                 isCyberCopy
                   ? "placeholder:text-foreground-subtle/20 text-foreground uppercase tracking-tighter font-mono"
                   : isTechieCopy
@@ -639,46 +640,47 @@ export default function EditorPage() {
             isPublishing={isSaving}
             status="draft"
           />
+        </div>
 
-          {/* Mobile Action Bar */}
-          <div
+        {/* Mobile Action Bar */}
+        <div
+          className={cn(
+            "md:hidden fixed bottom-0 left-0 right-0 z-[120] p-4 flex gap-3 border-t backdrop-blur-md",
+            "bg-[var(--editor-bg)]/90 border-[var(--editor-border)] shadow-[0_-4px_20px_rgba(0,0,0,0.3)]",
+            "pb-[calc(1rem+env(safe-area-inset-bottom))]",
+          )}
+        >
+          <Button
+            variant="outline"
+            onClick={handlePreview}
             className={cn(
-              "md:hidden sticky bottom-0 left-0 right-0 z-[120] p-4 flex gap-3 border-t backdrop-blur-md",
-              "bg-[var(--editor-bg)]/90 border-[var(--editor-border)] shadow-[0_-4px_20px_rgba(0,0,0,0.1)]",
+              "flex-1 h-12 text-[10px] font-black uppercase tracking-widest",
+              isCyberCopy ? "rounded-none border-accent/30 text-accent" : "rounded-xl border-foreground/10",
             )}
           >
-            <Button
-              variant="outline"
-              onClick={handlePreview}
-              className={cn(
-                "flex-1 h-12 text-[10px] font-black uppercase tracking-widest",
-                isCyberCopy ? "rounded-none border-accent/30 text-accent" : "rounded-xl border-foreground/10",
-              )}
-            >
-              {previewLabel}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleSaveDraft}
-              disabled={isSaving}
-              className={cn(
-                "flex-1 h-12 text-[10px] font-black uppercase tracking-widest",
-                isCyberCopy ? "rounded-none border-accent/30 text-accent" : "rounded-xl border-foreground/10",
-              )}
-            >
-              {isSaving ? savingLabel : "Save Draft"}
-            </Button>
-            <Button
-              onClick={() => setIsSidebarOpen(true)}
-              disabled={isSaving}
-              className={cn(
-                "flex-1 h-12 text-[10px] font-black uppercase tracking-widest bg-accent text-noir-bg",
-                isCyberCopy ? "rounded-none" : "rounded-xl",
-              )}
-            >
-              {publishLabel}
-            </Button>
-          </div>
+            {previewLabel}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleSaveDraft}
+            disabled={isSaving}
+            className={cn(
+              "flex-1 h-12 text-[10px] font-black uppercase tracking-widest",
+              isCyberCopy ? "rounded-none border-accent/30 text-accent" : "rounded-xl border-foreground/10",
+            )}
+          >
+            {isSaving ? savingLabel : draftLabel}
+          </Button>
+          <Button
+            onClick={() => setIsSidebarOpen(true)}
+            disabled={isSaving}
+            className={cn(
+              "flex-1 h-12 text-[10px] font-black uppercase tracking-widest bg-accent text-noir-bg",
+              isCyberCopy ? "rounded-none" : "rounded-xl",
+            )}
+          >
+            {publishLabel}
+          </Button>
         </div>
       </div>
     </ThemePage>

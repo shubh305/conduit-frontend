@@ -15,7 +15,8 @@ import {
   getSettingsInputContainerClasses,
   getSettingsStatsGridClasses,
   getSettingsPublishButtonClasses,
-} from "@/lib/theme-variants"
+  ThemeVariant,
+} from "@/lib/theme-variants";
 
 interface SettingsSidebarProps {
   isOpen: boolean;
@@ -136,8 +137,8 @@ export function SettingsSidebar({
           <button
             onClick={onClose}
             className={cn(
-              "transition-colors",
-              isTechieCopy ? "text-accent-secondary hover:text-accent" : "text-foreground-subtle hover:text-accent",
+              "transition-colors cursor-pointer",
+              isTechieCopy ? "text-accent-secondary hover:text-accent" : "text-foreground/40 hover:text-accent",
             )}
           >
             <X size={24} />
@@ -180,7 +181,7 @@ export function SettingsSidebar({
               <span
                 className={cn(
                   "pl-3 text-xs select-none",
-                  isTechieCopy ? "text-accent-secondary" : "text-foreground-subtle",
+                  isTechieCopy ? "text-accent-secondary" : "text-foreground/40",
                 )}
               >
                 /
@@ -197,7 +198,7 @@ export function SettingsSidebar({
                   "flex-1 bg-transparent px-1 py-3 text-sm focus:outline-none transition-colors",
                   isTechieCopy ? "text-accent" : "text-foreground",
                   !isEditingSlug &&
-                    (isTechieCopy ? "cursor-default text-accent-secondary" : "cursor-default color-foreground-subtle"),
+                    (isTechieCopy ? "cursor-default text-accent-secondary" : "cursor-default text-foreground/40"),
                 )}
               />
               <button
@@ -211,7 +212,7 @@ export function SettingsSidebar({
               </button>
             </div>
 
-            <p className="text-[9px] text-foreground-subtle font-mono uppercase tracking-tighter px-1">
+            <p className="text-[9px] text-foreground/40 font-mono uppercase tracking-tighter px-1">
               URL: /u/{authorUsername || "user"}/{localSlug}
             </p>
 
@@ -220,7 +221,7 @@ export function SettingsSidebar({
                 onClick={regenerateSlug}
                 className={cn(
                   "text-[9px] underline font-mono uppercase px-1",
-                  isTechieCopy ? "text-accent-secondary hover:text-accent" : "text-foreground-muted hover:text-accent",
+                  isTechieCopy ? "text-accent-secondary hover:text-accent" : "text-foreground/60 hover:text-accent",
                 )}
               >
                 {isSakuraCopy ? "Reset to title (タイトルから生成)" : "Reset to match title"}
@@ -230,7 +231,7 @@ export function SettingsSidebar({
 
           <div className={getSettingsStatsGridClasses(theme)}>
             <div className="flex flex-col gap-1">
-              <span className="text-[8px] text-foreground-subtle uppercase tracking-wider font-bold whitespace-nowrap">
+              <span className="text-[8px] text-foreground/40 uppercase tracking-wider font-bold whitespace-nowrap">
                 Word count
               </span>
               <span
@@ -249,7 +250,7 @@ export function SettingsSidebar({
                 isTechieCopy ? "border-noir-border" : "border-noir-border/30",
               )}
             >
-              <span className="text-[8px] text-foreground-subtle uppercase tracking-wider font-bold whitespace-nowrap">
+              <span className="text-[8px] text-foreground/40 uppercase tracking-wider font-bold whitespace-nowrap">
                 Paragraphs
               </span>
               <span
@@ -263,7 +264,7 @@ export function SettingsSidebar({
               </span>
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-[8px] text-foreground-subtle uppercase tracking-wider font-bold whitespace-nowrap">
+              <span className="text-[8px] text-foreground/40 uppercase tracking-wider font-bold whitespace-nowrap">
                 Read time
               </span>
               <span
@@ -282,12 +283,8 @@ export function SettingsSidebar({
             <label className={getSettingsLabelClasses(theme)}>
               {isSakuraCopy ? "Tags (タグ)" : isJournalCopy ? "Topics" : "Tags"}
             </label>
-            <TagInput
-              tags={tags}
-              onChange={newTags => onUpdate({ tags: newTags })}
-              isNoir={!isCyberCopy && !isTechieCopy}
-            />
-            <p className="text-[10px] text-foreground-subtle italic">
+            <TagInput tags={tags} onChange={newTags => onUpdate({ tags: newTags })} theme={theme as ThemeVariant} />
+            <p className="text-[10px] text-foreground/40 italic">
               {isSakuraCopy
                 ? "最大5つのタグを追加できます。"
                 : isJournalCopy
@@ -302,7 +299,7 @@ export function SettingsSidebar({
             "p-6 border-t font-mono text-center text-[10px] space-y-4",
             isTechieCopy
               ? "bg-noir-bg border-noir-border text-accent-secondary"
-              : "border-noir-border text-foreground-subtle bg-noir-bg/50",
+              : "border-noir-border text-foreground/40 bg-noir-panel/50",
           )}
         >
           {status !== "published" && (
@@ -316,7 +313,7 @@ export function SettingsSidebar({
                 <div className="text-left mt-1">
                   <button
                     onClick={() => setScheduleDate(null)}
-                    className="text-[9px] text-foreground-subtle hover:text-red-500 underline decoration-dotted transition-colors"
+                    className="text-[9px] text-foreground/40 hover:text-red-500 underline decoration-dotted transition-colors"
                   >
                     {isSakuraCopy ? "予約をクリア" : "Clear schedule"}
                   </button>
@@ -379,7 +376,7 @@ export function SettingsSidebar({
                   <button
                     onClick={onPublish}
                     disabled={isPublishing}
-                    className="text-[10px] font-bold uppercase tracking-widest text-foreground-subtle hover:text-accent transition-colors underline decoration-dotted mt-1"
+                    className="text-[10px] font-bold uppercase tracking-widest text-foreground/60 hover:text-accent transition-colors underline decoration-dotted mt-1"
                   >
                     {isSakuraCopy ? "今すぐ公開する" : "Publish immediately instead"}
                   </button>

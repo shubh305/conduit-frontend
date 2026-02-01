@@ -136,9 +136,9 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
   const ringCount = containerHeight > 0 ? Math.ceil(containerHeight / 30) : 24;
 
   return (
-    <div className="w-full min-h-screen flex flex-col items-center justify-start sm:justify-center p-2 xs:p-4 md:p-8 lg:p-12 pt-24 sm:pt-6 overflow-x-hidden">
+    <div className="w-full min-h-screen flex flex-col items-center justify-start p-4 md:p-8 lg:p-12 pt-16 sm:pt-10 overflow-x-hidden">
       {/* 2D LAYOUT CONTAINER - No global 3D context to mess up z-index */}
-      <div
+      <main
         className={cn(
           "relative w-full h-[85vh] min-h-[500px] md:min-h-[650px] flex shadow-2xl rounded-r-lg bg-journal-binding overflow-hidden transition-all duration-700",
           focusMode ? "max-w-[1700px]" : "max-w-6xl",
@@ -326,7 +326,7 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
             </motion.div>
           )}
         </div>
-      </div>
+      </main>
 
       {/* Background Decor */}
       <div className="fixed inset-0 pointer-events-none -z-50 overflow-hidden bg-[var(--journal-paper)]/30">

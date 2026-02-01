@@ -107,13 +107,17 @@ export function FeedActionBar({
     <div
       className={cn(
         "flex",
-        isVertical ? "flex-col items-center justify-center gap-6" : "items-center justify-between gap-6 mt-4",
+        isVertical ? "flex-col items-center justify-center gap-6" : "items-center justify-between gap-3 md:gap-6 mt-4",
         compact && "mt-0",
         className,
       )}
     >
       <div
-        className={cn("flex", isVertical ? "flex-col items-center gap-6" : "items-center", compact ? "gap-3" : "gap-6")}
+        className={cn(
+          "flex",
+          isVertical ? "flex-col items-center gap-6" : "items-center",
+          compact ? "gap-2" : "gap-3 md:gap-6",
+        )}
       >
         {/* Like */}
         <button

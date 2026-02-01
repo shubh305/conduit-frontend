@@ -120,7 +120,7 @@ export function SakuraFeedLayout({
             <button
               onClick={onLoadMore}
               disabled={isLoadingMore}
-              className="group relative px-20 py-4 bg-white text-accent font-medium rounded-full shadow-sm hover:shadow-md transition-all duration-300 border border-accent/10 overflow-hidden"
+              className="group relative px-20 py-4 bg-white text-accent font-medium rounded-full shadow-sm hover:shadow-md transition-all duration-300 border border-accent/10 overflow-hidden cursor-pointer"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <span className="relative z-10 uppercase text-xs tracking-[0.2em]">

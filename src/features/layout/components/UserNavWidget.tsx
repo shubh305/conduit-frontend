@@ -101,8 +101,8 @@ export function UserNavWidget({ variant = "top-nav" }: UserNavWidgetProps) {
               <Link
                 href={`/u/${user.username}`}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-2.5 text-[10px] hover:text-foreground uppercase tracking-widest",
-                  isRoninCopy ? "font-serif italic text-foreground/80" : "font-mono text-foreground-subtle",
+                  "flex items-center gap-3 px-4 py-2.5 text-[10px] hover:text-foreground uppercase tracking-widest font-sans",
+                  isRoninCopy ? "text-foreground/80" : "text-foreground/80",
                 )}
               >
                 <UserIcon size={14} className={cn("opacity-70", isRoninCopy && "text-accent")} />
@@ -116,7 +116,7 @@ export function UserNavWidget({ variant = "top-nav" }: UserNavWidgetProps) {
             >
               <Link
                 href={`/studio${studioParam}`}
-                className="flex items-center gap-3 px-4 py-2.5 text-xs text-foreground-subtle hover:text-foreground font-mono uppercase tracking-widest"
+                className="flex items-center gap-3 px-4 py-2.5 text-[10px] text-foreground/80 hover:text-foreground font-sans uppercase tracking-widest"
               >
                 <LayoutDashboard size={14} className="opacity-70" />
                 <span>{t("studio")}</span>
@@ -131,7 +131,7 @@ export function UserNavWidget({ variant = "top-nav" }: UserNavWidgetProps) {
             >
               <Link
                 href={`/studio/settings${studioParam}`}
-                className="flex items-center gap-3 px-4 py-2.5 text-xs text-foreground-subtle hover:text-foreground font-mono uppercase tracking-widest"
+                className="flex items-center gap-3 px-4 py-2.5 text-[10px] text-foreground/80 hover:text-foreground font-sans uppercase tracking-widest"
               >
                 <Settings size={14} className="opacity-70" />
                 <span>{t("settings")}</span>

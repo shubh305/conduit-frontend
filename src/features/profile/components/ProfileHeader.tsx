@@ -186,7 +186,7 @@ export function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
           "border-noir-border bg-noir-bg shadow-2xl",
           isSakuraCopy ? "rounded-3xl hover:shadow-accent/5" : "backdrop-blur-sm",
           isOctaneCopy && "border-l-4 border-l-accent-warm octane-texture",
-          isJournalCopy ? "rounded-2xl bg-noir-panel border-accent/20 shadow-lg p-4 md:p-6 mb-4" : "p-6 mb-8",
+          isJournalCopy ? "rounded-2xl bg-noir-panel border-accent/20 shadow-lg p-3 md:p-6 mb-4" : "p-3 md:p-6 mb-8",
           isTechieCopy && "border-white/5 bg-[var(--bg-primary)] p-0 md:p-1",
         )}
       >
@@ -300,7 +300,7 @@ export function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
               <div>
                 <h1
                   className={cn(
-                    "text-3xl md:text-5xl font-black text-foreground mb-1 transition-all leading-none",
+                    "text-2xl md:text-5xl font-black text-foreground mb-1 transition-all leading-tight",
                     isCyberCopy || isTechieCopy
                       ? "font-display uppercase tracking-tighter"
                       : isRoninCopy
@@ -390,8 +390,8 @@ export function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
             {socialLinks && Object.values(socialLinks).some(Boolean) && (
               <div
                 className={cn(
-                  "flex items-center gap-6 py-3 px-6 border bg-noir-bg/50 backdrop-blur-md w-fit",
-                  isCyberCopy || isTechieCopy ? "border-accent/20" : "border-noir-border rounded-2xl",
+                  "flex items-center gap-4 md:gap-6 py-2 md:py-3 px-4 md:px-6 border bg-noir-bg/50 backdrop-blur-md w-full md:w-fit flex-wrap justify-center md:justify-start",
+                  isCyberCopy || isTechieCopy ? "border-accent/20" : "border-noir-border rounded-xl md:rounded-2xl",
                   isTechieCopy && "rounded-lg bg-[var(--bg-panel)]/40 border-white/5",
                 )}
               >
@@ -484,13 +484,13 @@ export function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
   // Classic Row Layout
   // ---------------------------------------------------------
   return (
-    <div className="mb-20 max-w-6xl mx-auto px-6">
+    <div className="mb-20 max-w-6xl mx-auto px-2 md:px-6">
       <div className="flex flex-col-reverse md:flex-row justify-between items-start gap-12 pt-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
         <div className="flex-1 space-y-8 w-full">
           <div>
             <h1
               className={cn(
-                "text-4xl md:text-5xl font-black tracking-tighter text-foreground mb-2 leading-none",
+                "text-3xl md:text-6xl font-black tracking-tighter text-foreground mb-4 md:mb-2 leading-tight",
                 config.fontFamily === "serif"
                   ? "font-serif italic"
                   : config.fontFamily === "mono"
@@ -509,7 +509,7 @@ export function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
 
           {/* Social Links Bar */}
           {socialLinks && Object.values(socialLinks).some(Boolean) && (
-            <div className="flex items-center gap-8 py-4 border-t border-b border-noir-border w-fit transition-all">
+            <div className="flex flex-wrap items-center gap-6 md:gap-8 py-4 border-t border-b border-noir-border w-full md:w-fit transition-all justify-center md:justify-start">
               {Object.entries(socialLinks).map(([key, value]) => {
                 if (!value) return null;
                 const Icon =

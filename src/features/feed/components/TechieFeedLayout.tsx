@@ -70,7 +70,7 @@ export function TechieFeedLayout({
             <button
               onClick={onLoadMore}
               disabled={isLoadingMore}
-              className="px-10 py-2.5 bg-noir-panel border border-accent/30 hover:border-accent text-accent font-mono text-[9px] font-bold uppercase tracking-[0.4em] transition-all hover:bg-accent/5 disabled:opacity-50"
+              className="px-10 py-2.5 bg-noir-panel border border-accent/30 hover:border-accent text-accent font-mono text-[9px] font-bold uppercase tracking-[0.4em] transition-all hover:bg-accent/5 disabled:opacity-50 cursor-pointer"
             >
               {isLoadingMore ? "BUFFERING..." : loadMoreText || "FETCH_DATA"}
             </button>

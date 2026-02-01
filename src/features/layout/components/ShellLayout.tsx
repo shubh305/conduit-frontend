@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense, useState, useEffect } from "react"
+import { Suspense, useState, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 import Link from "next/link"
@@ -164,8 +164,8 @@ export function ShellLayout({ children }: ShellLayoutProps) {
   return (
     <div
       className={cn(
-        "min-h-screen transition-all duration-1000 ease-in-out text-foreground max-w-[100vw] overflow-x-hidden",
-        isEditorRoute && "h-[100dvh] overflow-hidden",
+        "min-h-screen transition-all duration-1000 ease-in-out text-foreground max-w-[100vw] overflow-x-hidden overscroll-behavior-none",
+        isEditorRoute && "h-[100dvh] overflow-hidden overscroll-none",
         isRoninCopy || isSakuraCopy || isJournalCopy || isTerminalCopy || isTechieCopy
           ? "bg-transparent"
           : "bg-noir-bg",
@@ -269,7 +269,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
               e.stopPropagation();
               setIsSidebarOpen(!isSidebarOpen);
             }}
-            className="p-2 -ml-2 text-foreground-muted hover:text-foreground relative z-[190]"
+            className="p-2 -ml-2 text-foreground-muted hover:text-foreground relative z-[190] cursor-pointer"
             aria-label="Toggle Sidebar"
           >
             <div className="w-5 h-0.5 bg-current mb-1" />
@@ -299,15 +299,15 @@ export function ShellLayout({ children }: ShellLayoutProps) {
         {/* Center Content */}
         <main
           className={cn(
-            "flex-1 min-w-0 transition-all duration-300 xl:border-r w-full border-noir-border px-4 md:px-8 pt-24 pb-20 md:pb-8",
+            "flex-1 min-w-0 transition-all duration-300 xl:border-r w-full border-noir-border px-4 md:px-8 pt-20 md:pt-24 pb-24 md:pb-8",
             isTechieCopy && "xl:border-none",
-            isStudioRoute && "pt-24 md:pt-0 border-none px-4 md:px-0 pb-0",
+            isStudioRoute && "pt-16 md:pt-0 border-none px-4 md:px-0 pb-0",
             isEditorRoute && "pt-0 md:pt-0 px-0 md:px-0 flex flex-col h-full overflow-hidden",
             isJournalImmersion && "h-screen pt-0 pb-0 mt-0 px-0 overflow-hidden bg-journal-parchment flex flex-col",
             isJournalCopy && "bg-journal-ink/5",
 
             !isDarkMode && !isJournalCopy && "bg-noir-panel md:bg-noir-bg",
-            focusMode && "xl:border-none pt-24 max-w-[1920px] mx-auto flex-none w-full px-6 md:px-12 lg:px-24",
+            focusMode && "xl:border-none pt-16 md:pt-24 max-w-[1920px] mx-auto flex-none w-full px-6 md:px-12 lg:px-24",
           )}
         >
           {children}

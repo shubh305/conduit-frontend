@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, Search } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
 import { cn } from "@/lib/utils";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { getGlobalFeed } from "@/features/feed/api";
 import { Profile } from "@/features/profile/types";
@@ -76,7 +76,7 @@ function Wrapper({ children, className, isOpen }: { children: React.ReactNode; c
   return (
     <aside
       className={cn(
-        "flex flex-col min-h-screen fixed right-0 top-0 xl:top-16 w-80 z-[170] xl:z-30 px-6 py-8 h-screen xl:h-[calc(100vh-4rem)] overflow-y-auto no-scrollbar transition-all duration-500 cursor-pointer",
+        "flex flex-col min-h-screen fixed right-0 top-0 xl:top-16 w-80 z-[170] xl:z-30 px-6 py-8 h-screen xl:h-[calc(100vh-4rem)] overflow-y-auto no-scrollbar transition-all duration-500",
         !isOpen && "translate-x-full xl:translate-x-0",
         isTerminalCopy
           ? "border-l border-accent/20 bg-black text-accent font-mono"
@@ -109,17 +109,13 @@ function Wrapper({ children, className, isOpen }: { children: React.ReactNode; c
 }
 
 export function AuxiliarySidebarContent() {
-  const { config } = useTheme();
   const searchParams = useSearchParams();
-  const router = useRouter();
-  const [searchTerm, setSearchTerm] = useState("");
 
   const query = searchParams.get("q");
 
   const { isTerminalCopy, isJournalCopy, isTechieCopy } = useThemeHelpers();
 
   const t = useThemeLabel();
-  const searchPlaceholder = t("search");
   const recommendedLabel = t("recommended");
   const signalSourcesLabel = t("signalSources");
 
@@ -128,13 +124,6 @@ export function AuxiliarySidebarContent() {
   const noTagsText = t("noTags");
   const noUsersText = t("noUsers");
   // Sync right sidebar: ShellLayout handles the state centrally
-
-  useEffect(() => {
-    if (query && query !== searchTerm) {
-      setSearchTerm(query);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query]);
 
   const [tags, setTags] = useState<string[]>([]);
 
@@ -150,12 +139,6 @@ export function AuxiliarySidebarContent() {
       .catch(() => {});
   }, []);
 
-  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && searchTerm.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
-    }
-  };
-
   const [whoToFollow, setWhoToFollow] = useState<Profile[]>([]);
 
   useEffect(() => {
@@ -170,57 +153,13 @@ export function AuxiliarySidebarContent() {
 
   return (
     <>
-      {/* Search */}
-      {/* Search */}
-      <div
-        className={cn(
-          "relative mb-10",
-          isTerminalCopy ? "border border-accent p-2" : "",
-          isJournalCopy && "bg-transparent border border-accent/20 shadow-sm p-3 rounded-md",
-          isTechieCopy && "bg-noir-panel/60 shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] rounded-full px-4 py-1.5 widget",
-        )}
-        data-widget={isTechieCopy || isTerminalCopy ? "true" : undefined}
-      >
-        <div
-          className={cn("absolute inset-y-0 left-4 flex items-center pointer-events-none", isTechieCopy && "left-3")}
-        >
-          <Search
-            size={16}
-            className={cn(
-              "text-foreground-muted",
-              isTerminalCopy ? "text-accent hidden" : "",
-              isJournalCopy && "text-accent/60",
-              isTechieCopy && "text-accent-secondary",
-            )}
-            strokeWidth={isJournalCopy ? 1.5 : 2}
-          />
-          {isTerminalCopy && <span className="text-accent text-xs mr-2">{">"}</span>}
-        </div>
-        <input
-          type="text"
-          placeholder={isTechieCopy ? "QUERY_DB..." : searchPlaceholder}
-          value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
-          onKeyDown={handleSearch}
-          className={cn(
-            "w-full py-2 pl-8 pr-4 bg-transparent outline-none text-xs uppercase tracking-wide transition-all",
-            config.fontFamily === "mono" ? "font-mono" : "font-sans",
-            isTerminalCopy
-              ? "border-none text-accent placeholder:text-accent/50 pl-6 font-mono normal-case"
-              : "border-b border-border-primary text-foreground focus:border-accent placeholder:text-foreground-subtle bg-transparent",
-            isJournalCopy &&
-              "border-b border-accent/20 text-journal-ink placeholder:text-journal-ink/60 font-serif normal-case tracking-normal italic focus:border-accent",
-            isTechieCopy && "border-none text-accent-secondary placeholder:text-accent-secondary/50 font-mono pl-6",
-          )}
-          style={{
-            borderColor: isTerminalCopy || isTechieCopy || isJournalCopy ? undefined : "var(--border-primary)",
-          }}
-        />
-      </div>
-
       {/* Recommended Topics */}
       <div
-        className={cn("mb-10", isTerminalCopy ? "border border-accent p-2" : "", isTechieCopy && "mb-12 widget")}
+        className={cn(
+          "mb-8 md:mb-10",
+          isTerminalCopy ? "border border-accent p-2" : "",
+          isTechieCopy && "mb-12 widget",
+        )}
         data-widget={isTechieCopy || isTerminalCopy ? "true" : undefined}
       >
         <SectionTitle>{recommendedTitle}</SectionTitle>
@@ -275,31 +214,31 @@ export function AuxiliarySidebarContent() {
       >
         <SectionTitle>{signalSourcesTitle}</SectionTitle>
         {whoToFollow.length > 0 ? (
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4 md:gap-6">
             {whoToFollow.map(user => (
               <Link key={user.username} href={`/u/${user.username}`}>
                 <div
                   className={cn(
                     "flex items-center justify-between gap-3 group cursor-pointer transition-all duration-300",
                     isTechieCopy &&
-                      "bg-noir-panel/30 p-3 shadow-md hover:bg-noir-panel/50 hover:shadow-lg border-l-2 border-transparent hover:border-accent/80",
+                      "bg-noir-panel/30 p-2 md:p-3 shadow-md hover:bg-noir-panel/50 hover:shadow-lg border-l-2 border-transparent hover:border-accent/80",
                     !isTerminalCopy &&
                       !isTechieCopy &&
                       !isJournalCopy &&
-                      "bg-bg-panel border border-border-primary p-3 rounded-sm hover:border-accent hover:shadow-sm",
+                      "bg-bg-panel border border-border-primary p-2 md:p-3 rounded-sm hover:border-accent hover:shadow-sm",
                   )}
                 >
                   <div className="flex items-center gap-4">
                     <div
                       className={cn(
-                        "w-10 h-10 shrink-0 flex items-center justify-center font-mono text-xs font-bold border",
+                        "w-8 h-8 md:w-10 md:h-10 shrink-0 flex items-center justify-center font-mono text-xs font-bold border",
                         isTerminalCopy
                           ? "bg-black text-accent border-accent rounded-none"
                           : "bg-bg-primary text-foreground border-border-primary",
                         isJournalCopy &&
                           "font-serif bg-journal-parchment text-journal-ink border-accent/20 rounded-full",
                         isTechieCopy &&
-                          "w-10 h-10 bg-black rounded-none text-accent border border-white/5 group-hover:border-accent/40 transition-all",
+                          "w-8 h-8 md:w-10 md:h-10 bg-black rounded-none text-accent border border-white/5 group-hover:border-accent/40 transition-all",
                       )}
                       style={{
                         borderRadius:
@@ -313,7 +252,7 @@ export function AuxiliarySidebarContent() {
                     <div className="min-w-0 flex flex-col">
                       <div
                         className={cn(
-                          "text-xs font-bold uppercase tracking-[0.1em] truncate transition-colors",
+                          "text-[11px] md:text-xs font-bold uppercase tracking-[0.1em] truncate transition-colors max-w-[120px]",
                           isTerminalCopy
                             ? "text-accent group-hover:text-white group-hover:underline"
                             : "text-foreground-muted group-hover:text-foreground",
@@ -326,7 +265,7 @@ export function AuxiliarySidebarContent() {
                       </div>
                       <div
                         className={cn(
-                          "text-[9px] truncate font-mono text-foreground-subtle uppercase tracking-widest",
+                          "text-[9px] truncate font-mono text-foreground-subtle uppercase tracking-widest max-w-[120px]",
                           isTerminalCopy ? "text-accent/50" : "",
                           isJournalCopy && "font-serif italic text-accent/60",
                           isTechieCopy && "text-accent/50",

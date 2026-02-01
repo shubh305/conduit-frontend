@@ -114,7 +114,7 @@ export default function UserProfilePage() {
     <div
       className={cn(
         "max-w-5xl mx-auto profile-container",
-        isTerminalCopy ? "space-y-6 p-4 md:p-8" : "space-y-8 p-4 md:p-0",
+        isTerminalCopy ? "space-y-6 p-2 md:p-8" : "space-y-8 p-0 md:p-0",
       )}
     >
       {/* 1. Header Section */}

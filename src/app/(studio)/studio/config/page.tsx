@@ -82,8 +82,8 @@ function ConfigContent() {
 
   return (
     <ThemePage>
-      <div className="max-w-4xl mx-auto py-12 px-6">
-        <header className="mb-16">
+      <div className="max-w-4xl mx-auto py-6 md:py-12 px-0 md:px-6">
+        <header className="mb-8 md:mb-16">
           <h1 className={cn("text-4xl font-bold tracking-tight mb-4 transition-all", getHeadingClasses(theme))}>
             {activeTab === "transmissions" && getLabel("publications")}
             {activeTab === "appearance" && getLabel("appearance")}
@@ -99,7 +99,12 @@ function ConfigContent() {
 
         <main>
           {activeTab === "transmissions" && (
-            <PublicationsConfig tenants={tenants} loading={loadingTenants} onDelete={setDeleteTarget} />
+            <PublicationsConfig
+              tenants={tenants}
+              loading={loadingTenants}
+              onDelete={setDeleteTarget}
+              onRefresh={loadTenants}
+            />
           )}
 
           {activeTab === "appearance" && <AppearanceConfig tenants={tenants} />}
@@ -121,7 +126,7 @@ function ConfigContent() {
         />
       </div>
     </ThemePage>
-  )
+  );
 }
 
 export default function ConfigPage() {

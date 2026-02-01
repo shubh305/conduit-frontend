@@ -1,8 +1,7 @@
 "use client";
 
 import { DashboardStats } from "@/features/studio/components/DashboardStats";
-import { BarChart2, Plus } from "lucide-react"
-import Link from "next/link";
+import { BarChart2 } from "lucide-react";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { useTheme, useStudioLabels, useThemeHelpers } from "@/features/theme/ThemeProvider"
 import { cn } from "@/lib/utils";
@@ -12,45 +11,52 @@ import { Post } from "@/features/blog/types";
 import { AnalyticsChart } from "@/features/studio/components/AnalyticsChart";
 import { FrequencyPerformanceList } from "@/features/studio/components/FrequencyPerformanceList";
 import { TerminalProcessList } from "@/components/terminal/TerminalProcessList"
-import { getHeadingClasses, ThemePage, ThemeButton, ThemeCard } from "@/components/theme"
-import { getSubtitleClasses, ThemeVariant } from "@/lib/theme-variants"
+import { redirect } from "next/navigation";
+import { ThemePage, ThemeCard, getHeadingClasses } from "@/components/theme";
+import { getSubtitleClasses, ThemeVariant } from "@/lib/theme-variants";
 
 export default function DashboardPage() {
-  const { user } = useAuth()
-  const { theme } = useTheme()
-  const { isTechieCopy } = useThemeHelpers()
-  const { getLabel } = useStudioLabels()
+  // TODO: Remove this redirect ans restore analytics
+  redirect("/studio/posts");
+  const { user } = useAuth();
+  const { theme } = useTheme();
+  const { isTechieCopy } = useThemeHelpers();
+  const { getLabel } = useStudioLabels();
 
-  const [posts, setPosts] = useState<Post[]>([])
-  const [loading, setLoading] = useState(true)
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
 
-
-  const title = getLabel("analytics")
-  const buttonLabel = getLabel("create_post")
-  const perfLabel = getLabel("perf_visualization")
-  const performancesLabel = getLabel("performances")
+  const title = getLabel("analytics");
+  const perfLabel = getLabel("perf_visualization");
+  const performancesLabel = getLabel("performances");
 
   useEffect(() => {
     const fetchStats = async () => {
-      const activeTenantId = user?.tenantId || (user?.tenants && user.tenants.length > 0 ? user.tenants[0].id : null)
-      if (activeTenantId && user?.id) {
-        try {
-          const res = await getPosts(activeTenantId, { limit: 50, author: user.id })
-          setPosts(res.data || [])
-        } catch (e) {
-          console.error("Failed to load studio data", e)
-        } finally {
-          setLoading(false)
-        }
-      } else {
-        setLoading(false)
+      const currentUser = user;
+      if (!currentUser?.id) {
+        setLoading(false);
+        return;
       }
-    }
-    fetchStats()
-  }, [user])
 
+      const activeTenantId = currentUser.tenantId || currentUser.tenants?.[0]?.id;
+      if (!activeTenantId) {
+        setLoading(false);
+        return;
+      }
 
-  const totalViews = useMemo(() => posts.reduce((acc, p) => acc + (p.viewsCount || 0), 0), [posts])
+      try {
+        const res = await getPosts(activeTenantId, { limit: 50, author: currentUser.id });
+        setPosts(res.data || []);
+      } catch (e) {
+        console.error("Failed to load studio data", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, [user]);
+
+  const totalViews = useMemo(() => posts.reduce((acc, p) => acc + (p.viewsCount || 0), 0), [posts]);
 
   const stats = [
     {
@@ -75,14 +81,14 @@ export default function DashboardPage() {
       trend: "up" as const,
     },
     { label: getLabel("stats_engagement"), value: "4.2%", change: "+0.5%", isPositive: true, trend: "up" as const },
-  ]
+  ];
 
   // Mock Chart Data
   const chartData = useMemo(() => {
-    const isCyberCopy = theme === "cyber"
+    const isCyberCopy = theme === "cyber";
     const days = isCyberCopy
       ? ["28 JAN", "29 JAN", "30 JAN", "31 JAN", "01 FEB", "02 FEB", "03 FEB"]
-      : ["Jan 28", "Jan 29", "Jan 30", "Jan 31", "Feb 01", "Feb 02", "Feb 03"]
+      : ["Jan 28", "Jan 29", "Jan 30", "Jan 31", "Feb 01", "Feb 02", "Feb 03"];
     return days.map((day, i) => ({
       label: day,
       value:
@@ -93,11 +99,11 @@ export default function DashboardPage() {
             : i === 4
               ? Math.floor(totalViews * 0.008)
               : 0,
-    }))
-  }, [totalViews, theme])
+    }));
+  }, [totalViews, theme]);
 
   // --- TERMINAL SYSTEM MONITOR ---
-  const isTerminalCopy = theme === "terminal"
+  const isTerminalCopy = theme === "terminal";
   if (isTerminalCopy) {
     return (
       <TerminalDashboard
@@ -108,13 +114,13 @@ export default function DashboardPage() {
         user={user}
         getLabel={getLabel}
       />
-    )
+    );
   }
 
   return (
     <ThemePage
       className={cn(
-        "max-w-7xl mx-auto px-4 md:px-6 py-4 md:py-12",
+        "max-w-7xl mx-auto px-0 md:px-6 py-4 md:py-12",
         isTechieCopy &&
           "bg-[linear-gradient(rgba(var(--bg-rgb),0.8)_50%,rgba(0,0,0,0.9)_100%),linear-gradient(90deg,rgba(var(--accent-rgb),0.03)_1px,transparent_1px),linear-gradient(rgba(var(--accent-rgb),0.03)_1px,transparent_1px)] bg-[length:100%_100%,40px_40px,40px_40px] border-x border-noir-border/30 min-h-screen",
       )}
@@ -131,16 +137,7 @@ export default function DashboardPage() {
             {getLabel("analytics_desc")}
           </p>
         </div>
-        <div className="flex gap-4">
-          <Link
-            href={`/studio/editor${user?.tenantId ? `?tenant=${user.tenantId}` : user?.tenants?.[0]?.id ? `?tenant=${user.tenants[0].id}` : ""}`}
-          >
-            <ThemeButton className="gap-2 px-8">
-              <Plus size={18} />
-              {buttonLabel}
-            </ThemeButton>
-          </Link>
-        </div>
+        {/* Create button removed from analytics per user request */}
       </header>
 
       <div className="mt-4 md:mt-12">

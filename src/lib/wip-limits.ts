@@ -14,5 +14,6 @@ export const WIP_LIMITS = {
 
   // Studio
   showUnlistedFilter: false,
-  showSidebarSearch: true,
+  showSidebarSearch: false,
+  showRedirectionArrow: true,
 };

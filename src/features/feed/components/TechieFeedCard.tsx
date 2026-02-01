@@ -26,23 +26,17 @@ export function TechieFeedCard({ item, className, variant = "default", onRemove 
         )}
       >
         <Link href={postUrl} className="flex items-center flex-1 h-full min-w-0">
-          <div className="relative w-36 h-full bg-black overflow-hidden shrink-0 border-r border-white/5">
-            {item.featuredImage ? (
+          {item.featuredImage && (
+            <div className="relative w-36 h-full bg-black overflow-hidden shrink-0 border-r border-white/5">
               <Image
                 src={getMediaUrl(item.featuredImage) || ""}
                 alt={item.title}
                 fill
                 className="object-cover opacity-50 group-hover:opacity-80 transition-all duration-700 grayscale group-hover:grayscale-0"
               />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-accent font-mono text-[10px] font-bold opacity-10 uppercase tracking-tighter">
-                  DATA_MISSING
-                </span>
-              </div>
-            )}
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(var(--accent-rgb),0.03)_1px,transparent_1px),linear-gradient(rgba(var(--accent-rgb),0.03)_1px,transparent_1px)] bg-[length:10px_10px] pointer-events-none" />
-          </div>
+              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(var(--accent-rgb),0.03)_1px,transparent_1px),linear-gradient(rgba(var(--accent-rgb),0.03)_1px,transparent_1px)] bg-[length:10px_10px] pointer-events-none" />
+            </div>
+          )}
 
           <div className="flex-1 min-w-0 p-3 flex flex-col justify-between h-full">
             <div className="flex items-start gap-2">
@@ -115,24 +109,17 @@ export function TechieFeedCard({ item, className, variant = "default", onRemove 
         </div>
 
         {/* 2. Visual Layer */}
-        <div className="relative aspect-[21/9] w-full bg-black overflow-hidden group-hover:bg-accent/5">
-          {item.featuredImage ? (
+        {item.featuredImage && (
+          <div className="relative aspect-[21/9] w-full bg-black overflow-hidden group-hover:bg-accent/5">
             <Image
               src={getMediaUrl(item.featuredImage) || ""}
               alt={item.title}
               fill
               className="object-cover opacity-50 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700 grayscale group-hover:grayscale-0"
             />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-accent font-mono text-xl font-bold opacity-5 uppercase tracking-tighter">
-                DATA_MISSING
-              </span>
-            </div>
-          )}
-
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(var(--accent-rgb),0.03)_1px,transparent_1px),linear-gradient(rgba(var(--accent-rgb),0.03)_1px,transparent_1px)] bg-[length:15px_15px] pointer-events-none" />
-        </div>
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(var(--accent-rgb),0.03)_1px,transparent_1px),linear-gradient(rgba(var(--accent-rgb),0.03)_1px,transparent_1px)] bg-[length:15px_15px] pointer-events-none" />
+          </div>
+        )}
 
         {/* 3. Content Section */}
         <div className="p-3 flex flex-col flex-1 gap-2 relative">

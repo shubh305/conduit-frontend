@@ -166,7 +166,7 @@ export function ListDialog({ open, onOpenChange, onSuccess, initialData }: ListD
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(
-          "sm:max-w-[500px] gap-6 p-8",
+          "sm:max-w-[500px] gap-6 p-4 md:p-8",
           isCyberCopy
             ? "rounded-none border-accent bg-black shadow-[0_0_30px_rgba(0,255,153,0.1)]"
             : isOctaneCopy
@@ -176,6 +176,16 @@ export function ListDialog({ open, onOpenChange, onSuccess, initialData }: ListD
                 : "rounded-3xl border-noir-border bg-noir-panel",
         )}
       >
+        <button
+          onClick={() => onOpenChange(false)}
+          className={cn(
+            "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-10",
+            isTerminalCopy || isCyberCopy ? "text-accent" : "text-foreground-subtle",
+          )}
+        >
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </button>
         {isJournalCopy && (
           <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/handmade-paper.png')] mix-blend-multiply -z-10" />
         )}
@@ -337,5 +347,5 @@ export function ListDialog({ open, onOpenChange, onSuccess, initialData }: ListD
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

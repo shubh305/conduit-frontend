@@ -98,7 +98,7 @@ export function OnboardingLanding() {
   }
 
   return (
-    <ThemePage className="max-w-7xl mx-auto px-6 md:px-12 py-0">
+    <ThemePage className="max-w-7xl mx-auto px-0 md:px-12 py-0">
       {isCyberCopy && (
         <div
           className="fixed inset-0 pointer-events-none opacity-[0.03]"
@@ -133,16 +133,19 @@ export function OnboardingLanding() {
         {/* Header */}
         <header
           className={cn(
-            "flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-12 border-b transition-all border-noir-border",
-            "px-4 md:px-8 py-3 md:py-6",
-            "mb-4 md:mb-6",
+            "flex flex-col lg:flex-row lg:items-center justify-between gap-4 lg:gap-12 border-b transition-all border-noir-border",
+            "px-4 md:px-8 lg:px-12 py-6 md:py-10",
+            "mb-2 md:mb-6",
             isTerminalCopy && "border-accent/30",
             isJournalCopy && "border-accent/20",
           )}
         >
-          <div className="space-y-2 md:space-y-4">
+          <div className="space-y-4 md:space-y-6">
             <h1
-              className={cn("text-3xl md:text-7xl font-black leading-tight", getHeadingClasses(theme as ThemeVariant))}
+              className={cn(
+                "text-4xl md:text-6xl lg:text-8xl font-black leading-[0.9] tracking-tighter",
+                getHeadingClasses(theme as ThemeVariant),
+              )}
             >
               {isSakuraCopy && (
                 <span className="text-3xl font-normal opacity-70 font-sans block mb-4">コミュニティを築く</span>
@@ -200,7 +203,7 @@ export function OnboardingLanding() {
         </header>
 
         {/* Your Blogs Section */}
-        <section className="px-4 md:px-8 py-4 md:py-8">
+        <section className="px-0 md:px-8 py-2 md:py-8">
           <div
             className="flex items-center justify-between cursor-pointer select-none group mb-4 md:mb-8"
             onClick={() => setIsBlogsOpen(!isBlogsOpen)}
@@ -352,10 +355,10 @@ function BlogCard({
       className={cn(
         "border flex flex-col xl:flex-row xl:items-center justify-between gap-3 md:gap-6 transition-all group",
         "bg-noir-panel border-noir-border hover:border-accent shadow-xl",
-        isCyberCopy ? "rounded-none p-3 md:p-4" : "rounded-2xl p-3 md:p-4",
-        isTerminalCopy && "bg-black border-accent/20 rounded-2xl hover:border-accent/60 p-3 md:p-4",
+        isCyberCopy ? "rounded-none p-4 md:p-6" : "rounded-2xl p-4 md:p-6",
+        isTerminalCopy && "bg-black border-accent/20 rounded-2xl hover:border-accent/60 p-4 md:p-6",
         isJournalCopy &&
-          "bg-journal-paper border-accent/20 rounded-xl shadow-lg hover:shadow-xl journal-page-curl p-4 md:p-10",
+          "bg-journal-paper border-accent/20 rounded-xl shadow-lg hover:shadow-xl journal-page-curl p-6 md:p-10",
       )}
     >
       <div className="flex items-center gap-6">
@@ -394,28 +397,28 @@ function BlogCard({
         </div>
       </div>
 
-      <div className="flex flex-row items-center gap-2 md:gap-4 w-full xl:w-auto mt-2 md:mt-0 pt-3 border-t border-noir-border/30 xl:border-none xl:pt-0">
-        <div className="flex items-center gap-2 flex-1 md:flex-none">
-          <Link href={`/studio/editor?tenantId=${blog.id}`} className="flex-1 md:min-w-[120px]">
-            <ThemeButton themeVariant="ghost" className="w-full gap-2 px-3 py-1.5 h-9 text-xs">
+      <div className="flex flex-col md:flex-row items-center gap-3 md:gap-4 w-full xl:w-auto mt-4 md:mt-0 pt-4 md:pt-0 border-t border-noir-border/30 md:border-none">
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          <Link href={`/studio/editor?tenantId=${blog.id}`} className="flex-1 md:min-w-[100px]">
+            <ThemeButton themeVariant="ghost" className="w-full gap-2 px-3 py-1.5 h-10 md:h-9 text-[10px] md:text-xs">
               <FileText size={14} />
               <span className="hidden xs:inline">{editorLabel}</span>
-              <span className="xs:hidden">Edit</span>
+              <span className="xs:hidden">Editor</span>
             </ThemeButton>
           </Link>
-          <Link href={`/studio?tenantId=${blog.id}`} className="flex-1 md:min-w-[120px]">
+          <Link href={`/studio/config?tab=transmissions&tenantId=${blog.id}`} className="flex-1 md:min-w-[100px]">
             <ThemeButton
               themeVariant={isJournalCopy ? "ghost" : "primary"}
-              className="w-full gap-2 px-3 py-1.5 h-9 text-xs"
+              className="w-full gap-2 px-3 py-1.5 h-10 md:h-9 text-[10px] md:text-xs"
             >
               <Layout size={14} />
-              <span className="hidden xs:inline">{studioLabel}</span>
-              <span className="xs:hidden">Studio</span>
+              <span className="hidden sm:inline">{studioLabel}</span>
+              <span className="sm:hidden">Studio</span>
             </ThemeButton>
           </Link>
         </div>
         <a
-          href={`http://${blog.subdomain}.${process.env.NEXT_PUBLIC_BASE_DOMAIN}`}
+          href={`/${blog.subdomain}`}
           target="_blank"
           rel="noopener noreferrer"
           className={cn(

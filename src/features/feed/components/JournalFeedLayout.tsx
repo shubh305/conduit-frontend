@@ -83,7 +83,7 @@ export function JournalFeedLayout({
             <button
               onClick={onLoadMore}
               disabled={isLoadingMore}
-              className="group relative px-12 py-4 bg-accent border-2 border-accent/20 hover:bg-journal-ink-muted text-noir-bg hover:text-white font-serif italic text-lg shadow-md hover:shadow-xl transition-all duration-300 rounded-sm"
+              className="group relative px-12 py-4 bg-accent border-2 border-accent/20 hover:bg-journal-ink-muted text-noir-bg hover:text-white font-serif italic text-lg shadow-md hover:shadow-xl transition-all duration-300 rounded-sm cursor-pointer"
             >
               {isLoadingMore ? "Gathering Entries..." : loadMoreText || "Request Next Edition"}
               <div className="absolute inset-0 border-2 border-transparent group-hover:border-noir-border/20 transition-all m-1" />

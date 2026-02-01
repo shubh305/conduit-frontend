@@ -31,7 +31,7 @@ export function TopNavigation({ onToggleSidebar, onToggleRightSidebar }: TopNavi
     if (isRoninCopy) return "New Territory";
     if (isOctaneCopy) return "Initialize";
     if (isJournalCopy) return "New Entry";
-    return "New Blog";
+    return "New Post";
   };
 
   const getNetworkStatus = () => {
@@ -45,8 +45,8 @@ export function TopNavigation({ onToggleSidebar, onToggleRightSidebar }: TopNavi
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 h-16 border-b z-40 flex items-center justify-between px-4 md:px-8 transition-colors duration-500",
-        "bg-noir-nav border-noir-border backdrop-blur",
+        "fixed top-0 left-0 right-0 h-16 border-b z-[150] flex items-center justify-between px-4 md:px-8 transition-colors duration-500",
+        "bg-noir-nav border-noir-border backdrop-blur-xl",
         isTechieCopy && "border-none shadow-[0_10px_30px_rgba(0,0,0,0.4)] transition-shadow duration-500",
 
         "theme-header-accent",

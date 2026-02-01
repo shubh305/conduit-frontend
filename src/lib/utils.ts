@@ -8,9 +8,20 @@ export function cn(...inputs: ClassValue[]) {
 export function getMediaUrl(url: string | undefined): string | undefined {
   if (!url) return undefined;
   const storageUrl = process.env.NEXT_PUBLIC_STORAGE_URL;
-  if (url.startsWith("http")) return url;
-  const cleanPath = url.startsWith("/") ? url : `/${url}`;
 
+  if (url.startsWith("http")) {
+    if (url.includes("/conduit-uploads/") && storageUrl && !url.includes(storageUrl)) {
+      try {
+        const path = url.split("/conduit-uploads/")[1];
+        return `${storageUrl}/conduit-uploads/${path}`;
+      } catch {
+        return url;
+      }
+    }
+    return url;
+  }
+
+  const cleanPath = url.startsWith("/") ? url : `/${url}`;
   return `${storageUrl}${cleanPath}`;
 }
 
@@ -24,4 +35,15 @@ export function getPostUrl(
   const slug = item.tenantSlug || "public";
   const postSlug = item.postSlug || "undefined";
   return `/${slug}/${postSlug}`;
+}
+
+export function formatDate(date: string | Date | undefined | null): string {
+  if (!date) return "N/A";
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return "N/A";
+  return d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }

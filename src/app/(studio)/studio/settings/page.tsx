@@ -112,7 +112,7 @@ export default function SettingsPage() {
       {/* HEADER SECTION */}
       <div
         className={cn(
-          "w-full pt-16 pb-32 px-6 md:px-12 transition-all duration-500",
+          "w-full pt-8 md:pt-16 pb-24 md:pb-32 px-6 md:px-12 transition-all duration-500",
           isTechieCopy
             ? "bg-[var(--bg-primary)] border-b border-[var(--bg-panel)]/50"
             : isCyberCopy || isTerminalCopy
@@ -155,7 +155,7 @@ export default function SettingsPage() {
       </div>
 
       {/* CONTENT SECTION */}
-      <div className="max-w-6xl mx-auto px-6 md:px-12 -mt-12 pb-24">
+      <div className="max-w-6xl mx-auto px-4 md:px-12 -mt-16 md:-mt-12 pb-24">
         <ThemeCard
           className={cn(
             "transition-all duration-300 relative overflow-hidden",

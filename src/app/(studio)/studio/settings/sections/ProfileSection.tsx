@@ -57,12 +57,7 @@ export function ProfileSection({
               <span className="text-2xl font-bold text-foreground-subtle">{user.username[0]?.toUpperCase()}</span>
             )}
 
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity"
-            >
-              <span className="text-xs font-mono text-white tracking-widest">CHANGE</span>
-            </div>
+
             <input
               ref={fileInputRef}
               type="file"

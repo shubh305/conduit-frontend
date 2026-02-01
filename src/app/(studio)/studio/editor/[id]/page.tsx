@@ -66,7 +66,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   const handleSave = useCallback(
     async (isAuto = false) => {
       const tenantId = getActiveTenantId();
-      if (!post || !post.id || !tenantId) return;
+      if (!post || !post.id || !tenantId || isSaving) return;
 
       const currentSaveJson = JSON.stringify({ title, content, featuredImage, slug, tags });
       if (currentSaveJson === lastSavedJsonRef.current) return;
@@ -85,6 +85,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
             wordCount,
             paragraphsCount,
             readingTimeMinutes,
+            status: post.status,
           },
           tenantId,
         );
@@ -114,6 +115,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
       paragraphsCount,
       readingTimeMinutes,
       t,
+      isSaving,
     ],
   );
 
@@ -132,7 +134,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
       await updatePost(
         post.id,
         {
-          title,
+          title: title.trim() || "[Untitled]",
           content,
           featuredImage: featuredImage || undefined,
           status: "published",
@@ -233,14 +235,15 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   const syncStatusText = isSaving ? t("syncing") : lastSaved ? `${t("saved")} ${lastSaved.toLocaleTimeString()}` : "";
 
   return (
-    <ThemePage className="h-full">
-      <div className="flex flex-col items-center justify-start h-full p-0 pt-12 md:pt-8 md:p-8 bg-black/20 overflow-hidden">
+    <ThemePage className="fixed inset-0 h-[100dvh] w-full md:relative md:h-full md:inset-auto z-0 overflow-hidden">
+      <div className="flex flex-col items-center justify-start h-full w-full p-0 pt-[env(safe-area-inset-top)] md:pt-8 md:p-8 bg-black/20 overflow-hidden relative">
         <div
           className={cn(
             "flex flex-col w-full max-w-5xl editor-container md:rounded-3xl overflow-hidden shadow-2xl flex-1 min-h-0 border-none",
             getEditorContainerClasses(theme),
             isCyberCopy && "md:rounded-none",
             isTechieCopy && "md:rounded-xl bg-[var(--editor-bg)]/95 shadow-[var(--editor-glow)]",
+            "pb-20 md:pb-0",
           )}
           style={{ backgroundColor: theme === "journal" ? "var(--journal-paper)" : undefined }}
         >
@@ -254,7 +257,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
               <Link
                 href="/studio/posts"
                 className={cn(
-                  "w-8 h-8 flex items-center justify-center rounded-full text-foreground-subtle hover:text-accent hover:bg-accent/10 transition-all group border border-transparent hover:border-accent/20",
+                  "w-8 h-8 flex items-center justify-center rounded-full text-foreground/60 hover:text-accent hover:bg-accent/10 transition-all group border border-transparent hover:border-accent/20",
                 )}
               >
                 <ArrowLeft size={18} className="group-hover:-translate-x-0.5 transition-transform" />
@@ -262,7 +265,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
               <div className="flex flex-col">
                 <span
                   className={cn(
-                    "text-[10px] font-bold uppercase tracking-widest",
+                    "text-[10px] md:text-xs font-bold uppercase tracking-widest",
                     post.status === "published"
                       ? "text-emerald-500"
                       : post.status === "scheduled"
@@ -272,9 +275,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                 >
                   {post.status === "draft" ? t("draft") : post.status === "scheduled" ? t("scheduled") : t("published")}
                 </span>
-                <span
-                  className={cn("font-mono text-[9px] md:text-[10px] mt-0.5 block uppercase text-foreground-subtle")}
-                >
+                <span className={cn("font-mono text-[9px] md:text-[10px] mt-0.5 block uppercase text-foreground/40")}>
                   {syncStatusText}
                 </span>
               </div>
@@ -309,7 +310,10 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                   {isSaving ? savingLabel : draftLabel}
                 </Button>
                 <Button
-                  onClick={() => setIsSidebarOpen(true)}
+                  onClick={() => {
+                    handleSave();
+                    setIsSidebarOpen(true);
+                  }}
                   disabled={isSaving}
                   className={cn(
                     "px-4 md:px-8 h-8 md:h-9 text-[10px] md:text-xs uppercase transition-all shadow-none gap-1.5 md:gap-2 font-bold",
@@ -344,7 +348,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
             <Input
               placeholder={t("articleTitlePlaceholder")}
               className={cn(
-                "text-2xl md:text-4xl font-bold bg-transparent border-none px-0 h-auto focus:ring-0 w-full mb-2 md:mb-4",
+                "text-2xl md:text-4xl font-bold bg-transparent border-none h-auto focus:ring-0 w-full mb-2 md:mb-4 px-4",
                 isCyberCopy
                   ? "placeholder:text-foreground-subtle/20 text-foreground uppercase tracking-tighter font-mono"
                   : isTechieCopy
@@ -428,46 +432,46 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
             isPublishing={isSaving}
             status={post.status}
           />
-
-          {/* Mobile Action Bar */}
-          <div
+        </div>
+        {/* Mobile Action Bar */}
+        <div
+          className={cn(
+            "md:hidden fixed bottom-0 left-0 right-0 z-[120] p-4 flex gap-3 border-t backdrop-blur-md",
+            "bg-[var(--editor-bg)]/90 border-[var(--editor-border)] shadow-[0_-4px_20px_rgba(0,0,0,0.3)]",
+            "pb-[calc(1rem+env(safe-area-inset-bottom))]",
+          )}
+        >
+          <Button
+            variant="outline"
+            onClick={handlePreview}
             className={cn(
-              "md:hidden fixed bottom-0 left-0 right-0 z-[120] p-4 flex gap-3 border-t backdrop-blur-md",
-              "bg-[var(--editor-bg)]/90 border-[var(--editor-border)] shadow-[0_-4px_20px_rgba(0,0,0,0.3)]",
+              "flex-1 h-12 text-[10px] font-black uppercase tracking-widest",
+              isCyberCopy ? "rounded-none border-accent/30 text-accent" : "rounded-xl border-foreground/10",
             )}
           >
-            <Button
-              variant="outline"
-              onClick={handlePreview}
-              className={cn(
-                "flex-1 h-12 text-[10px] font-black uppercase tracking-widest",
-                isCyberCopy ? "rounded-none border-accent/30 text-accent" : "rounded-xl border-foreground/10",
-              )}
-            >
-              {previewLabel}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => handleSave()}
-              disabled={isSaving}
-              className={cn(
-                "flex-1 h-12 text-[10px] font-black uppercase tracking-widest",
-                isCyberCopy ? "rounded-none border-accent/30 text-accent" : "rounded-xl border-foreground/10",
-              )}
-            >
-              {isSaving ? savingLabel : "Save Draft"}
-            </Button>
-            <Button
-              onClick={() => setIsSidebarOpen(true)}
-              disabled={isSaving}
-              className={cn(
-                "flex-1 h-12 text-[10px] font-black uppercase tracking-widest bg-accent text-noir-bg",
-                isCyberCopy ? "rounded-none" : "rounded-xl",
-              )}
-            >
-              {publishLabel}
-            </Button>
-          </div>
+            {previewLabel}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => handleSave()}
+            disabled={isSaving}
+            className={cn(
+              "flex-1 h-12 text-[10px] font-black uppercase tracking-widest",
+              isCyberCopy ? "rounded-none border-accent/30 text-accent" : "rounded-xl border-foreground/10",
+            )}
+          >
+            {isSaving ? savingLabel : "Save Draft"}
+          </Button>
+          <Button
+            onClick={() => setIsSidebarOpen(true)}
+            disabled={isSaving}
+            className={cn(
+              "flex-1 h-12 text-[10px] font-black uppercase tracking-widest bg-accent text-noir-bg",
+              isCyberCopy ? "rounded-none" : "rounded-xl",
+            )}
+          >
+            {publishLabel}
+          </Button>
         </div>
       </div>
     </ThemePage>

@@ -112,7 +112,7 @@ export function OctaneFeedLayout({
             <button
               onClick={onLoadMore}
               disabled={isLoadingMore}
-              className="group relative px-16 py-5 bg-noir-panel border border-noir-border text-white font-black italic uppercase tracking-widest skew-x-[-10deg] hover:bg-accent hover:border-accent hover:text-white transition-all duration-300"
+              className="group relative px-16 py-5 bg-noir-panel border border-noir-border text-white font-black italic uppercase tracking-widest skew-x-[-10deg] hover:bg-accent hover:border-accent hover:text-white transition-all duration-300 cursor-pointer"
             >
               <div className="skew-x-[10deg] flex items-center gap-3">
                 {isLoadingMore ? (
