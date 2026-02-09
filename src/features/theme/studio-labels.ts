@@ -27,6 +27,7 @@ export type StudioLabelKey =
   | "loading"
   | "no_data"
   | "no_data_desc"
+  | "no_results"
   | "traffic_title"
   | "traffic_subtitle"
   | "delete_title"
@@ -43,7 +44,8 @@ export type StudioLabelKey =
   | "site_created_success"
   | "logo_uploaded_success"
   | "editor_back"
-  | "editor_placeholder"
+  | "editor_title_placeholder"
+  | "editor_content_placeholder"
   | "editor_sync_synced"
   | "editor_sync_saving"
   | "editor_sync_not_synced"
@@ -328,6 +330,13 @@ export const STUDIO_LABELS: Record<StudioLabelKey, Record<string, string>> = {
     terminal: "[NO_DATA_IN_SECTOR]",
     techie: "Awaiting source signal. Null metadata index.",
   },
+  no_results: {
+    default: "No results found",
+    cyber: "NO_RECORDS_FOUND",
+    terminal: "NULL_RECORDS_FOUND",
+    techie: "NO_RECORDS_FOUND",
+    sakura: "結果が見つかりませんでした",
+  },
   traffic_title: {
     default: "Traffic Overview",
     sakura: "トラフィックの概要",
@@ -475,13 +484,31 @@ export const STUDIO_LABELS: Record<StudioLabelKey, Record<string, string>> = {
     ronin: "退却 (Retreat)",
     sakura: "戻る",
   },
-  editor_placeholder: {
+  editor_title_placeholder: {
+    default: "Title",
+    cyber: "SIGNAL_IDENT",
+    terminal: "TITLE:",
+    techie: "Title",
+    journal: "Volume...",
+    sakura: "タイトル",
+    ronin: "伝説の題名",
+    octane: "Title",
+    classic: "Title",
+    "classic-white": "Title",
+    professional: "Document Title",
+  },
+  editor_content_placeholder: {
     default: "Start writing...",
-    cyber: "Start writing...",
-    terminal: "-- INSERT --",
-    techie: "Command",
-    journal: "Begin your entry...",
-    sakura: "ここから書き始める...",
+    cyber: "COMMENCE_UPLINK...",
+    terminal: "-- INSERT MODE --",
+    techie: "INIT::DATA_STREAM",
+    journal: "Wait for the ink to dry, then begin...",
+    sakura: "ここから物語が始まる...",
+    ronin: "影の言葉を刻む...",
+    octane: "Rev Up Your Engine...",
+    classic: "Start writing...",
+    "classic-white": "Start writing...",
+    professional: "Begin your transcription...",
   },
   editor_sync_synced: {
     default: "Synced",

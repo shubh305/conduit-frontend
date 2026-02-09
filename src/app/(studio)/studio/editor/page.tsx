@@ -42,7 +42,7 @@ export default function EditorPage() {
   const draftLabel = t("saveDraft");
   const publishLabel = t("publish");
   const savingLabel = t("saving");
-  const enterTitlePlaceholder = getLabel("editor_placeholder");
+  const enterTitlePlaceholder = getLabel("editor_title_placeholder");
   const loadingText = t("loading");
 
   useEffect(() => {

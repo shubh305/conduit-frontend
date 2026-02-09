@@ -4,7 +4,13 @@ import { Editor } from "@tiptap/react";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Loader2, Book, Layers, Volume2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useThemeHelpers } from "@/features/theme/ThemeProvider";
+import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
+import { fetchApi } from "@/lib/api-client";
+import {
+  getPopoverClasses,
+  getPopoverLabelClasses,
+  getPopoverItemClasses,
+} from "@/lib/theme/variants/popover-variants";
 
 interface DictionaryData {
   word: string;
@@ -19,6 +25,10 @@ interface DictionaryData {
     synonyms: string[];
     antonyms: string[];
   }[];
+  metadata?: {
+    is_correct?: boolean;
+    suggestions?: string[];
+  };
 }
 
 interface DictionaryPopupProps {
@@ -26,6 +36,7 @@ interface DictionaryPopupProps {
 }
 
 export function DictionaryPopup({ editor }: DictionaryPopupProps) {
+  const { theme } = useTheme();
   const { isCyberCopy, isTechieCopy, isTerminalCopy } = useThemeHelpers();
   const [word, setWord] = useState<string | null>(null);
   const [data, setData] = useState<DictionaryData | null>(null);
@@ -39,43 +50,34 @@ export function DictionaryPopup({ editor }: DictionaryPopupProps) {
     audio.play().catch(e => console.error("Failed to play pronunciation audio", e));
   }, []);
 
-  const fetchDictionaryData = useCallback(async (selectedWord: string) => {
+  const handleReplace = useCallback(
+    (suggestion: string) => {
+      const { from, to } = editor.state.selection;
+      editor.chain().focus().insertContentAt({ from, to }, suggestion).run();
+      setWord(null);
+      setPosition(null);
+    },
+    [editor],
+  );
+
+  const fetchDictionaryData = useCallback(async (selectedWord: string, reading?: string) => {
     setIsLoading(true);
     setError(null);
     setData(null);
-    
+
     try {
-      const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${selectedWord}`);
-      
-      if (res.ok) {
-        const result = await res.json();
+      const result = await fetchApi<DictionaryData[]>("/dictionary/lookup", {
+        method: "POST",
+        body: JSON.stringify({
+          word: selectedWord,
+          reading: reading,
+        }),
+      });
+
+      if (result && result.length > 0) {
         setData(result[0]);
       } else {
-        const wikiRes = await fetch(`https://en.wiktionary.org/api/rest_v1/page/definition/${selectedWord}`);
-        if (wikiRes.ok) {
-          const wikiData = await wikiRes.json() as Record<string, Array<{
-            partOfSpeech: string;
-            definitions: Array<{ definition: string }>;
-          }>>;
-          
-          const sections = Object.keys(wikiData);
-          if (sections.length > 0) {
-            setData({
-              word: selectedWord,
-              meanings: wikiData[sections[0]].slice(0, 3).map((m) => ({
-                partOfSpeech: m.partOfSpeech.toLowerCase(),
-                definitions: m.definitions.map((d) => ({ definition: d.definition.replace(/<[^>]*>?/gm, '') })),
-                synonyms: [],
-                antonyms: []
-              })),
-              phonetics: []
-            });
-          } else {
-            setError("Word not found in lexicon.");
-          }
-        } else {
-          setError("Word not found in lexicon.");
-        }
+        setError("Word not found in lexicon.");
       }
     } catch {
       setError("Lexicon resolution failed.");
@@ -96,28 +98,32 @@ export function DictionaryPopup({ editor }: DictionaryPopupProps) {
 
     const start = view.coordsAtPos(selection.from);
     const end = view.coordsAtPos(selection.to);
-    
+
     let left = (start.left + end.left) / 2;
     let top = start.top;
-    let placement: 'top' | 'bottom' = 'top';
+    let placement: "top" | "bottom" = "top";
 
     const isMobile = window.innerWidth < 640;
     const popupWidth = isMobile ? window.innerWidth - 32 : 320;
     const popupHeight = 300;
     const padding = 16;
 
-    if (left - popupWidth / 2 < padding) {
-      left = popupWidth / 2 + padding;
-    } else if (left + popupWidth / 2 > window.innerWidth - padding) {
-      left = window.innerWidth - popupWidth / 2 - padding;
+    if (isMobile) {
+      left = window.innerWidth / 2;
+    } else {
+      if (left - popupWidth / 2 < padding) {
+        left = popupWidth / 2 + padding;
+      } else if (left + popupWidth / 2 > window.innerWidth - padding) {
+        left = window.innerWidth - popupWidth / 2 - padding;
+      }
     }
 
     if (top - popupHeight < padding) {
       top = end.bottom + 10;
-      placement = 'bottom';
+      placement = "bottom";
     } else {
       top = start.top - 10;
-      placement = 'top';
+      placement = "top";
     }
 
     setPosition({ top, left, placement });
@@ -127,9 +133,9 @@ export function DictionaryPopup({ editor }: DictionaryPopupProps) {
     const handleSelectionUpdate = () => {
       const { from, to } = editor.state.selection;
       if (from === to) {
-        if (!document.activeElement?.closest('.dictionary-popup')) {
-            setPosition(null);
-            setWord(null);
+        if (!document.activeElement?.closest(".dictionary-popup")) {
+          setPosition(null);
+          setWord(null);
         }
         return;
       }
@@ -137,45 +143,86 @@ export function DictionaryPopup({ editor }: DictionaryPopupProps) {
       const text = editor.state.doc.textBetween(from, to, " ");
       const trimmedText = text.trim();
 
-      if (trimmedText && !trimmedText.includes(" ") && trimmedText.length < 30) {
-        const cleanWord = trimmedText.replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "");
-        if (cleanWord && cleanWord !== word) {
+      if (trimmedText && trimmedText.length < 30) {
+        let cleanWord = "";
+        const readings: string[] = [];
+        let reading: string | undefined;
+
+        editor.state.doc.nodesBetween(from, to, (node, pos, parent) => {
+          if (node.type.name === "ruby") {
+            let rubyBase = "";
+            let rubyRt = "";
+
+            node.content.forEach(child => {
+              if (child.type.name === "rt") {
+                rubyRt += child.textContent;
+              } else if (child.isText) {
+                rubyBase += child.textContent;
+              }
+            });
+
+            cleanWord += rubyBase;
+
+            if (rubyRt && rubyRt !== rubyBase) {
+              readings.push(rubyRt);
+            }
+
+            return false;
+          } else if (node.isText) {
+            if (parent && parent.type.name !== "ruby" && parent.type.name !== "rt") {
+              cleanWord += node.text;
+            }
+          }
+        });
+
+        if (readings.length > 0) {
+          reading = readings.join("");
+        }
+
+        cleanWord = cleanWord.replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "").trim();
+
+        if (cleanWord && (cleanWord !== word || reading)) {
           setWord(cleanWord);
           updatePosition();
-          fetchDictionaryData(cleanWord);
+
+          // Only send reading if word contains Japanese characters
+          const hasJapanese = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(cleanWord);
+          const validReading = reading && hasJapanese ? reading : undefined;
+
+          fetchDictionaryData(cleanWord, validReading);
         } else if (cleanWord) {
           updatePosition();
         }
       } else {
-        if (!document.activeElement?.closest('.dictionary-popup')) {
-            setPosition(null);
-            setWord(null);
+        if (!document.activeElement?.closest(".dictionary-popup")) {
+          setPosition(null);
+          setWord(null);
         }
       }
     };
 
     editor.on("selectionUpdate", handleSelectionUpdate);
     editor.on("focus", handleSelectionUpdate);
-    
+
     const handleBlur = () => {
-        setTimeout(() => {
-            if (!document.activeElement?.closest('.dictionary-popup')) {
-                setPosition(null);
-                setWord(null);
-            }
-        }, 200);
+      setTimeout(() => {
+        if (!document.activeElement?.closest(".dictionary-popup")) {
+          setPosition(null);
+          setWord(null);
+        }
+      }, 200);
     };
     editor.on("blur", handleBlur);
 
-    window.addEventListener('scroll', updatePosition, true);
-    window.addEventListener('resize', updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+    window.addEventListener("resize", updatePosition);
 
     return () => {
       editor.off("selectionUpdate", handleSelectionUpdate);
       editor.off("focus", handleSelectionUpdate);
       editor.off("blur", handleBlur);
-      window.removeEventListener('scroll', updatePosition, true);
-      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+      window.removeEventListener("resize", updatePosition);
     };
   }, [editor, word, fetchDictionaryData, updatePosition]);
 
@@ -184,93 +231,108 @@ export function DictionaryPopup({ editor }: DictionaryPopupProps) {
   const audioUrl = data?.phonetics.find(p => p.audio)?.audio;
   const phoneticText = data?.phonetic || data?.phonetics.find(p => p.text)?.text;
 
+  const showDefinitions = data && data.meanings.length > 0;
+  const showSuggestions =
+    data &&
+    data.metadata &&
+    data.metadata.is_correct === false &&
+    data.metadata.suggestions &&
+    data.metadata.suggestions.length > 0;
+
   return (
     <div
       ref={popupRef}
       className={cn(
         "dictionary-popup fixed z-[9999] -translate-x-1/2 mb-2 pointer-events-auto",
         "w-[calc(100vw-32px)] sm:w-[320px] p-4 shadow-2xl border animate-in fade-in zoom-in-95",
-        "bg-zinc-950/95 backdrop-blur-md border-zinc-800 text-zinc-100",
-        position.placement === 'top' ? "-translate-y-full" : "translate-y-0",
-        isCyberCopy && "rounded-none border-accent/40 shadow-[0_0_20px_rgba(var(--accent-rgb),0.2)]",
-        isTerminalCopy && "font-mono border-green-500/30 bg-black/90",
-        !isCyberCopy && "rounded-lg"
+        getPopoverClasses(theme),
+        "!bg-opacity-100 !backdrop-blur-none",
+        position.placement === "top" ? "-translate-y-full" : "translate-y-0",
       )}
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,
+        opacity: 1,
       }}
     >
-      <div className="flex items-center gap-2 mb-3 border-b border-zinc-800 pb-2">
-        <Book size={12} className="text-accent shrink-0" />
+      <div className="flex items-center gap-2 mb-3 border-b border-border pb-2">
+        <Book size={14} className="text-accent shrink-0" />
         <div className="flex flex-col min-w-0 flex-1">
-          <h3 className={cn(
-            "text-xs font-bold uppercase tracking-wider truncate",
-            (isCyberCopy || isTechieCopy || isTerminalCopy) && "font-mono"
-          )}>
+          <h3
+            className={cn(
+              "text-sm font-bold uppercase tracking-wider truncate text-foreground",
+              (isCyberCopy || isTechieCopy || isTerminalCopy) && "font-mono",
+            )}
+          >
             {word}
           </h3>
           {phoneticText && (
-            <span className="text-[9px] text-zinc-500 font-mono tracking-tight truncate">
-              {phoneticText}
-            </span>
+            <span className="text-[10px] text-muted-foreground font-mono tracking-tight truncate">{phoneticText}</span>
           )}
         </div>
 
         {audioUrl && (
           <button
             onClick={() => playAudio(audioUrl)}
-            className="p-1 hover:bg-zinc-800 rounded transition-colors text-accent/70 hover:text-accent ml-auto"
+            className="p-1 hover:bg-muted rounded transition-colors text-accent/70 hover:text-accent ml-auto cursor-pointer"
             title="Listen to pronunciation"
           >
-            <Volume2 size={12} />
+            <Volume2 size={14} />
           </button>
         )}
       </div>
 
       {isLoading ? (
-        <div className="py-6 flex flex-col items-center justify-center gap-2 text-zinc-500">
-          <Loader2 size={20} className="animate-spin" />
-          <span className="text-[8px] uppercase font-mono tracking-tighter">Querying Lexicon...</span>
+        <div className="py-6 flex flex-col items-center justify-center gap-2 text-muted-foreground">
+          <Loader2 size={24} className="animate-spin" />
+          <span className="text-[10px] uppercase font-mono tracking-tighter">Querying Lexicon...</span>
         </div>
       ) : error ? (
         <div className="py-4 text-center">
-          <p className="text-[10px] text-zinc-500 italic font-mono">{error}</p>
+          <p className="text-xs text-muted-foreground italic font-mono">{error}</p>
         </div>
-      ) : data ? (
-        <div className="space-y-3 max-h-[220px] overflow-y-auto no-scrollbar pr-1">
-          {data.meanings.map((meaning, idx) => (
-            <div key={idx} className="space-y-1.5">
+      ) : showDefinitions ? (
+        <div className="space-y-4 max-h-[260px] overflow-y-auto no-scrollbar pr-1">
+          {data!.meanings.map((meaning, idx) => (
+            <div key={idx} className="space-y-2">
               <div className="flex items-center gap-2">
-                <span className="text-[8px] uppercase font-mono bg-zinc-800 px-1.5 py-0.5 text-zinc-400">
+                <span className="text-[10px] uppercase font-mono bg-muted px-1.5 py-0.5 text-muted-foreground font-bold tracking-wider rounded-sm">
                   {meaning.partOfSpeech}
                 </span>
               </div>
-              <p className="text-[11px] leading-relaxed text-zinc-300">
+              <p className="text-sm leading-relaxed text-foreground/90 font-medium">
                 {meaning.definitions[0]?.definition}
               </p>
-              
+
               {(meaning.synonyms?.length > 0 || meaning.antonyms?.length > 0) && (
-                <div className="grid grid-cols-2 gap-2 pt-1 border-t border-zinc-900 mt-1.5">
+                <div className="grid grid-cols-2 gap-3 pt-2 border-t border-border mt-2">
                   {meaning.synonyms?.length > 0 && (
-                    <div className="space-y-0.5">
-                      <span className="text-[8px] uppercase font-bold text-accent/70">Synonyms</span>
-                      <div className="flex flex-wrap gap-1">
+                    <div className="space-y-1">
+                      <span className="text-[10px] uppercase font-bold text-accent/80 tracking-wide">Synonyms</span>
+                      <div className="flex flex-wrap gap-1.5">
                         {meaning.synonyms.slice(0, 3).map((s, i) => (
-                          <span key={i} className="text-[9px] text-zinc-500 hover:text-accent transition-colors cursor-default truncate max-w-full">
-                            {s}{i < Math.min(meaning.synonyms.length, 3) - 1 ? "," : ""}
+                          <span
+                            key={i}
+                            className="text-xs text-muted-foreground hover:text-accent transition-colors cursor-default font-medium"
+                          >
+                            {s}
+                            {i < Math.min(meaning.synonyms.length, 3) - 1 ? "," : ""}
                           </span>
                         ))}
                       </div>
                     </div>
                   )}
                   {meaning.antonyms?.length > 0 && (
-                    <div className="space-y-0.5">
-                      <span className="text-[8px] uppercase font-bold text-red-500/70">Antonyms</span>
-                      <div className="flex flex-wrap gap-1">
+                    <div className="space-y-1">
+                      <span className="text-[10px] uppercase font-bold text-red-500/80 tracking-wide">Antonyms</span>
+                      <div className="flex flex-wrap gap-1.5">
                         {meaning.antonyms.slice(0, 3).map((a, i) => (
-                          <span key={i} className="text-[9px] text-zinc-500 hover:text-red-400 transition-colors cursor-default truncate max-w-full">
-                            {a}{i < Math.min(meaning.antonyms.length, 3) - 1 ? "," : ""}
+                          <span
+                            key={i}
+                            className="text-xs text-muted-foreground hover:text-red-400 transition-colors cursor-default font-medium"
+                          >
+                            {a}
+                            {i < Math.min(meaning.antonyms.length, 3) - 1 ? "," : ""}
                           </span>
                         ))}
                       </div>
@@ -281,11 +343,37 @@ export function DictionaryPopup({ editor }: DictionaryPopupProps) {
             </div>
           ))}
         </div>
-      ) : null}
+      ) : showSuggestions ? (
+        <div className="space-y-3">
+          <div className={cn(getPopoverLabelClasses(theme), "text-amber-500 mb-2 border-none px-0")}>Did you mean:</div>
+          <div className="flex flex-col gap-1.5">
+            {data!.metadata!.suggestions!.map((suggestion, idx) => (
+              <button
+                key={idx}
+                onClick={() => handleReplace(suggestion)}
+                className={cn(
+                  getPopoverItemClasses(theme),
+                  "rounded border border-border/50 justify-between px-3 !bg-opacity-100",
+                  "cursor-pointer",
+                )}
+              >
+                <span className="font-mono">{suggestion}</span>
+                <span className="text-[9px] uppercase opacity-50">Apply</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="py-4 text-center">
+          <p className="text-xs text-muted-foreground italic font-mono">No definitions found.</p>
+        </div>
+      )}
 
-      <div className="mt-4 pt-2 border-t border-zinc-900 flex justify-between items-center px-1">
-         <span className="text-[8px] text-zinc-600 font-mono tracking-widest uppercase truncate ml-1">Noir Dictionary v1.4</span>
-         <Layers size={10} className="text-zinc-800 shrink-0" />
+      <div className="mt-4 pt-3 border-t border-border flex justify-between items-center px-1 opacity-80 hover:opacity-100 transition-opacity">
+        <span className="text-[10px] text-muted-foreground font-bold font-mono tracking-[0.2em] uppercase truncate ml-1">
+          Noir Dictionary v1.0
+        </span>
+        <Layers size={12} className="text-muted-foreground shrink-0" />
       </div>
     </div>
   );

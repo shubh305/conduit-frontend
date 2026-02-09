@@ -18,6 +18,7 @@ import {
   Heading2,
   Minus,
   Youtube,
+  Languages,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRef, useState } from "react";
@@ -43,6 +44,9 @@ export function EditorToolbar({
   const [isYoutubeInputOpen, setIsYoutubeInputOpen] = useState(false);
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const youtubeInputRef = useRef<HTMLInputElement>(null);
+  const [isRubyInputOpen, setIsRubyInputOpen] = useState(false);
+  const [rubyText, setRubyText] = useState("");
+  const rubyInputRef = useRef<HTMLInputElement>(null);
 
   if (!editor) return null;
 
@@ -106,6 +110,33 @@ export function EditorToolbar({
       addYoutubeVideo();
     } else if (e.key === "Escape") {
       setIsYoutubeInputOpen(false);
+    }
+  };
+
+  const toggleRubyInput = () => {
+    if (isRubyInputOpen) {
+      setIsRubyInputOpen(false);
+      setRubyText("");
+    } else {
+      setIsRubyInputOpen(true);
+      setTimeout(() => rubyInputRef.current?.focus(), 50);
+    }
+  };
+
+  const applyRuby = () => {
+    if (rubyText) {
+      editor.commands.setRuby(rubyText);
+      setIsRubyInputOpen(false);
+      setRubyText("");
+    }
+  };
+
+  const handleRubyKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      applyRuby();
+    } else if (e.key === "Escape") {
+      setIsRubyInputOpen(false);
     }
   };
 
@@ -218,6 +249,42 @@ export function EditorToolbar({
         </div>
       )}
 
+      {/* Ruby Input Overlay */}
+      {isRubyInputOpen && (
+        <div
+          className={cn(
+            "absolute top-full left-0 mt-1 z-20 flex items-center gap-2 p-3 shadow-2xl border animate-in fade-in slide-in-from-top-2",
+            "bg-[var(--editor-bg)] border-[var(--editor-border)] shadow-[var(--editor-glow)]",
+          )}
+          style={{ borderRadius: isCyberCopy ? "0" : config.tokens.borderRadius }}
+        >
+          <input
+            ref={rubyInputRef}
+            autoFocus
+            type="text"
+            value={rubyText}
+            onChange={e => setRubyText(e.target.value)}
+            onKeyDown={handleRubyKeyDown}
+            placeholder="Reading (Furigana)..."
+            className={cn(
+              "bg-[var(--bg-primary)] border border-[var(--editor-border)] px-3 py-1.5 text-sm text-foreground focus:border-accent outline-none w-48",
+              (isCyberCopy || isTechieCopy) && "font-mono uppercase text-xs",
+            )}
+            style={{ borderRadius: isCyberCopy ? "0" : "4px" }}
+          />
+          <button
+            onClick={applyRuby}
+            className={cn(
+              "text-accent hover:text-foreground px-3 py-1.5 text-xs uppercase font-mono border border-accent/20 rounded hover:bg-accent/10 transition-colors",
+              isTechieCopy && "text-noir-bg bg-accent border-none hover:bg-white hover:text-black font-bold",
+            )}
+            style={{ borderRadius: isCyberCopy ? "0" : "4px" }}
+          >
+            Apply
+          </button>
+        </div>
+      )}
+
       {/* Toolbar Groups */}
       <div className="flex items-center gap-0.5">
         <ToolbarButton
@@ -273,6 +340,14 @@ export function EditorToolbar({
           icon={<LinkIcon size={16} />}
           title="Link"
         />
+        {(theme === "sakura" || theme === "ronin" || theme === "journal") && (
+          <ToolbarButton
+            onClick={toggleRubyInput}
+            isActive={isRubyInputOpen}
+            icon={<Languages size={16} />}
+            title="Furigana (Ruby)"
+          />
+        )}
       </div>
 
       <div className={cn("w-px h-6 mx-2 bg-[var(--editor-border)]")} />

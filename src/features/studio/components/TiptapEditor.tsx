@@ -12,6 +12,7 @@ import { EditorToolbar } from "./EditorToolbar";
 import { TerminalEditorShell } from "./TerminalEditorShell"
 import { cn } from "@/lib/utils";
 import { DictionaryPopup } from "./DictionaryPopup";
+import { Ruby, RubyText } from "../extensions/Ruby";
 import { TiptapContent } from "@/features/blog/types";
 import { useTheme, useThemeHelpers, useStudioLabels } from "@/features/theme/ThemeProvider"
 import { getEditorContainerClasses, getEditorProseClasses } from "@/lib/theme-variants"
@@ -34,6 +35,8 @@ export function TiptapEditor({ content = "", onChange, className, tenantId }: Ti
       StarterKit,
       Image,
       Underline,
+      Ruby,
+      RubyText,
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
@@ -41,7 +44,7 @@ export function TiptapEditor({ content = "", onChange, className, tenantId }: Ti
         },
       }),
       Placeholder.configure({
-        placeholder: getLabel("editor_placeholder"),
+        placeholder: getLabel("editor_content_placeholder"),
       }),
       Youtube.configure({
         controls: false,
@@ -83,9 +86,9 @@ export function TiptapEditor({ content = "", onChange, className, tenantId }: Ti
             editor={editor}
             className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar px-4 md:px-12 py-6 md:py-10 pb-32 md:pb-10"
           />
-          <DictionaryPopup editor={editor} />
         </>
       )}
+      <DictionaryPopup editor={editor} />
     </div>
   );
 }

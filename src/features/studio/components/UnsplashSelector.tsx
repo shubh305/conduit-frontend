@@ -47,7 +47,7 @@ export function UnsplashSelector({ onSelect, tenantId }: UnsplashSelectorProps) 
   const [hasMore, setHasMore] = useState(false);
   
   const { theme } = useTheme();
-  const { isCyberCopy, isOctaneCopy, isTerminalCopy } = useThemeHelpers();
+  const { isCyberCopy, isTerminalCopy, isTechieCopy } = useThemeHelpers();
 
   const searchPhotos = useCallback(async (searchQuery: string, pageNum: number, append = false) => {
     if (!searchQuery) return;
@@ -100,8 +100,18 @@ export function UnsplashSelector({ onSelect, tenantId }: UnsplashSelectorProps) 
   };
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-noir-bg">
-      <div className="p-10 border-b border-noir-border bg-noir-bg/50 backdrop-blur-xl shrink-0">
+    <div
+      className={cn(
+        "flex flex-col h-full overflow-hidden",
+        theme === "sakura" ? "bg-[var(--journal-paper)]" : "bg-noir-bg",
+      )}
+    >
+      <div
+        className={cn(
+          "p-10 border-b border-noir-border shrink-0",
+          theme === "sakura" ? "bg-white/40" : "bg-noir-bg/50 backdrop-blur-xl",
+        )}
+      >
         <form onSubmit={handleSearch} className="flex flex-col items-center gap-8 max-w-2xl mx-auto">
           <div className="flex gap-3 w-full">
             <div className="relative flex-1 group">
@@ -114,12 +124,9 @@ export function UnsplashSelector({ onSelect, tenantId }: UnsplashSelectorProps) 
                 onChange={e => setQuery(e.target.value)}
                 placeholder="Search high-res assets..."
                 className={cn(
-                  "pl-14 bg-noir-bg/50 border-noir-border h-14 text-sm transition-all focus:ring-1 focus:ring-accent/30",
-                  isCyberCopy
-                    ? "rounded-none font-mono uppercase border-accent/20"
-                    : isOctaneCopy
-                      ? "rounded-lg"
-                      : "rounded-2xl",
+                  "pl-14 border-noir-border h-14 text-sm transition-all focus:ring-1 focus:ring-accent/30",
+                  theme === "sakura" ? "bg-white/80" : "bg-noir-bg/50",
+                  isCyberCopy ? "rounded-none font-mono uppercase border-accent/20" : "rounded-2xl",
                 )}
               />
             </div>
@@ -142,7 +149,12 @@ export function UnsplashSelector({ onSelect, tenantId }: UnsplashSelectorProps) 
         </form>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-8 no-scrollbar scroll-smooth">
+      <div
+        className={cn(
+          "flex-1 overflow-y-auto p-8 no-scrollbar scroll-smooth",
+          theme === "sakura" && "bg-[var(--journal-paper)]",
+        )}
+      >
         {photos.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
             {photos.map(photo => (
@@ -151,7 +163,8 @@ export function UnsplashSelector({ onSelect, tenantId }: UnsplashSelectorProps) 
                 onClick={() => handleSelect(photo)}
                 className={cn(
                   "group relative aspect-video cursor-pointer overflow-hidden border transition-all",
-                  "border-noir-border hover:border-accent",
+                  "border-noir-border",
+                  theme === "sakura" ? "hover:border-[#ffb7c5] hover:shadow-lg" : "hover:border-accent",
                   isCyberCopy ? "rounded-none" : "rounded-xl",
                 )}
               >
@@ -180,7 +193,13 @@ export function UnsplashSelector({ onSelect, tenantId }: UnsplashSelectorProps) 
           </div>
         ) : !loading && query ? (
           <div className="text-center py-20 text-foreground font-mono text-xs uppercase tracking-widest">
-            No transmissions found
+            {isCyberCopy || isTerminalCopy || isTechieCopy
+              ? isCyberCopy
+                ? "NO_TRANSMISSIONS_FOUND"
+                : "NO TRANSMISSIONS FOUND"
+              : theme === "sakura"
+                ? "結果が見つかりませんでした"
+                : "No results found"}
           </div>
         ) : (
           !loading && (
