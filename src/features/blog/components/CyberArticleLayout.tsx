@@ -172,10 +172,10 @@ export function CyberArticleLayout({ post, tenant, isPreview: isPreviewProp }: A
       </div>
 
       {/* Main Content Area */}
-      <div className="max-w-[1920px] mx-auto px-6 md:px-0">
+      <div className="max-w-[1920px] mx-auto">
         <article
-          className={cn("mx-auto py-12 md:py-32 transition-all duration-700", {
-            "max-w-4xl": !useTheme().focusMode,
+          className={cn("mx-auto py-12 md:py-32 px-6 md:px-16 transition-all duration-700", {
+            "max-w-3xl lg:max-w-5xl": !useTheme().focusMode,
             "max-w-[1400px]": useTheme().focusMode,
           })}
         >

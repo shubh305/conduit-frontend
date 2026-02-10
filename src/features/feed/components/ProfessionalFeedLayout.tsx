@@ -54,38 +54,42 @@ export function ProfessionalFeedLayout({
         {/* 2. Featured Hero Story */}
         {featured && (
           <section className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center group cursor-pointer">
-            {/* Image (Right on Desktop for asymmetrical balance, or Left?) Let's go Left for standard editorial */}
-            <div className="lg:col-span-8 relative aspect-[16/9] w-full overflow-hidden rounded-lg shadow-sm">
-              <Link href={getPostUrl(featured)}>
-                {featured.featuredImage ? (
+            {/* Image */}
+            {featured.featuredImage && (
+              <div className="lg:col-span-8 relative aspect-[16/9] w-full overflow-hidden rounded-lg shadow-sm">
+                <Link href={getPostUrl(featured)}>
                   <Image
                     src={getMediaUrl(featured.featuredImage) || ""}
                     alt={featured.title}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                ) : (
-                  <div className="w-full h-full bg-bg-panel border border-noir-border flex items-center justify-center">
-                    <span className="text-foreground-subtle font-serif italic text-2xl">Editorial Feature</span>
-                  </div>
-                )}
-              </Link>
-            </div>
+                </Link>
+              </div>
+            )}
 
             {/* Content */}
-            <div className="lg:col-span-4 flex flex-col justify-center gap-4">
+            <div
+              className={
+                featured.featuredImage
+                  ? "lg:col-span-4 flex flex-col justify-center gap-4"
+                  : "lg:col-span-12 flex flex-col justify-center gap-6"
+              }
+            >
               <div className="flex items-center gap-3 text-xs font-bold tracking-widest text-accent uppercase">
                 <span>Feature Story</span>
                 <div className="w-12 h-[1px] bg-accent/30" />
               </div>
 
               <Link href={getPostUrl(featured)}>
-                <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground leading-tight group-hover:text-accent transition-colors">
+                <h2 className="text-3xl md:text-5xl font-serif font-bold text-foreground leading-tight group-hover:text-accent transition-colors">
                   {featured.title}
                 </h2>
               </Link>
 
-              <p className="text-foreground-muted leading-relaxed text-lg line-clamp-3">{featured.excerpt}</p>
+              <p className="text-foreground-muted leading-relaxed text-lg line-clamp-3 md:line-clamp-4">
+                {featured.excerpt}
+              </p>
 
               <div className="mt-4 pt-4 border-t border-noir-border flex items-center justify-between">
                 <div className="text-sm font-medium text-foreground">{featured.authorName}</div>
@@ -142,21 +146,21 @@ export function ProfessionalFeedLayout({
                 </div>
 
                 {/* Image (Right) */}
-                <div className="hidden md:block pl-4 xl:pl-0">
-                  <Link
-                    href={getPostUrl(item)}
-                    className="block relative aspect-[3/2] w-full max-w-[280px] ml-auto rounded-sm overflow-hidden bg-bg-panel border border-border-primary shadow-sm hover:shadow-md transition-all"
-                  >
-                    {item.featuredImage && (
+                {item.featuredImage && (
+                  <div className="hidden md:block pl-4 xl:pl-0">
+                    <Link
+                      href={getPostUrl(item)}
+                      className="block relative aspect-[3/2] w-full max-w-[280px] ml-auto rounded-sm overflow-hidden bg-bg-panel border border-border-primary shadow-sm hover:shadow-md transition-all"
+                    >
                       <Image
                         src={getMediaUrl(item.featuredImage) || ""}
                         alt={item.title}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-105 opacity-90 group-hover:opacity-100"
                       />
-                    )}
-                  </Link>
-                </div>
+                    </Link>
+                  </div>
+                )}
               </article>
             ))}
           </section>

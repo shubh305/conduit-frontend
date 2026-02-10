@@ -9,6 +9,7 @@ import Youtube from "@tiptap/extension-youtube";
 import { TiptapContent } from "../types";
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
 import { cn } from "@/lib/utils";
+import { Ruby, RubyText } from "@/features/studio/extensions/Ruby";
 
 export function PostContent({ content }: { content: TiptapContent }) {
   const { config } = useTheme();
@@ -19,6 +20,8 @@ export function PostContent({ content }: { content: TiptapContent }) {
       StarterKit,
       Image,
       Underline,
+      Ruby,
+      RubyText,
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {

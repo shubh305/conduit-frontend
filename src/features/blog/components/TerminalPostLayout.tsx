@@ -8,6 +8,7 @@ import Link from "@tiptap/extension-link";
 import Underline from "@tiptap/extension-underline";
 import Youtube from "@tiptap/extension-youtube";
 import Image from "next/image";
+import TiptapImage from "@tiptap/extension-image";
 import { useState, useEffect, useRef } from "react";
 import { CommentSection } from "@/features/feed/components/CommentSection";
 import { likePost, unlikePost } from "@/features/feed/api";
@@ -15,6 +16,7 @@ import { useAuth } from "@/features/auth/AuthProvider";
 import { toast } from "sonner";
 import { cn, getMediaUrl } from "@/lib/utils";
 import { useTheme } from "@/features/theme/ThemeProvider";
+import { Ruby, RubyText } from "@/features/studio/extensions/Ruby";
 
 interface TerminalPostLayoutProps {
   post: FeedItem & { content: TiptapContent; readingTimeMinutes: number };
@@ -28,9 +30,12 @@ export function TerminalPostLayout({ post, tenant, isPreview: isPreviewProp }: T
   const isPreview = isPreviewProp;
   const htmlContent = generateHTML(post.content || {}, [
     StarterKit,
+    TiptapImage,
     Youtube.configure({ controls: false }),
     Link,
     Underline,
+    Ruby,
+    RubyText,
   ]);
   const dateStr = new Date(post.publishedAt).toLocaleDateString("en-US", {
     month: "short",

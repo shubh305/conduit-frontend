@@ -4,7 +4,8 @@ import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
 import { cn, getMediaUrl } from "@/lib/utils";
 import Link from "next/link";
 import { Post } from "@/features/blog/types";
-import { MessageCircle, Hand, ArrowRight } from "lucide-react";
+import { Hand, ArrowRight } from "lucide-react";
+import { useThemeLabel } from "@/components/theme";
 import { useState, useEffect } from "react";
 import { getPosts } from "@/features/blog/api";
 
@@ -33,6 +34,7 @@ export function MoreFromAuthor({
 }: MoreFromAuthorProps) {
   const { config } = useTheme()
   const { isCyberCopy, isSakuraCopy, isDarkMode } = useThemeHelpers()
+  const t = useThemeLabel()
   const [posts, setPosts] = useState<Post[]>([])
 
   useEffect(() => {
@@ -80,12 +82,12 @@ export function MoreFromAuthor({
           </div>
         )}
 
-        <div className={cn("grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10", gridClassName)}>
+        <div className={cn("grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-10", gridClassName)}>
           {posts.map(post => {
             const href =
               tenantSlug === "default" && (post as unknown as { authorUsername?: string }).authorUsername
                 ? `/u/${(post as unknown as { authorUsername?: string }).authorUsername}/${post.slug}`
-                : `/${tenantSlug}/${post.slug}`
+                : `/${tenantSlug}/${post.slug}`;
 
             return (
               <Link key={post.id} href={href} className="group block h-full">
@@ -100,7 +102,7 @@ export function MoreFromAuthor({
                     <div
                       className={cn(
                         "relative bg-noir-bg transition-all duration-700 shrink-0 overflow-hidden",
-                        compact ? "aspect-[30/12]" : "aspect-[16/10]",
+                        compact ? "aspect-[30/12]" : "aspect-[21/9] sm:aspect-[16/10]",
                         isCyberCopy ? "rounded-none" : compact ? "rounded-t-lg" : "rounded-xl",
                       )}
                     >
@@ -119,11 +121,11 @@ export function MoreFromAuthor({
                   )}
 
                   {/* Content */}
-                  <div className={cn("flex flex-col flex-1", compact ? "px-3 py-2" : "p-5")}>
-                    <div className={cn("flex items-center gap-2", compact ? "mb-1" : "mb-4")}>
+                  <div className={cn("flex flex-col flex-1", compact ? "px-2 py-2" : "p-3 sm:p-5")}>
+                    <div className={cn("flex items-center gap-2", compact ? "mb-1" : "mb-2 sm:mb-4")}>
                       <div
                         className={cn(
-                          "w-5 h-5 flex items-center justify-center text-[9px] font-bold border border-noir-border bg-noir-bg shadow-sm",
+                          "w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center text-[8px] sm:text-[9px] font-bold border border-noir-border bg-noir-bg shadow-sm",
                           isCyberCopy ? "rounded-none" : "rounded-full",
                         )}
                       >
@@ -131,7 +133,7 @@ export function MoreFromAuthor({
                       </div>
                       <span
                         className={cn(
-                          "text-[10px] font-bold uppercase tracking-widest text-foreground-subtle group-hover:text-accent transition-colors",
+                          "text-[8px] sm:text-[10px] font-bold uppercase tracking-widest text-foreground-subtle group-hover:text-accent transition-colors",
                           isCyberCopy ? "font-mono" : "font-sans",
                         )}
                       >
@@ -142,7 +144,9 @@ export function MoreFromAuthor({
                     <h4
                       className={cn(
                         "font-bold leading-tight text-foreground transition-all group-hover:translate-x-1",
-                        compact ? "text-sm mb-2 line-clamp-2" : "text-lg mb-3",
+                        compact
+                          ? "text-[10px] sm:text-sm mb-1 sm:mb-2 line-clamp-2"
+                          : "text-xs sm:text-lg mb-2 sm:mb-3 line-clamp-2",
                         isCyberCopy
                           ? "font-mono uppercase tracking-tighter"
                           : config.fontFamily === "serif"
@@ -153,45 +157,43 @@ export function MoreFromAuthor({
                       {post.title}
                     </h4>
 
-                    <p
-                      className={cn(
-                        "text-xs text-foreground-muted leading-relaxed opacity-80 flex-1",
-                        compact ? "mb-3 line-clamp-2" : "mb-6 line-clamp-3",
-                        config.fontFamily === "serif" ? "font-serif" : "font-sans",
-                      )}
-                    >
-                      {post.excerpt}
-                    </p>
+                    {!compact && (
+                      <p
+                        className={cn(
+                          "text-[10px] sm:text-xs text-foreground-muted leading-relaxed opacity-80 flex-1 hidden xs:line-clamp-2 sm:line-clamp-3 mb-4",
+                          config.fontFamily === "serif" ? "font-serif" : "font-sans",
+                        )}
+                      >
+                        {post.excerpt}
+                      </p>
+                    )}
 
-                    {/* Footer - Modified for compact mode */}
+                    {/* Footer */}
                     <div
                       className={cn(
-                        "flex items-center justify-between text-[9px] font-mono text-foreground-subtle uppercase tracking-widest",
+                        "flex items-center justify-between text-[7px] sm:text-[9px] font-mono text-foreground-subtle uppercase tracking-widest mt-auto",
                         compact
-                          ? "mt-auto pt-2 border-t border-noir-border/50"
-                          : "mt-auto pt-4 border-t border-noir-border",
+                          ? "pt-1 sm:pt-2 border-t border-noir-border/50"
+                          : "pt-2 sm:pt-4 border-t border-noir-border",
                       )}
                     >
-                      <div className="flex items-center gap-4">
-                        <span className="flex items-center gap-1.5 hover:text-accent transition-colors">
-                          <Hand size={12} className="opacity-50" />
+                      <div className="flex items-center gap-2 sm:gap-4">
+                        <span className="flex items-center gap-1 sm:gap-1.5 hover:text-accent transition-colors">
+                          <Hand size={10} className="opacity-50 sm:hidden" />
+                          <Hand size={12} className="opacity-50 hidden sm:block" />
                           {post.likesCount || 0}
-                        </span>
-                        <span className="flex items-center gap-1.5 hover:text-accent transition-colors">
-                          <MessageCircle size={12} className="opacity-50" />
-                          {post.commentsCount || 0}
                         </span>
                       </div>
                       <div>
-                        <span className="flex items-center gap-2 font-black transition-all group-hover:text-accent group-hover:gap-3">
-                          {isSakuraCopy ? "もっと見る" : "SEE_MORE"} <ArrowRight size={10} />
+                        <span className="flex items-center gap-1 sm:gap-2 font-black transition-all group-hover:text-accent group-hover:gap-3">
+                          {isSakuraCopy ? "次" : "SEE"} <ArrowRight size={10} />
                         </span>
                       </div>
                     </div>
                   </div>
                 </article>
               </Link>
-            )
+            );
           })}
         </div>
 
@@ -206,14 +208,14 @@ export function MoreFromAuthor({
                 isCyberCopy ? "rounded-none" : "rounded-full",
               )}
             >
-              {isSakuraCopy ? `${authorName} の全投稿を見る` : `Access all frequencies from ${authorName}`}
+              {t("accessAllFromAuthor").replace("{name}", authorName)}
               <ArrowRight size={14} className="animate-pulse" />
             </Link>
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }
 
 // Added Image import

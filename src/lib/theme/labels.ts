@@ -109,7 +109,8 @@ export type LabelKey =
   | "followingAction"
   | "noStoriesFound"
   | "noNodesFound"
-  | "noFrequenciesFound";
+  | "noFrequenciesFound"
+  | "accessAllFromAuthor";
 
 const labelMap: Record<LabelKey, Record<ThemeVariant | "default", string>> = {
   newSearch: {
@@ -1534,6 +1535,19 @@ const labelMap: Record<LabelKey, Record<ThemeVariant | "default", string>> = {
     "classic-white": "Expand",
     professional: "Expand",
     default: "Expand Section",
+  },
+  accessAllFromAuthor: {
+    cyber: "ACCESS_ALL_FREQUENCIES_FROM_{name}",
+    sakura: "{name}の全投稿を見る",
+    ronin: "{name}の全記録を閲覧",
+    octane: "Access {name}'s garage",
+    journal: "Review all entries by {name}",
+    terminal: "ls /u/{name}",
+    techie: "ACCESS_FULL_STREAM_FROM_{name}",
+    classic: "Access all from {name}",
+    "classic-white": "Access all posts from {name}",
+    professional: "View all posts by {name}",
+    default: "Access all posts from {name}",
   },
 };
 
