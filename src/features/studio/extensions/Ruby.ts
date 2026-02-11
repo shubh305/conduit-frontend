@@ -51,7 +51,7 @@ export const Ruby = Node.create({
   addPasteRules() {
     return [
       new PasteRule({
-        find: /([^\s\(\)]+)\(([^)]+)\)/g,
+        find: /([\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF\u4E00-\u9FFF]+)\(([^)]+)\)/g,
         handler: ({ state, range, match }) => {
           const { tr } = state;
           const [fullMatch, base, reading] = match;
@@ -60,14 +60,16 @@ export const Ruby = Node.create({
             const start = range.from;
             const end = range.to;
 
-            tr.replaceWith(start, end, 
+            tr.replaceWith(
+              start,
+              end,
               this.type.create(null, [
                 state.schema.text(base),
                 state.schema.nodes.rt.create(null, state.schema.text(reading)),
-              ])
+              ]),
             );
 
-            const nextPos = start + base.length + reading.length + 2; 
+            const nextPos = start + base.length + reading.length + 2;
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             tr.setSelection((state.selection.constructor as any).near(tr.doc.resolve(nextPos)));
           }

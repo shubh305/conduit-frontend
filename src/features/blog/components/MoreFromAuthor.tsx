@@ -3,11 +3,9 @@
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
 import { cn, getMediaUrl } from "@/lib/utils";
 import Link from "next/link";
-import { Post } from "@/features/blog/types";
 import { Hand, ArrowRight } from "lucide-react";
 import { useThemeLabel } from "@/components/theme";
-import { useState, useEffect } from "react";
-import { getPosts } from "@/features/blog/api";
+import { useMoreFromAuthor } from "@/features/blog/hooks/useMoreFromAuthor";
 
 interface MoreFromAuthorProps {
   authorName: string
@@ -35,22 +33,9 @@ export function MoreFromAuthor({
   const { config } = useTheme()
   const { isCyberCopy, isSakuraCopy, isDarkMode } = useThemeHelpers()
   const t = useThemeLabel()
-  const [posts, setPosts] = useState<Post[]>([])
+  const { posts, isLoading } = useMoreFromAuthor(tenantId, currentPostId);
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const { data } = await getPosts(tenantId, { limit: 5 })
-        const filtered = data.filter(post => post.id !== currentPostId).slice(0, 4)
-        setPosts(filtered)
-      } catch (e) {
-        console.error("Failed to fetch more posts", e)
-      }
-    }
-
-    if (tenantId) fetchPosts()
-  }, [tenantId, currentPostId])
-
+  if (isLoading) return null;
   if (posts.length === 0) return null
 
   return (

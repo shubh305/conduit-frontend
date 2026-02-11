@@ -39,7 +39,7 @@ export function TechieArticleLayout({ post, tenant, isPreview: isPreviewProp }: 
         <div className="container mx-auto max-w-[1600px]">
           <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[500px]">
             {/* Header Left: Content */}
-            <div className="p-4 sm:p-8 lg:p-16 flex flex-col justify-center gap-6 sm:gap-8 relative overflow-hidden">
+            <div className="p-6 sm:p-12 lg:p-20 flex flex-col justify-center gap-6 sm:gap-8 relative overflow-hidden">
               {/* Background Grid Decoration */}
               <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--border-primary)_1px,transparent_1px),linear-gradient(to_bottom,var(--border-primary)_1px,transparent_1px)] bg-[size:40px_40px] opacity-[0.05] pointer-events-none" />
 
@@ -136,7 +136,7 @@ export function TechieArticleLayout({ post, tenant, isPreview: isPreviewProp }: 
       {/* 
         ROW 2: CONTENT)
       */}
-      <div className="container mx-auto max-w-[1800px] border-x border-white/5">
+      <div className="container mx-auto max-w-[1600px] border-x border-white/5">
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] relative">
           {/* Sticky Sidebar (Left) */}
           <aside className="hidden lg:block border-r border-white/5 bg-noir-bg">

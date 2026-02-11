@@ -322,9 +322,10 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                       : isTechieCopy
                         ? "bg-accent text-noir-bg rounded-none hover:bg-accent-secondary shadow-[0_0_12px_rgba(var(--accent-rgb),0.2)]"
                         : isJournalCopy
-                          ? "bg-accent text-white rounded-full hover:bg-accent/90"
-                          : "bg-accent text-white rounded-full hover:bg-accent/90",
+                          ? "bg-accent text-white hover:bg-accent/90"
+                          : "bg-accent text-white hover:bg-accent/90",
                   )}
+                  style={{ borderRadius: isCyberCopy ? "0" : config.tokens.borderRadius }}
                 >
                   <Settings size={14} className="shrink-0" />
                   <span className="hidden sm:inline">{t("settings")}</span>

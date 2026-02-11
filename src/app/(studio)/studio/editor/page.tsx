@@ -528,8 +528,9 @@ export default function EditorPage() {
                         ? "bg-accent text-noir-bg rounded-none hover:bg-accent-secondary shadow-[0_0_12px_rgba(var(--accent-rgb),0.2)]"
                         : isJournalCopy
                           ? "rounded-lg bg-[#8B4513] text-[#fdf5e6] hover:bg-[#A0522D] font-serif shadow-md hover:shadow-lg border border-transparent"
-                          : "rounded-full bg-accent hover:bg-accent/80 text-noir-bg",
+                          : "bg-accent hover:bg-accent/80 text-noir-bg",
                   )}
+                  style={{ borderRadius: isCyberCopy ? "0" : config.tokens.borderRadius }}
                 >
                   <Settings size={14} className="shrink-0" />
                   <span className="hidden sm:inline">{isSaving ? savingLabel : publishLabel}</span>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, ReactNodeViewRenderer } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
@@ -8,6 +8,9 @@ import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
 import Youtube from "@tiptap/extension-youtube";
 import BubbleMenuExtension from "@tiptap/extension-bubble-menu";
+import { common, createLowlight } from "lowlight";
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import { CodeBlockComponent } from "./CodeBlockComponent";
 import { EditorToolbar } from "./EditorToolbar";
 import { TerminalEditorShell } from "./TerminalEditorShell"
 import { cn } from "@/lib/utils";
@@ -16,6 +19,8 @@ import { Ruby, RubyText } from "../extensions/Ruby";
 import { TiptapContent } from "@/features/blog/types";
 import { useTheme, useThemeHelpers, useStudioLabels } from "@/features/theme/ThemeProvider"
 import { getEditorContainerClasses, getEditorProseClasses } from "@/lib/theme-variants"
+
+const lowlight = createLowlight(common);
 
 
 interface TiptapEditorProps {
@@ -32,11 +37,20 @@ export function TiptapEditor({ content = "", onChange, className, tenantId }: Ti
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        codeBlock: false,
+      }),
       Image,
       Underline,
       Ruby,
       RubyText,
+      CodeBlockLowlight.extend({
+        addNodeView() {
+          return ReactNodeViewRenderer(CodeBlockComponent);
+        },
+      }).configure({
+        lowlight,
+      }),
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
@@ -48,6 +62,7 @@ export function TiptapEditor({ content = "", onChange, className, tenantId }: Ti
       }),
       Youtube.configure({
         controls: false,
+        addPasteHandler: false,
       }),
       BubbleMenuExtension,
     ],
@@ -55,6 +70,18 @@ export function TiptapEditor({ content = "", onChange, className, tenantId }: Ti
     editorProps: {
       attributes: {
         class: getEditorProseClasses(theme, config.isDark),
+      },
+      handlePaste: (view, event) => {
+        const text = event.clipboardData?.getData("text/plain");
+        if (text && (text.includes("youtube.com/watch") || text.includes("youtu.be/"))) {
+          editor
+            ?.chain()
+            .focus()
+            .insertContent([{ type: "youtube", attrs: { src: text } }, { type: "paragraph" }])
+            .run();
+          return true;
+        }
+        return false;
       },
     },
     onUpdate: ({ editor }) => {
@@ -89,7 +116,31 @@ export function TiptapEditor({ content = "", onChange, className, tenantId }: Ti
         </>
       )}
       <DictionaryPopup editor={editor} />
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+        .ProseMirror iframe {
+          pointer-events: none !important;
+        }
+        .ProseMirror [data-youtube-video] {
+          cursor: pointer;
+          transition: all 0.2s ease;
+          position: relative;
+        }
+        .ProseMirror [data-youtube-video].ProseMirror-selectednode {
+          outline: 3px solid var(--accent) !important;
+          outline-offset: 4px;
+          box-shadow: 0 0 20px var(--accent-glow);
+        }
+        /* Mobile specific fixes for bubble menu */
+        .tippy-box {
+          pointer-events: auto !important;
+          z-index: 10001 !important;
+        }
+      `,
+        }}
+      />
     </div>
   );
 }
-

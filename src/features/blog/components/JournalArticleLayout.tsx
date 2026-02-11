@@ -14,6 +14,7 @@ import { JournalSheet } from "./JournalSheet"
 import { JournalRecommendationsDrawer } from "./JournalRecommendationsDrawer"
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/features/theme/ThemeProvider";
+import { useMoreFromAuthor } from "@/features/blog/hooks/useMoreFromAuthor";
 
 interface JournalArticleLayoutProps {
   post: FeedItem & { content: TiptapContent; readingTimeMinutes: number }
@@ -34,6 +35,8 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
 
   const [activePost, setActivePost] = useState(post);
   const [nextContent, setNextContent] = useState<FeedItemExtended | null>(null);
+
+  const { hasMore: hasMorePosts } = useMoreFromAuthor(activePost.tenantId || tenant.id, activePost.postId);
 
   const [isFlipping, setIsFlipping] = useState(false);
   const [flippingPost, setFlippingPost] = useState<
@@ -200,7 +203,7 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
               key={activePost.postId}
               post={frozenPost || activePost}
               tenantSlug={tenant.slug || tenant.id}
-              onShowRecommendations={() => setIsRecommendationsOpen(true)}
+              onShowRecommendations={hasMorePosts ? () => setIsRecommendationsOpen(true) : undefined}
               onShowComments={() => setIsCommentsOpen(true)}
               className="z-10 rounded-l-none border-l border-black/5"
               disableInitialAnimation={isFlipping}

@@ -219,3 +219,78 @@ h1, h2, h3, h4, h5, h6 {
   -ms-overflow-style: none !important;
   scrollbar-width: none !important;
 }
+/* Code Block Variables (Default Dark) */
+:root {
+  --code-bg: #0d0d0d;
+  --code-header: rgba(0, 0, 0, 0.4);
+  --code-text: #d4d4d4;
+  --code-border: rgba(255, 255, 255, 0.1);
+  --code-dropdown-bg: #161616;
+  --hljs-comment: #737373;
+  --hljs-keyword: var(--accent);
+  --hljs-section: #f43f5e;
+  --hljs-literal: var(--accent);
+  --hljs-string: #10b981;
+  --hljs-built_in: #fbbf24;
+  --hljs-attr: #60a5fa;
+  --hljs-number: #60a5fa;
+  --hljs-title: #d4d4d4;
+}
+
+/* Light Theme Overrides */
+[data-theme='journal'],
+[data-theme='sakura'],
+[data-theme='classic-white'],
+[data-theme='professional'] {
+  --code-bg: rgba(0, 0, 0, 0.03);
+  --code-header: rgba(0, 0, 0, 0.05);
+  --code-text: #2d3748;
+  --code-border: rgba(0, 0, 0, 0.08);
+  --code-dropdown-bg: #ffffff;
+  --hljs-comment: #718096;
+  --hljs-keyword: #805ad5;
+  --hljs-section: #e53e3e;
+  --hljs-literal: #3182ce;
+  --hljs-string: #38a169;
+  --hljs-built_in: #dd6b20;
+  --hljs-attr: #3182ce;
+  --hljs-number: #3182ce;
+  --hljs-title: #2d3748;
+}
+
+/* Syntax Highlighting (hljs) */
+.hljs-comment,
+.hljs-quote { color: var(--hljs-comment); font-style: italic; }
+.hljs-doctag,
+.hljs-keyword,
+.hljs-formula { color: var(--hljs-keyword); }
+.hljs-section,
+.hljs-name,
+.hljs-selector-tag,
+.hljs-deletion,
+.hljs-subst { color: var(--hljs-section); }
+.hljs-literal { color: var(--hljs-literal); }
+.hljs-string,
+.hljs-regexp,
+.hljs-addition,
+.hljs-attribute,
+.hljs-meta .hljs-string { color: var(--hljs-string); }
+.hljs-built_in,
+.hljs-class .hljs-title { color: var(--hljs-built_in); }
+.hljs-attr,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-type,
+.hljs-selector-class,
+.hljs-selector-attr,
+.hljs-selector-pseudo,
+.hljs-number { color: var(--hljs-attr); }
+.hljs-symbol,
+.hljs-bullet,
+.hljs-link,
+.hljs-meta,
+.hljs-selector-id,
+.hljs-title { color: var(--hljs-title); }
+.hljs-emphasis { font-style: italic; }
+.hljs-strong { font-weight: bold; }
+.hljs-link { text-decoration: underline; }

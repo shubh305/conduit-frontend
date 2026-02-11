@@ -2,7 +2,7 @@
 
 import { Editor } from "@tiptap/react";
 import { useEffect, useState, useCallback, useRef } from "react";
-import { Loader2, Book, Layers, Volume2 } from "lucide-react";
+import { Loader2, Book, Layers, Volume2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
 import { fetchApi } from "@/lib/api-client";
@@ -102,10 +102,13 @@ export function DictionaryPopup({ editor }: DictionaryPopupProps) {
     let left = (start.left + end.left) / 2;
     let top = start.top;
     let placement: "top" | "bottom" = "top";
+    const toolbar = document.querySelector(".editor-toolbar");
+    const toolbarRect = toolbar?.getBoundingClientRect();
+    const safeTopLimit = toolbarRect ? toolbarRect.bottom + 10 : 100;
 
     const isMobile = window.innerWidth < 640;
     const popupWidth = isMobile ? window.innerWidth - 32 : 320;
-    const popupHeight = 300;
+    const popupHeight = 350;
     const padding = 16;
 
     if (isMobile) {
@@ -118,12 +121,15 @@ export function DictionaryPopup({ editor }: DictionaryPopupProps) {
       }
     }
 
-    if (top - popupHeight < padding) {
-      top = end.bottom + 10;
-      placement = "bottom";
-    } else {
-      top = start.top - 10;
+    const spaceAbove = start.top - safeTopLimit;
+    const spaceBelow = window.innerHeight - end.bottom - padding;
+
+    if (spaceAbove > popupHeight || spaceAbove > spaceBelow) {
+      top = start.top - 12;
       placement = "top";
+    } else {
+      top = end.bottom + 12;
+      placement = "bottom";
     }
 
     setPosition({ top, left, placement });
@@ -153,11 +159,19 @@ export function DictionaryPopup({ editor }: DictionaryPopupProps) {
             let rubyBase = "";
             let rubyRt = "";
 
-            node.content.forEach(child => {
-              if (child.type.name === "rt") {
-                rubyRt += child.textContent;
-              } else if (child.isText) {
-                rubyBase += child.textContent;
+            node.content.forEach((child, childOffset) => {
+              const childPos = pos + 1 + childOffset;
+              const childEnd = childPos + child.nodeSize;
+
+              const relativeFrom = Math.max(from, childPos);
+              const relativeTo = Math.min(to, childEnd);
+
+              if (relativeFrom < relativeTo) {
+                if (child.type.name === "rt") {
+                  rubyRt += child.textBetween(relativeFrom - childPos, relativeTo - childPos);
+                } else if (child.isText) {
+                  rubyBase += child.textBetween(relativeFrom - childPos, relativeTo - childPos);
+                }
               }
             });
 
@@ -170,7 +184,9 @@ export function DictionaryPopup({ editor }: DictionaryPopupProps) {
             return false;
           } else if (node.isText) {
             if (parent && parent.type.name !== "ruby" && parent.type.name !== "rt") {
-              cleanWord += node.text;
+              const relativeFrom = Math.max(from, pos);
+              const relativeTo = Math.min(to, pos + node.nodeSize);
+              cleanWord += node.textBetween(relativeFrom - pos, relativeTo - pos);
             }
           }
         });
@@ -204,23 +220,12 @@ export function DictionaryPopup({ editor }: DictionaryPopupProps) {
     editor.on("selectionUpdate", handleSelectionUpdate);
     editor.on("focus", handleSelectionUpdate);
 
-    const handleBlur = () => {
-      setTimeout(() => {
-        if (!document.activeElement?.closest(".dictionary-popup")) {
-          setPosition(null);
-          setWord(null);
-        }
-      }, 200);
-    };
-    editor.on("blur", handleBlur);
-
     window.addEventListener("scroll", updatePosition, true);
     window.addEventListener("resize", updatePosition);
 
     return () => {
       editor.off("selectionUpdate", handleSelectionUpdate);
       editor.off("focus", handleSelectionUpdate);
-      editor.off("blur", handleBlur);
       window.removeEventListener("scroll", updatePosition, true);
       window.removeEventListener("resize", updatePosition);
     };
@@ -242,8 +247,9 @@ export function DictionaryPopup({ editor }: DictionaryPopupProps) {
   return (
     <div
       ref={popupRef}
+      onMouseDown={e => e.preventDefault()}
       className={cn(
-        "dictionary-popup fixed z-[9999] -translate-x-1/2 mb-2 pointer-events-auto",
+        "dictionary-popup fixed z-[45] -translate-x-1/2 mb-2 pointer-events-auto",
         "w-[calc(100vw-32px)] sm:w-[320px] p-4 shadow-2xl border animate-in fade-in zoom-in-95",
         getPopoverClasses(theme),
         "!bg-opacity-100 !backdrop-blur-none",
@@ -271,15 +277,27 @@ export function DictionaryPopup({ editor }: DictionaryPopupProps) {
           )}
         </div>
 
-        {audioUrl && (
+        <div className="flex items-center gap-1 ml-auto">
+          {audioUrl && (
+            <button
+              onClick={() => playAudio(audioUrl)}
+              className="p-1 hover:bg-muted rounded transition-colors text-accent/70 hover:text-accent cursor-pointer"
+              title="Listen"
+            >
+              <Volume2 size={14} />
+            </button>
+          )}
           <button
-            onClick={() => playAudio(audioUrl)}
-            className="p-1 hover:bg-muted rounded transition-colors text-accent/70 hover:text-accent ml-auto cursor-pointer"
-            title="Listen to pronunciation"
+            onClick={() => {
+              setPosition(null);
+              setWord(null);
+            }}
+            className="p-1 hover:bg-muted rounded transition-colors text-muted-foreground hover:text-foreground cursor-pointer"
+            title="Close Lexicon"
           >
-            <Volume2 size={14} />
+            <X size={14} />
           </button>
-        )}
+        </div>
       </div>
 
       {isLoading ? (
