@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, use } from "react"
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/features/auth/AuthProvider";
-import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
+import { useTheme, useThemeHelpers, useLabels } from "@/features/theme/ThemeProvider";
 import { getList, deleteList, removeItemFromList } from "@/features/lists/api";
 import { ReadingList } from "@/features/lists/types";
 import { FeedItem } from "@/features/feed/types";
@@ -26,6 +26,7 @@ export default function ListDetailPage({ params }: { params: Promise<{ id: strin
   const { theme } = useTheme();
   const helpers = useThemeHelpers()
   const { isJournalCopy, isCyberCopy, isTerminalCopy } = helpers
+  const { getLabel } = useLabels();
 
   const [list, setList] = useState<ReadingList | null>(null)
   const [items, setItems] = useState<FeedItem[]>([])
@@ -113,10 +114,10 @@ export default function ListDetailPage({ params }: { params: Promise<{ id: strin
     return (
       <div className="flex h-[80vh] items-center justify-center">
         <div className={cn("animate-pulse font-mono", isCyberCopy ? "text-accent" : "text-muted-foreground")}>
-          {isCyberCopy ? "LOADING_DATA..." : "Loading..."}
+          {getLabel("loading")}
         </div>
       </div>
-    )
+    );
   }
 
   if (!list) return <div className="p-20 text-center text-muted-foreground">List not found</div>

@@ -3,13 +3,14 @@
 import { use } from "react";
 import { ArticlePageWrapper } from "@/features/blog/components/ArticlePageWrapper";
 import { usePostLoader } from "@/features/blog/hooks/usePostLoader";
-import { useThemeHelpers } from "@/features/theme/ThemeProvider";
+import { useThemeHelpers, useLabels } from "@/features/theme/ThemeProvider";
 import { TerminalLoader } from "@/features/blog/components/TerminalLoader";
 
 export default function PublicPostPage({ params }: { params: Promise<{ username: string; slug: string }> }) {
   const { username, slug } = use(params);
   const { loading, error, data } = usePostLoader(username, slug);
-  const { isTerminalCopy, isJournalCopy, isRoninCopy, isCyberCopy, isSakuraCopy } = useThemeHelpers();
+  const { isTerminalCopy } = useThemeHelpers();
+  const { getLabel } = useLabels();
 
   if (loading) {
     if (isTerminalCopy) {
@@ -17,7 +18,7 @@ export default function PublicPostPage({ params }: { params: Promise<{ username:
     }
     return (
       <div className="min-h-screen flex items-center justify-center text-foreground/50 font-mono animate-pulse">
-        {isJournalCopy ? "Opening journal..." : isRoninCopy ? "Unsheathing..." : isCyberCopy ? "ESTABLISHING_UPLINK..." : isSakuraCopy ? "読み込み中..." : "Loading..."}
+        {getLabel("loading")}
       </div>
     );
   }

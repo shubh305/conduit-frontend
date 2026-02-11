@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Home, Bookmark, LayoutDashboard } from "lucide-react";
@@ -9,6 +11,9 @@ import { useTheme } from "@/features/theme/ThemeProvider";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { useThemeLabel } from "@/components/theme";
 import { getJapaneseSubLabel } from "@/lib/theme-variants";
+import { getFollowingUsers } from "@/features/profile/api";
+import { Profile } from "@/features/profile/types";
+import { useEffect, useState, useCallback } from "react";
 
 interface NavigationSidebarProps {
   isOpen?: boolean;
@@ -59,6 +64,39 @@ export function NavigationSidebar({ isOpen = true }: NavigationSidebarProps) {
 
 
   const sourceTitle = isCyberCopy ? "/* SOURCE */" : isSakuraCopy ? "Source" : isRoninCopy ? "Origin" : isTerminalCopy ? ">> sources" : "Source";
+
+  const [followedUsers, setFollowedUsers] = useState<Profile[]>([]);
+
+  const [prevUserId, setPrevUserId] = useState(user?.id);
+  if (user?.id !== prevUserId) {
+    setPrevUserId(user?.id);
+    if (!user) {
+      setFollowedUsers([]);
+    }
+  }
+
+  const refreshFollowingList = useCallback(() => {
+    if (user) {
+      getFollowingUsers()
+        .then(res => setFollowedUsers(res.users))
+        .catch(() => {});
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      refreshFollowingList();
+    }
+  }, [refreshFollowingList, user]);
+
+  useEffect(() => {
+    const handleFollowChange = () => {
+      refreshFollowingList();
+    };
+
+    window.addEventListener("follow-status-changed", handleFollowChange);
+    return () => window.removeEventListener("follow-status-changed", handleFollowChange);
+  }, [refreshFollowingList]);
 
   return (
     <aside
@@ -146,7 +184,7 @@ export function NavigationSidebar({ isOpen = true }: NavigationSidebarProps) {
         </div>
 
         {/* Feed Source */}
-        {isOpen && WIP_LIMITS.showForYou && (
+        {isOpen && (WIP_LIMITS.showForYou || WIP_LIMITS.showFollowing) && (
           <div className="space-y-1">
             <div
               className={cn(
@@ -157,57 +195,111 @@ export function NavigationSidebar({ isOpen = true }: NavigationSidebarProps) {
             >
               {sourceTitle}
             </div>
-            {feedItems.map(feed => {
-              const feedKey = feed.id === "foryou" ? "forYou" : "following";
-              const japaneseLabel = getJapaneseSubLabel(feedKey, theme);
-              return (
-                <Link
-                  key={feed.id}
-                  href={`/?feed=${feed.id}`}
-                  className={cn(
-                    "flex items-center gap-4 px-4 py-1.5 transition-colors cursor-pointer",
-                    config.fontFamily === "mono" ? "font-mono text-xs uppercase tracking-wider" : "text-sm",
-                    isHome && currentFeed === feed.id
-                      ? "text-accent font-bold"
-                      : theme === "journal"
-                        ? "text-journal-ink-muted hover:text-journal-ink hover:bg-journal-ink/5"
-                        : "text-foreground-muted hover:text-foreground",
-                  )}
-                  style={{ borderRadius: "var(--theme-radius-sm)" }}
-                >
-                  {isCyberCopy ? (
-                    <span className="hidden lg:block">[{feed.label}]</span>
+            {feedItems
+              .filter(feed => {
+                if (feed.id === "foryou") return WIP_LIMITS.showForYou;
+                if (feed.id === "following") return WIP_LIMITS.showFollowing;
+                return true;
+              })
+              .map(feed => {
+                const feedKey = feed.id === "foryou" ? "forYou" : "following";
+                const japaneseLabel = getJapaneseSubLabel(feedKey, theme);
+                return (
+                  <Link
+                    key={feed.id}
+                    href={`/?feed=${feed.id}`}
+                    className={cn(
+                      "flex items-center gap-4 px-4 py-1.5 transition-colors cursor-pointer",
+                      config.fontFamily === "mono" ? "font-mono text-xs uppercase tracking-wider" : "text-sm",
+                      isHome && currentFeed === feed.id
+                        ? "text-accent font-bold"
+                        : theme === "journal"
+                          ? "text-journal-ink-muted hover:text-journal-ink hover:bg-journal-ink/5"
+                          : "text-foreground-muted hover:text-foreground",
+                    )}
+                    style={{ borderRadius: "var(--theme-radius-sm)" }}
+                  >
+                    {isCyberCopy ? (
+                      <span className="hidden lg:block">[{feed.label}]</span>
+                    ) : (
+                      <>
+                        <div
+                          className={cn(
+                            "w-1.5 h-1.5 rounded-full shrink-0",
+                            isHome && currentFeed === feed.id
+                              ? "bg-accent"
+                              : "bg-transparent border border-foreground-subtle",
+                          )}
+                        />
+                        <span className={cn("leading-tight", isOpen ? "block" : "hidden")}>
+                          <span className="block">{feed.label}</span>
+                          {japaneseLabel && (
+                            <span
+                              className={cn(
+                                "block transform",
+                                isSakuraCopy
+                                  ? "text-[9px] text-foreground-muted font-normal"
+                                  : "text-[11px] text-accent font-serif italic",
+                              )}
+                            >
+                              {japaneseLabel}
+                            </span>
+                          )}
+                        </span>
+                      </>
+                    )}
+                    <span className="lg:hidden">{feed.label[0]}</span>
+                  </Link>
+                );
+              })}
+          </div>
+        )}
+
+        {/* Followed Users */}
+        {isOpen && user && followedUsers.length > 0 && (
+          <div className="space-y-1 mt-8">
+            <div
+              className={cn(
+                "text-[10px] mb-2 px-4 uppercase tracking-widest text-foreground-subtle",
+                config.fontFamily === "mono" ? "font-mono" : "font-serif lowercase italic tracking-normal",
+                isOpen ? "block" : "hidden",
+              )}
+            >
+              {followingLabel}
+            </div>
+            {followedUsers.map((profile, idx) => (
+              <Link
+                key={`${profile.id || profile.username || "followed"}-${idx}`}
+                href={`/u/${profile.username}`}
+                className={cn(
+                  "flex items-center gap-3 px-4 py-1.5 transition-colors cursor-pointer group",
+                  config.fontFamily === "mono" ? "font-mono text-xs uppercase tracking-wider" : "text-sm",
+                  theme === "journal"
+                    ? "text-journal-ink-muted hover:text-journal-ink hover:bg-journal-ink/5"
+                    : "text-foreground-muted hover:text-foreground hover:bg-foreground/5",
+                )}
+                style={{ borderRadius: "var(--theme-radius-sm)" }}
+              >
+                <div className="w-5 h-5 rounded-full bg-accent/10 flex items-center justify-center shrink-0 overflow-hidden">
+                  {profile.avatar ? (
+                    <Image
+                      src={profile.avatar}
+                      alt={profile.username}
+                      width={20}
+                      height={20}
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
-                    <>
-                      <div
-                        className={cn(
-                          "w-1.5 h-1.5 rounded-full shrink-0",
-                          isHome && currentFeed === feed.id
-                            ? "bg-accent"
-                            : "bg-transparent border border-foreground-subtle",
-                        )}
-                      />
-                      <span className={cn("leading-tight", isOpen ? "block" : "hidden")}>
-                        <span className="block">{feed.label}</span>
-                        {japaneseLabel && (
-                          <span
-                            className={cn(
-                              "block transform",
-                              isSakuraCopy
-                                ? "text-[9px] text-foreground-muted font-normal"
-                                : "text-[11px] text-accent font-serif italic",
-                            )}
-                          >
-                            {japaneseLabel}
-                          </span>
-                        )}
-                      </span>
-                    </>
+                    <span className="text-[9px] font-bold text-accent">
+                      {(profile.username || "?").charAt(0).toUpperCase()}
+                    </span>
                   )}
-                  <span className="lg:hidden">{feed.label[0]}</span>
-                </Link>
-              );
-            })}
+                </div>
+                <span className={cn("leading-tight truncate", isOpen ? "block" : "hidden")}>
+                  {profile.displayName || profile.username}
+                </span>
+              </Link>
+            ))}
           </div>
         )}
       </div>

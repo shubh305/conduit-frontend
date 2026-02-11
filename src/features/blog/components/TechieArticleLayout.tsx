@@ -253,7 +253,10 @@ export function TechieArticleLayout({ post, tenant, isPreview: isPreviewProp }: 
               slug={post.postSlug}
               tenantId={tenant.id}
               authorUsername={post.authorUsername}
+              authorId={post.authorId}
               initialLikes={post.likesCount}
+              initialIsLiked={post.isLiked}
+              initialIsFollowing={post.isFollowing}
               initialComments={post.commentsCount}
               className={cn(
                 "mt-20 border-t border-white/5 py-12 mx-auto opacity-80 transition-all duration-700",

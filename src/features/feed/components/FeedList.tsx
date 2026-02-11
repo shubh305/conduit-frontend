@@ -24,10 +24,12 @@ export function FeedList({
   items: initialItems,
   blogDescription,
   blogTitle,
+  feedType,
 }: {
   items: FeedItem[];
   blogDescription?: string;
   blogTitle?: string;
+  feedType?: "global" | "following";
 }) {
   const { theme } = useTheme();
   const { isTerminalCopy, isCyberCopy, isSakuraCopy, isJournalCopy, isTechieCopy, isRoninCopy } = useThemeHelpers();
@@ -41,6 +43,7 @@ export function FeedList({
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [mounted, setMounted] = useState(false);
 
+  // ... (rest of theme labels)
   const t = useThemeLabel();
   const loadMoreText = t("loadMore");
   const loadingText = t("loading");
@@ -65,7 +68,7 @@ export function FeedList({
       const tag = catDef?.tags[0];
 
       const nextPage = page + 1;
-      const response = await getGlobalFeed({ tag, page: nextPage, limit: 12 });
+      const response = await getGlobalFeed({ tag, page: nextPage, limit: 12, type: feedType });
 
       if (response.data.length > 0) {
         setItems(prev => [...prev, ...response.data]);

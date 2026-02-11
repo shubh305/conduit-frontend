@@ -162,8 +162,10 @@ export function CyberArticleLayout({ post, tenant, isPreview: isPreviewProp }: A
             slug={post.postSlug}
             tenantId={tenant.id}
             authorUsername={post.authorUsername}
+            authorId={post.authorId}
             initialLikes={post.likesCount}
             initialIsLiked={post.isLiked}
+            initialIsFollowing={post.isFollowing}
             initialComments={post.commentsCount}
             className="mt-10 border-t border-noir-border pt-6 w-full"
             onCommentClick={() => setIsCommentsOpen(true)}

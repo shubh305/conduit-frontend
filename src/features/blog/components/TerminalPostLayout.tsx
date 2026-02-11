@@ -15,7 +15,8 @@ import { likePost, unlikePost } from "@/features/feed/api";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { toast } from "sonner";
 import { cn, getMediaUrl } from "@/lib/utils";
-import { useTheme } from "@/features/theme/ThemeProvider";
+import { useTheme, useLabels } from "@/features/theme/ThemeProvider";
+import { useFollowUser } from "@/features/profile/hooks/useFollowUser";
 import { Ruby, RubyText } from "@/features/studio/extensions/Ruby";
 
 interface TerminalPostLayoutProps {
@@ -51,6 +52,11 @@ export function TerminalPostLayout({ post, tenant, isPreview: isPreviewProp }: T
   const [likes, setLikes] = useState(post.likesCount);
   const [isLiked, setIsLiked] = useState(post.isLiked);
   const { user } = useAuth();
+  const { isFollowing, toggleFollow } = useFollowUser({
+    userId: post.authorId || "",
+    initialIsFollowing: false,
+  });
+  const { getLabel } = useLabels();
 
   // -- BOOT SEQUENCE STATE --
   const [bootLines, setBootLines] = useState<string[]>([]);
@@ -264,6 +270,14 @@ export function TerminalPostLayout({ post, tenant, isPreview: isPreviewProp }: T
           <button onClick={handleLike} className="hover:bg-black hover:text-accent px-1 transition-colors">
             :w [Like:{likes}]
           </button>
+          {post.authorId && (
+            <button
+              onClick={toggleFollow}
+              className="hover:bg-black hover:text-accent px-1 transition-colors text-accent"
+            >
+              :f [{isFollowing ? getLabel("unfollowButton") : getLabel("followButton")}]
+            </button>
+          )}
           <button
             onClick={() => setIsCommentsOpen(true)}
             className="hover:bg-black hover:text-accent px-1 transition-colors"

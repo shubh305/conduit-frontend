@@ -5,12 +5,12 @@
 export const WIP_LIMITS = {
   // Navigation
   showForYou: false,
-  showFollowing: false,
+  showFollowing: true,
   showNotifications: false,
 
   // Layout Controls
   showBottomThemeToggle: false,
-  showThemeOps: false,
+  showThemeOps: true,
 
   // Studio
   showUnlistedFilter: false,
