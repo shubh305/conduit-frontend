@@ -38,9 +38,11 @@ export function TechieFeedLayout({
               {blogTitle || "TRANS_LOG_SYS"}
             </h1>
           </div>
-          <p className="text-[9px] font-mono text-foreground-muted uppercase tracking-[0.3em]">
-            {"//"} {blogDescription || "DATA_FLOW_STABLE"}
-          </p>
+          {blogDescription && (
+            <p className="text-[9px] font-mono text-foreground-muted uppercase tracking-[0.3em]">
+              {"//"} {blogDescription}
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-2 text-[9px] font-mono text-accent">
           <span className="animate-pulse">●</span>

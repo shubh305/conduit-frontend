@@ -8,8 +8,9 @@ export function getSettingsSidebarClasses(theme: ThemeVariant): string {
 
   const styles = {
     techie: "bg-noir-bg border-noir-border text-foreground",
+    ronin: "bg-[var(--bg-sidebar)] border-l border-[#3D3835] text-foreground",
     default: "bg-noir-panel border-noir-border text-foreground",
-  }
+  };
 
   const themeStyle = styles[theme as keyof typeof styles] || styles.default
   return cn(base, themeStyle)

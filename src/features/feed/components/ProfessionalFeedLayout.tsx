@@ -46,9 +46,11 @@ export function ProfessionalFeedLayout({
               {blogTitle || "The Conduit"}
             </h1>
           </div>
-          <p className="text-sm md:text-base text-foreground-muted font-sans max-w-lg leading-relaxed text-right">
-            {blogDescription || "Curated insights on engineering, design, and culture."}
-          </p>
+          {blogDescription && (
+            <p className="text-sm md:text-base text-foreground-muted font-sans max-w-lg leading-relaxed text-right">
+              {blogDescription}
+            </p>
+          )}
         </header>
 
         {/* 2. Featured Hero Story */}

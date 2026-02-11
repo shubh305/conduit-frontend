@@ -11,7 +11,7 @@ export async function getTenant(slug: string) {
   return { tenant };
 }
 
-export function createTenant(data: { name: string; slug: string; theme: string; logo?: string }) {
+export function createTenant(data: { name: string; slug: string; theme: string; logo?: string; description?: string }) {
   return fetchApi<{ tenant: Tenant }>("/tenants", {
     method: "POST",
     body: JSON.stringify(data),

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import NextImage from "next/image";
 import { Bell, Edit3, Menu, Compass } from "lucide-react";
 import { WIP_LIMITS } from "@/lib/wip-limits";
 import { usePathname } from "next/navigation";
@@ -69,19 +70,16 @@ export function TopNavigation({ onToggleSidebar, onToggleRightSidebar }: TopNavi
         <Link href="/" className="flex items-center gap-2 group">
           <div
             className={cn(
-              "w-8 h-8 border flex items-center justify-center border-noir-border bg-noir-hover",
+              "w-8 h-8 flex items-center justify-center relative",
               config.fontFamily === "mono" ? "" : "transition-transform group-hover:-rotate-3",
             )}
-            style={{ borderRadius: "var(--theme-radius-sm)" }}
           >
-            <span
-              className={cn(
-                "font-bold text-sm text-accent",
-                config.fontFamily === "mono" ? "font-mono" : "font-serif italic text-lg",
-              )}
-            >
-              {isSakuraCopy ? "導" : "C"}
-            </span>
+            <NextImage src="/logo.svg" alt="Conduit Logo" width={32} height={32} className="object-contain" />
+            {isSakuraCopy && (
+              <span className="absolute inset-0 flex items-center justify-center font-serif text-[10px] font-bold text-accent drop-shadow-sm select-none pointer-events-none">
+                導
+              </span>
+            )}
           </div>
           <span
             className={cn(

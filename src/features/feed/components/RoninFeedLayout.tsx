@@ -81,9 +81,11 @@ export function RoninFeedLayout({
           <h1 className="ronin-cinematic-title text-2xl md:text-3xl text-white/90">{blogTitle || "RONIN_TRANS"}</h1>
         </div>
 
-        <p className="font-noto text-gray-400 text-sm md:text-base leading-relaxed italic animate-in fade-in duration-1000 delay-300">
-          {blogDescription || "Securing the northern transmission. A new warrior rises from the edge of the world."}
-        </p>
+        {blogDescription && (
+          <p className="font-noto text-gray-400 text-sm md:text-base leading-relaxed italic animate-in fade-in duration-1000 delay-300">
+            {blogDescription}
+          </p>
+        )}
 
         {/* Minimal Status indicator */}
         <div className="mt-6 flex items-center gap-3 py-0.5 px-3 border border-white/5 bg-white/[0.02] rounded-full">

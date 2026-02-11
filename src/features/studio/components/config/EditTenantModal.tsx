@@ -25,6 +25,7 @@ export function EditTenantModal({ isOpen, onClose, onUpdate, tenant }: EditTenan
   const { getLabel } = useStudioLabels()
   
   const [name, setName] = useState(tenant.name);
+  const [description, setDescription] = useState(tenant.description || "");
   const [logo, setLogo] = useState<string>(tenant.logo || "");
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -32,6 +33,7 @@ export function EditTenantModal({ isOpen, onClose, onUpdate, tenant }: EditTenan
   useEffect(() => {
     if (isOpen) {
         setName(tenant.name);
+        setDescription(tenant.description || "");
         setLogo(tenant.logo || "");
     }
   }, [isOpen, tenant]);
@@ -58,6 +60,7 @@ export function EditTenantModal({ isOpen, onClose, onUpdate, tenant }: EditTenan
       const { tenant: updated } = await updateTenant(tenant.id, {
         name,
         logo,
+        description,
       });
 
       const successMessage = getLabel("publication_updated_success") || "Publication updated";
@@ -90,10 +93,20 @@ export function EditTenantModal({ isOpen, onClose, onUpdate, tenant }: EditTenan
               <label className="text-right">{getLabel("site_name_label")}</label>
               <input
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={e => setName(e.target.value)}
                 className="bg-black border-b border-accent text-white outline-none focus:bg-accent/10 px-2 py-1 uppercase"
                 placeholder="ENTER_NAME"
                 autoFocus
+              />
+            </div>
+
+            <div className="grid grid-cols-[150px_1fr] items-center gap-4">
+              <label className="text-right">{getLabel("site_description_label")}</label>
+              <input
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                className="bg-black border-b border-accent text-white outline-none focus:bg-accent/10 px-2 py-1"
+                placeholder="ENTER_DESC"
               />
             </div>
 
@@ -125,7 +138,10 @@ export function EditTenantModal({ isOpen, onClose, onUpdate, tenant }: EditTenan
           </div>
 
           <div className="p-4 border-t border-accent/30 flex justify-end gap-4">
-            <button onClick={onClose} className="px-4 py-2 hover:bg-red-900/50 hover:text-red-500 transition-colors cursor-pointer">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 hover:bg-red-900/50 hover:text-red-500 transition-colors cursor-pointer"
+            >
               {getLabel("retreat")}
             </button>
             <button
@@ -133,8 +149,7 @@ export function EditTenantModal({ isOpen, onClose, onUpdate, tenant }: EditTenan
               disabled={!name || isSaving}
               className={cn(
                 "px-6 py-2 bg-accent text-black font-bold hover:bg-white transition-colors cursor-pointer",
-                (!name || isSaving) &&
-                  "opacity-50 cursor-not-allowed bg-accent/20 text-accent",
+                (!name || isSaving) && "opacity-50 cursor-not-allowed bg-accent/20 text-accent",
               )}
             >
               {isSaving ? "WRITING..." : "[ UPDATE ]"}
@@ -142,7 +157,7 @@ export function EditTenantModal({ isOpen, onClose, onUpdate, tenant }: EditTenan
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -204,7 +219,7 @@ export function EditTenantModal({ isOpen, onClose, onUpdate, tenant }: EditTenan
                 </label>
                 <input
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={e => setName(e.target.value)}
                   placeholder={getLabel("site_name_placeholder")}
                   className={cn(
                     "w-full outline-none transition-all py-3 shadow-inner",
@@ -215,6 +230,36 @@ export function EditTenantModal({ isOpen, onClose, onUpdate, tenant }: EditTenan
                     isCyberCopy ? "font-mono h-12" : isRoninCopy ? "font-serif h-12 text-2xl" : "font-sans h-10",
                   )}
                   autoFocus
+                />
+              </div>
+
+              <div className="group">
+                <label
+                  className={cn(
+                    "block mb-2 font-mono text-[10px] uppercase tracking-[0.3em] transition-colors",
+                    isCyberCopy
+                      ? "text-accent/50 group-focus-within:text-accent"
+                      : "text-foreground-subtle group-focus-within:text-foreground",
+                  )}
+                >
+                  {getLabel("site_description_label")}
+                </label>
+                <input
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  placeholder={getLabel("site_description_placeholder")}
+                  className={cn(
+                    "w-full outline-none transition-all py-3 shadow-inner",
+                    "border-b border-noir-border focus:border-accent text-foreground font-bold text-lg placeholder:text-foreground-subtle/20",
+                    isJournalCopy
+                      ? "font-serif h-12 text-sm border border-accent/20 rounded-lg px-4 bg-noir-hover/20"
+                      : "px-4 bg-noir-panel",
+                    isCyberCopy
+                      ? "font-mono h-12 text-sm"
+                      : isRoninCopy
+                        ? "font-serif h-12 text-lg"
+                        : "font-sans h-10 text-sm",
+                  )}
                 />
               </div>
 
@@ -229,7 +274,7 @@ export function EditTenantModal({ isOpen, onClose, onUpdate, tenant }: EditTenan
                 >
                   {getLabel("site_handle_label")}
                 </label>
-                
+
                 <div
                   className={cn(
                     "flex items-center overflow-hidden transition-all border shadow-inner",
@@ -293,8 +338,8 @@ export function EditTenantModal({ isOpen, onClose, onUpdate, tenant }: EditTenan
                 >
                   {isUploading ? (
                     <div className="flex flex-col items-center gap-2">
-                       <Loader2 size={16} className="animate-spin text-accent" />
-                       <span>Uploading...</span>
+                      <Loader2 size={16} className="animate-spin text-accent" />
+                      <span>Uploading...</span>
                     </div>
                   ) : (
                     "Upload Signal Icon"

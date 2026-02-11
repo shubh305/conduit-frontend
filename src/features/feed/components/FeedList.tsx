@@ -184,9 +184,11 @@ export function FeedList({
             <h1 className="text-4xl md:text-6xl font-sans font-black text-white uppercase tracking-tighter">
               {blogTitle || "Transmission_Stream"}
             </h1>
-            <p className="text-foreground-muted font-mono text-xs uppercase tracking-widest mt-2">
-              {blogDescription || "// Sector Data Active"}
-            </p>
+            {blogDescription && (
+              <p className="text-foreground-muted font-mono text-xs uppercase tracking-widest mt-2">
+                {blogDescription}
+              </p>
+            )}
           </div>
         )}
 

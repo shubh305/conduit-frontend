@@ -45,6 +45,9 @@ const spectral = Spectral({
 export const metadata: Metadata = {
   title: "Conduit",
   description: "Multi-tenant blogging platform",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 import { FluidicWrapper } from "@/features/theme/FluidicWrapper";

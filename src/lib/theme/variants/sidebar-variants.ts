@@ -21,6 +21,7 @@ export function getDashboardStatCardClasses(theme: ThemeVariant): string {
   if (theme === "cyber") return cn(base, "bg-noir-bg border-accent/20 rounded-none");
   if (theme === "terminal") return cn(base, "bg-black border-accent/20 rounded-none font-mono");
   if (theme === "journal") return cn(base, "bg-white/40 border-accent/10 rounded-xl");
+  if (theme === "ronin") return cn(base, "bg-[var(--bg-panel)] border-[#3D3835] rounded-sm");
   
   return cn(base, "bg-noir-panel border-noir-border rounded-2xl");
 }
@@ -35,6 +36,8 @@ export function getSidebarClasses(theme: ThemeVariant): string {
       return cn(base, "bg-black border-accent/20 font-mono");
     case "journal":
       return cn(base, "bg-[var(--journal-paper)] border-accent/5");
+    case "ronin":
+      return cn(base, "bg-[var(--bg-sidebar)] border-r border-[#3D3835]");
     default:
       return cn(base, "bg-noir-panel border-noir-border");
   }
@@ -59,6 +62,16 @@ export function getSidebarItemClasses(theme: ThemeVariant, isActive: boolean): s
     );
   }
 
+  if (theme === "ronin") {
+    return cn(
+      base,
+      "rounded-sm transition-colors duration-300",
+      isActive
+        ? "text-[var(--accent)] bg-[var(--bg-hover)] border-l-2 border-[var(--accent)] pl-3.5" // compensate for border
+        : "text-[var(--foreground-subtle)] hover:text-[var(--foreground)] hover:bg-[var(--bg-hover)]",
+    );
+  }
+
   return cn(
     base,
     "rounded-lg",
@@ -72,6 +85,8 @@ export function getTenantSwitcherClasses(theme: ThemeVariant): string {
   if (theme === "cyber") return cn(base, "rounded-none border-accent/20 hover:border-accent");
   if (theme === "terminal") return cn(base, "rounded-none border-accent/20 hover:border-accent font-mono");
   if (theme === "journal") return cn(base, "rounded-xl border-accent/10 hover:border-accent/20");
+  if (theme === "ronin")
+    return cn(base, "rounded-sm border-[#3D3835] bg-[var(--bg-panel)] hover:border-[var(--accent)]/50");
   
   return cn(base, "rounded-xl border-noir-border hover:border-foreground/20");
 }

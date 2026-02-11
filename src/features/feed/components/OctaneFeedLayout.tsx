@@ -60,10 +60,12 @@ export function OctaneFeedLayout({
             <h1 className="text-6xl md:text-8xl font-black italic tracking-tighter uppercase font-sans text-white drop-shadow-lg">
               {blogTitle || "OCTANE_MAG"}
             </h1>
-            <p className="text-foreground-muted font-mono text-sm uppercase tracking-[0.2em] flex items-center gap-4">
-              <span className="text-accent">{"///"}</span>
-              {blogDescription || "High Performance Journalism"}
-            </p>
+            {blogDescription && (
+              <p className="text-foreground-muted font-mono text-sm uppercase tracking-[0.2em] flex items-center gap-4">
+                <span className="text-accent">{"///"}</span>
+                {blogDescription}
+              </p>
+            )}
           </div>
 
           {/* RPM / Stats Detail */}

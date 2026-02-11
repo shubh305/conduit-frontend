@@ -42,9 +42,9 @@ export function JournalFeedLayout({
           <h1 className="text-4xl md:text-5xl lg:text-7xl font-serif font-black text-foreground italic leading-none tracking-tighter">
             {blogTitle || "Literary_Stream"}
           </h1>
-          <p className="text-lg md:text-xl font-serif italic text-accent/60 mt-2 max-w-2xl px-6">
-            {blogDescription || "Curating thoughts, culture, and digital transmissions."}
-          </p>
+          {blogDescription && (
+            <p className="text-lg md:text-xl font-serif italic text-accent/60 mt-2 max-w-2xl px-6">{blogDescription}</p>
+          )}
         </div>
       </header>
 

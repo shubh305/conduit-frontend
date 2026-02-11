@@ -38,6 +38,8 @@ export type StudioLabelKey =
   | "site_name_placeholder"
   | "site_handle_label"
   | "site_handle_desc"
+  | "site_description_label"
+  | "site_description_placeholder"
   | "available"
   | "in_use"
   | "retreat"
@@ -430,6 +432,24 @@ export const STUDIO_LABELS: Record<StudioLabelKey, Record<string, string>> = {
     cyber: "CRYPTO_DNS_OVERRIDE AVAILABLE LATER.",
     terminal: "# DNS_MAP_PENDING",
     ronin: "THE_PATH_CAN_BE_RENAMED_LATER",
+  },
+  site_description_label: {
+    default: "Description",
+    sakura: "説明",
+    octane: "Specs",
+    journal: "Preface",
+    cyber: "SIGNAL_META",
+    terminal: "DESC:",
+    ronin: "MEANING",
+  },
+  site_description_placeholder: {
+    default: "What is this publication about?",
+    sakura: "このブログについて...",
+    octane: "Description of the chassis...",
+    journal: "A brief introduction...",
+    cyber: "INIT_META_DESCRIPTION...",
+    terminal: "ENTER_DESC",
+    ronin: "Define the purpose...",
   },
   available: {
     default: "Available",

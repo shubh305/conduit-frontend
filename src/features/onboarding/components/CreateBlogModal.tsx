@@ -26,6 +26,7 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
   const { refreshUser } = useAuth();
   const { getLabel } = useStudioLabels()
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [subdomain, setSubdomain] = useState("");
   const [isSubdomainAvailable, setIsSubdomainAvailable] = useState<boolean | null>(null);
   const [logo, setLogo] = useState<string>("");
@@ -84,8 +85,9 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
       const { tenant } = await createTenant({
         name,
         slug: subdomain,
-        theme: isCyberCopy ? "cyber" : isSakuraCopy ? "sakura" : isRoninCopy ? "ronin" : isOctaneCopy ? "octane" : isJournalCopy ? "journal" : "classic",
+        theme,
         logo,
+        description,
       });
 
       const newBlog: UserBlog = {
@@ -132,6 +134,16 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
                 className="bg-black border-b border-accent text-white outline-none focus:bg-accent/10 px-2 py-1 uppercase"
                 placeholder="ENTER_NAME"
                 autoFocus
+              />
+            </div>
+
+            <div className="grid grid-cols-[150px_1fr] items-center gap-4">
+              <label className="text-right">{getLabel("site_description_label")}</label>
+              <input
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                className="bg-black border-b border-accent text-white outline-none focus:bg-accent/10 px-2 py-1"
+                placeholder="ENTER_DESC"
               />
             </div>
 
@@ -205,7 +217,7 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -279,6 +291,36 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
                     isCyberCopy ? "font-mono h-12" : isRoninCopy ? "font-serif h-12 text-2xl" : "font-sans h-10",
                   )}
                   autoFocus
+                />
+              </div>
+
+              <div className="group">
+                <label
+                  className={cn(
+                    "block mb-2 font-mono text-[10px] uppercase tracking-[0.3em] transition-colors",
+                    isCyberCopy
+                      ? "text-accent/50 group-focus-within:text-accent"
+                      : "text-foreground-subtle group-focus-within:text-foreground",
+                  )}
+                >
+                  {getLabel("site_description_label")}
+                </label>
+                <input
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  placeholder={getLabel("site_description_placeholder")}
+                  className={cn(
+                    "w-full outline-none transition-all py-3 shadow-inner",
+                    "border-b border-noir-border focus:border-accent text-foreground font-bold text-lg placeholder:text-foreground-subtle/20",
+                    isJournalCopy
+                      ? "font-serif h-12 text-sm border border-accent/20 rounded-lg px-4 bg-noir-hover/20"
+                      : "px-4 bg-noir-panel",
+                    isCyberCopy
+                      ? "font-mono h-12 text-sm"
+                      : isRoninCopy
+                        ? "font-serif h-12 text-lg"
+                        : "font-sans h-10 text-sm",
+                  )}
                 />
               </div>
 

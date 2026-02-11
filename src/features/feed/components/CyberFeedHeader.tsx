@@ -57,68 +57,44 @@ export function CyberFeedHeader({ featured, blogDescription, blogTitle }: { feat
           {displayTitle}
         </h1>
 
-        <div className="mt-auto">
-          <div
-            className={cn(
-              "text-[10px] mb-2 uppercase tracking-widest",
-              isCyberCopy
-                ? "font-mono text-accent/50"
+        {blogDescription && (
+          <div className="mt-auto">
+            <div
+              className={cn(
+                "text-[10px] mb-2 uppercase tracking-widest",
+                isCyberCopy
+                  ? "font-mono text-accent/50"
+                  : isRoninCopy
+                    ? "font-serif text-accent/70"
+                    : isOctaneCopy
+                      ? "font-sans text-accent/60"
+                      : "font-sans text-foreground-subtle",
+                isJournalCopy && "font-serif text-journal-accent font-bold border-b border-journal-accent/20 pb-1 mb-3",
+              )}
+            >
+              {isSakuraCopy
+                ? "ネットワーク状態"
                 : isRoninCopy
-                  ? "font-serif text-accent/70"
+                  ? "道の状態 (Path Status)"
                   : isOctaneCopy
-                    ? "font-sans text-accent/60"
-                    : "font-sans text-foreground-subtle",
-              isJournalCopy && "font-serif text-journal-accent font-bold border-b border-journal-accent/20 pb-1 mb-3",
-            )}
-          >
-            {isSakuraCopy
-              ? "ネットワーク状態"
-              : isRoninCopy
-                ? "道の状態 (Path Status)"
-                : isOctaneCopy
-                  ? "STATUS"
-                  : isJournalCopy
-                    ? "The Edition"
-                    : "NETWORK_STATUS"}
+                    ? "STATUS"
+                    : isJournalCopy
+                      ? "The Edition"
+                      : "NETWORK_STATUS"}
+            </div>
+            {!isJournalCopy && <div className="h-[1px] w-full bg-noir-border mb-2" />}
+            <div
+              className={cn(
+                "text-xs leading-relaxed",
+                isCyberCopy ? "text-foreground-subtle/80 font-mono" : "text-foreground-muted",
+                isJournalCopy && "text-journal-ink-muted font-serif italic text-sm",
+              )}
+            >
+              {isCyberCopy ? "// " : ""}
+              {blogDescription}
+            </div>
           </div>
-          {!isJournalCopy && <div className="h-[1px] w-full bg-noir-border mb-2" />}
-          <div
-            className={cn(
-              "text-xs leading-relaxed",
-              isCyberCopy ? "text-foreground-subtle/80 font-mono" : "text-foreground-muted",
-              isJournalCopy && "text-journal-ink-muted font-serif italic text-sm",
-            )}
-          >
-            {blogDescription ? (
-              <>
-                {isCyberCopy ? "// " : isRoninCopy ? "" : ""}
-                {blogDescription}
-              </>
-            ) : (
-              <>
-                {isCyberCopy
-                  ? "// The OctaneBrew Publishing Network"
-                  : isRoninCopy
-                    ? "影に刻まれた言葉 (Words carved in shadow)"
-                    : isOctaneCopy
-                      ? "The OctaneBrew Publishing Network"
-                      : isJournalCopy
-                        ? "Volume I, Issue 1"
-                        : "The OctaneBrew Publishing Network"}
-                <br />
-                {isSakuraCopy
-                  ? "デザイン、文化、技術の交差点。"
-                  : isRoninCopy
-                    ? "敵を知ること、それが知恵の始まり (To know thy enemy is wisdom's beginning)"
-                    : isOctaneCopy
-                      ? "Stories from engineering, design, and craft."
-                      : isJournalCopy
-                        ? "A collection of thoughts, essays, and timeless writings."
-                        : "Discover stories from engineering, design, and culture."}
-              </>
-            )}
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Center Hero Component */}

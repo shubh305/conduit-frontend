@@ -87,10 +87,11 @@ export function SakuraFeedLayout({
           <div className="h-[1px] w-24 bg-gradient-to-r from-transparent via-accent/30 to-transparent mx-auto" />
         </div>
 
-        <p className="font-sans text-foreground-muted text-lg md:text-xl leading-relaxed max-w-2xl mx-auto font-light">
-          {blogDescription ||
-            "Embrace the fleeting beauty of the season. A collection of thoughts, ephemeral and enduring."}
-        </p>
+        {blogDescription && (
+          <p className="font-sans text-foreground-muted text-lg md:text-xl leading-relaxed max-w-2xl mx-auto font-light">
+            {blogDescription}
+          </p>
+        )}
       </header>
 
       {/* 3. Main Content */}
