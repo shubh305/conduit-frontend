@@ -110,7 +110,15 @@ export type LabelKey =
   | "noStoriesFound"
   | "noNodesFound"
   | "noFrequenciesFound"
-  | "accessAllFromAuthor";
+  | "accessAllFromAuthor"
+  | "noBio"
+  | "editProfileButton"
+  | "followButton"
+  | "unfollowButton"
+  | "followersLabel"
+  | "followingLabel"
+  | "proLabel"
+  | "uidLabel";
 
 const labelMap: Record<LabelKey, Record<ThemeVariant | "default", string>> = {
   newSearch: {
@@ -206,28 +214,28 @@ const labelMap: Record<LabelKey, Record<ThemeVariant | "default", string>> = {
   },
   followAction: {
     cyber: "LINK",
-    sakura: "Follow (フォローする)",
-    ronin: "Pledge (誓)",
+    sakura: "Follow",
+    ronin: "Pledge",
     octane: "Follow",
     journal: "Follow",
     terminal: "JOIN",
     classic: "Follow",
     "classic-white": "Follow",
     professional: "Follow",
-    techie: "INIT_LINK",
+    techie: "LINK",
     default: "Follow",
   },
   followingAction: {
     cyber: "LINKED",
-    sakura: "Following (フォロー中)",
-    ronin: "Allied (連)",
+    sakura: "Following",
+    ronin: "Allied",
     octane: "Following",
     journal: "Following",
     terminal: "MEMBER",
     classic: "Following",
     "classic-white": "Following",
     professional: "Following",
-    techie: "LINK_ACTIVE",
+    techie: "LINKED",
     default: "Following",
   },
   noStoriesFound: {
@@ -700,6 +708,110 @@ const labelMap: Record<LabelKey, Record<ThemeVariant | "default", string>> = {
     professional: "No publications",
     techie: "NO_ACTIVE_PROJECTS",
     default: "No publications",
+  },
+  noBio: {
+    cyber: "NO_BIODATA_FOUND",
+    sakura: "No description available. (自己紹介なし)",
+    ronin: "言葉不要 (No words necessary)",
+    octane: "No specs on file.",
+    journal: "No biography written yet.",
+    terminal: "NO_DESC",
+    techie: "SYS::BIO::UNDEFINED - MODULE DESCRIPTION MISSING",
+    classic: "No description available.",
+    "classic-white": "No description available.",
+    professional: "No description available.",
+    default: "No description available.",
+  },
+  editProfileButton: {
+    cyber: "CONFIG_PROFILE",
+    sakura: "Settings (プロフィール設定)",
+    ronin: "武器庫 (Armory)",
+    octane: "WORKSHOP",
+    journal: "Edit Profile",
+    terminal: "[EDIT_CONFIG]",
+    techie: "SYS::EDIT_IDENT",
+    classic: "Edit Identification",
+    "classic-white": "Edit Settings",
+    professional: "Edit Profile",
+    default: "Settings",
+  },
+  followButton: {
+    cyber: "LINK",
+    sakura: "Follow",
+    ronin: "Pledge",
+    octane: "Follow",
+    journal: "Follow",
+    terminal: "JOIN",
+    classic: "Follow",
+    "classic-white": "Follow",
+    professional: "Follow",
+    techie: "LINK",
+    default: "Follow",
+  },
+  unfollowButton: {
+    cyber: "UNLINK",
+    sakura: "Unfollow",
+    ronin: "Sever",
+    octane: "Unfollow",
+    journal: "Unfollow",
+    terminal: "PART",
+    classic: "Unfollow",
+    "classic-white": "Unfollow",
+    professional: "Unfollow",
+    techie: "UNLINK",
+    default: "Unfollow",
+  },
+  followersLabel: {
+    cyber: "FOLLOWERS",
+    sakura: "Followers (フォロワー)",
+    ronin: "衆 (Allies)",
+    octane: "Followers",
+    journal: "Readers",
+    terminal: "followers",
+    techie: "Followers",
+    classic: "Followers",
+    "classic-white": "Followers",
+    professional: "Followers",
+    default: "Followers",
+  },
+  followingLabel: {
+    cyber: "FOLLOWING",
+    sakura: "Following (フォロー中)",
+    ronin: "絆 (Bonds)",
+    octane: "Following",
+    journal: "Following",
+    terminal: "following",
+    techie: "Following",
+    classic: "Following",
+    "classic-white": "Following",
+    professional: "Following",
+    default: "Following",
+  },
+  proLabel: {
+    cyber: "PRO_OPERATOR",
+    sakura: "Pro",
+    ronin: "師 (Master)",
+    octane: "MECHANIC",
+    journal: "Author",
+    terminal: "PRO_USER",
+    techie: "CORE_SYSTEMS",
+    classic: "COMMANDER",
+    "classic-white": "Pro",
+    professional: "Pro",
+    default: "Pro",
+  },
+  uidLabel: {
+    cyber: "UID",
+    sakura: "UID",
+    ronin: "UID",
+    octane: "UID",
+    journal: "UID",
+    terminal: "UID",
+    techie: "NODE_ID",
+    classic: "UID",
+    "classic-white": "UID",
+    professional: "UID",
+    default: "UID",
   },
   loadingProfile: {
     cyber: "LOADING_PROFILE...",
@@ -1555,17 +1667,20 @@ export function getLabel(key: LabelKey, theme: ThemeVariant): string {
   return labelMap[key]?.[theme] || labelMap[key]?.["default"] || key;
 }
 
-const japaneseSubLabels: Record<string, { sakura?: string; ronin?: string }> = {
-  home: { sakura: "ホーム", ronin: "家" },
-  library: { sakura: "保存", ronin: "蔵" },
-  mySites: { sakura: "マイサイト", ronin: "城" },
-  forYou: { sakura: "おすすめ", ronin: "選" },
-  following: { sakura: "フォロー中", ronin: "絆" },
-  login: { sakura: "ログイン", ronin: "入" },
+const japaneseSubLabels: Record<string, { sakura?: string; ronin?: string; journal?: string }> = {
+  home: { sakura: "ホーム", ronin: "家", journal: "日誌" },
+  library: { sakura: "保存", ronin: "蔵", journal: "文庫" },
+  mySites: { sakura: "マイサイト", ronin: "城", journal: "工房" },
+  forYou: { sakura: "おすすめ", ronin: "選", journal: "推奨" },
+  following: { sakura: "フォロー中", ronin: "絆", journal: "閲読" },
+  login: { sakura: "ログイン", ronin: "入", journal: "記帳" },
+  profile: { ronin: "身分", journal: "著者" },
+  settings: { ronin: "掟", journal: "設定" },
 };
 
 export function getJapaneseSubLabel(key: string, theme: ThemeVariant): string | undefined {
   if (theme === "sakura") return japaneseSubLabels[key]?.sakura;
   if (theme === "ronin") return japaneseSubLabels[key]?.ronin;
+  if (theme === "journal") return japaneseSubLabels[key]?.journal;
   return undefined;
 }

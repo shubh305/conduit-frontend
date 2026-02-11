@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { ThemeId, ThemeConfig } from "./types"
 import { StudioLabelKey, getStudioLabel } from "./studio-labels"
+import { LabelKey, getLabel } from "@/lib/theme/labels";
 
 export type { ThemeId, ThemeConfig } from "./types"
 
@@ -313,9 +314,16 @@ export function useThemeHelpers() {
   };
 }
 
+export function useLabels() {
+  const { theme } = useTheme();
+  return {
+    getLabel: (key: LabelKey) => getLabel(key, theme),
+  };
+}
+ 
 export function useStudioLabels() {
   const { theme } = useTheme()
   return {
     getLabel: (key: StudioLabelKey) => getStudioLabel(key, theme),
-  }
+  };
 }

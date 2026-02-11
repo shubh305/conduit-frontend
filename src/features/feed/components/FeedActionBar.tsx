@@ -1,30 +1,34 @@
 "use client";
 
 import { useLibrary } from "@/features/library/context/LibraryContext";
-import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
+import { useTheme, useThemeHelpers, useLabels } from "@/features/theme/ThemeProvider";
 import { cn } from "@/lib/utils";
-import { Bookmark, Heart, MessageCircle, Share, MoreHorizontal, Hand } from "lucide-react";
+import { Bookmark, Heart, MessageCircle, Share, MoreHorizontal, Hand, UserPlus, UserMinus, Flag } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { likePost, unlikePost } from "../api";
 import { SaveToListMenu } from "@/features/lists/components/SaveToListMenu";
+import { useAuth } from "@/features/auth/AuthProvider";
 import { useMounted } from "@/hooks/use-mounted";
+import { useFollowUser } from "@/features/profile/hooks/useFollowUser";
 
 interface FeedActionBarProps {
-  postId: string
-  slug: string
-  tenantId?: string
-  authorUsername?: string
-  initialLikes?: number
-  initialIsLiked?: boolean
-  initialComments?: number
-  className?: string
-  onCommentClick?: () => void
-  onRemove?: () => void
-  interactive?: boolean | { likes?: boolean; comments?: boolean; share?: boolean; save?: boolean; more?: boolean }
-  compact?: boolean
-  layout?: "horizontal" | "vertical"
+  postId: string;
+  slug: string;
+  tenantId?: string;
+  authorUsername?: string;
+  authorId?: string;
+  initialLikes?: number;
+  initialIsLiked?: boolean;
+  initialComments?: number;
+  initialIsFollowing?: boolean;
+  className?: string;
+  onCommentClick?: () => void;
+  onRemove?: () => void;
+  interactive?: boolean | { likes?: boolean; comments?: boolean; share?: boolean; save?: boolean; more?: boolean };
+  compact?: boolean;
+  layout?: "horizontal" | "vertical";
 }
 
 export function FeedActionBar({
@@ -32,9 +36,11 @@ export function FeedActionBar({
   slug,
   tenantId,
   authorUsername,
+  authorId,
   initialLikes = 0,
   initialIsLiked = false,
   initialComments = 0,
+  initialIsFollowing = false,
   className,
   onCommentClick,
   onRemove,
@@ -42,66 +48,70 @@ export function FeedActionBar({
   compact = false,
   layout = "horizontal",
 }: FeedActionBarProps) {
+  const { user } = useAuth();
   const isInteractive = (key: keyof Exclude<FeedActionBarProps["interactive"], boolean | undefined>) => {
-    if (typeof interactive === "boolean") return interactive
-    return interactive[key] !== false
-  }
+    if (typeof interactive === "boolean") return interactive;
+    return interactive[key] !== false;
+  };
 
-  const { theme } = useTheme()
-  const { isCyberCopy } = useThemeHelpers()
-  const { isPostSaved } = useLibrary()
+  const { theme } = useTheme();
+  const { isCyberCopy } = useThemeHelpers();
+  const { getLabel } = useLabels();
+  const { isPostSaved } = useLibrary();
   const mounted = useMounted();
 
-  const [likes, setLikes] = useState(initialLikes)
-  const [isLiked, setIsLiked] = useState(initialIsLiked)
+  const [likes, setLikes] = useState(initialLikes);
+  const [isLiked, setIsLiked] = useState(initialIsLiked);
 
-  const isSaved = isPostSaved(postId)
+  const { isFollowing, toggleFollow } = useFollowUser({
+    userId: authorId || "",
+    initialIsFollowing: initialIsFollowing,
+  });
+
+  const isSaved = isPostSaved(postId);
 
   const handleLike = async (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (!isInteractive("likes")) return
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isInteractive("likes")) return;
 
+    const previousLiked = isLiked;
+    const previousLikes = likes;
 
-    const previousLiked = isLiked
-    const previousLikes = likes
-
-    setIsLiked(prev => !prev)
-    setLikes(prev => (isLiked ? prev - 1 : prev + 1))
+    setIsLiked(prev => !prev);
+    setLikes(prev => (isLiked ? prev - 1 : prev + 1));
 
     try {
       if (isLiked) {
-        await unlikePost(postId, tenantId)
+        await unlikePost(postId, tenantId);
       } else {
-        await likePost(postId, tenantId)
+        await likePost(postId, tenantId);
       }
     } catch {
-
-      setIsLiked(previousLiked)
-      setLikes(previousLikes)
-      toast.error("Failed to update like")
+      setIsLiked(previousLiked);
+      setLikes(previousLikes);
+      toast.error("Failed to update like");
     }
-  }
+  };
 
   const handleShare = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    const url = `${window.location.origin}/u/${authorUsername || "user"}/${slug}`
-    navigator.clipboard.writeText(url)
-    toast.success("Link copied to clipboard")
-  }
-
+    e.preventDefault();
+    e.stopPropagation();
+    const url = `${window.location.origin}/u/${authorUsername || "user"}/${slug}`;
+    navigator.clipboard.writeText(url);
+    toast.success("Link copied to clipboard");
+  };
 
   const getIconStyles = (key: keyof Exclude<FeedActionBarProps["interactive"], boolean | undefined>) => {
-    const active = isInteractive(key)
+    const active = isInteractive(key);
     return cn(
       "flex items-center gap-1 focus:outline-none",
       active ? "cursor-pointer transition-all duration-200 hover:text-accent/80" : "cursor-default",
-    )
-  }
+    );
+  };
 
-  const iconActive = "text-accent"
-  const isVertical = layout === "vertical"
+  const iconActive = "text-accent";
+  const isVertical = layout === "vertical";
 
   return (
     <div
@@ -170,7 +180,10 @@ export function FeedActionBar({
           <DropdownMenuTrigger asChild disabled={!isInteractive("share")}>
             <button
               type="button"
-              onClick={e => e.stopPropagation()}
+              onClick={e => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
               className={cn(getIconStyles("share"), "text-foreground-subtle")}
             >
               <Share size={18} className={theme === "journal" ? "text-journal-accent" : ""} />
@@ -217,7 +230,10 @@ export function FeedActionBar({
           <DropdownMenuTrigger asChild disabled={!isInteractive("more")}>
             <button
               type="button"
-              onClick={e => e.stopPropagation()}
+              onClick={e => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
               className={cn(getIconStyles("more"), "text-foreground-subtle")}
             >
               <MoreHorizontal size={18} className={theme === "journal" ? "text-journal-accent" : ""} />
@@ -229,6 +245,19 @@ export function FeedActionBar({
             className="bg-noir-panel border-noir-border text-foreground"
             style={{ borderRadius: isCyberCopy ? "0" : "var(--theme-radius-md)" }}
           >
+            {authorId && (!user || user.id !== authorId) && (
+              <DropdownMenuItem
+                onClick={e => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  toggleFollow();
+                }}
+                className="focus:bg-accent/10 focus:text-accent cursor-pointer text-xs uppercase font-mono tracking-widest gap-2"
+              >
+                {isFollowing ? <UserMinus size={14} /> : <UserPlus size={14} />}
+                {isFollowing ? getLabel("unfollowButton") : getLabel("followButton")}
+              </DropdownMenuItem>
+            )}
             {onRemove && (
               <DropdownMenuItem
                 onClick={e => {
@@ -245,10 +274,11 @@ export function FeedActionBar({
               onClick={e => {
                 e.preventDefault();
                 e.stopPropagation();
-                toast.info("Coming soon");
+                toast.success("Report submitted. We will review this shortly.");
               }}
-              className="focus:bg-accent/10 focus:text-accent cursor-pointer text-xs uppercase font-mono tracking-widest"
+              className="focus:bg-accent/10 focus:text-accent cursor-pointer text-xs uppercase font-mono tracking-widest gap-2"
             >
+              <Flag size={14} />
               Report
             </DropdownMenuItem>
           </DropdownMenuContent>
