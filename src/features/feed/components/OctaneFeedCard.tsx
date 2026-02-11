@@ -54,7 +54,7 @@ export function OctaneFeedCard({ item, className, onRemove }: OctaneFeedCardProp
         <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-noir-panel to-transparent pointer-events-none" />
 
         {/* Badge */}
-        <div className="absolute top-4 left-4 bg-accent text-white font-black text-xs px-3 py-1 skew-x-[-10deg] uppercase shadow-[4px_4px_0_rgba(0,0,0,0.5)] transform translate-x-[-20px] opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
+        <div className="absolute top-4 left-4 bg-accent text-white font-black text-xs px-3 py-1 skew-x-[-10deg] uppercase shadow-[4px_4px_0_rgba(0,0,0,0.5)] transform translate-x-0 md:translate-x-[-20px] opacity-100 md:opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
           <span className="skew-x-[10deg] block">TURBO_CHARGED</span>
         </div>
       </Link>

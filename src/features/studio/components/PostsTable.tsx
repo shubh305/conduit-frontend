@@ -77,7 +77,7 @@ export function PostsTable({ posts, onDelete }: { posts: Post[]; onDelete?: (id:
                 {new Date(post.publishedAt).toLocaleDateString("en-US")}
               </td>
               <td className="px-8 py-6 text-right">
-                <div className="flex items-center justify-end gap-3 opacity-60 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center justify-end gap-3 opacity-100 md:opacity-60 group-hover:opacity-100 transition-opacity">
                   <Link href={`/studio/editor/${post.id}?tenant=${post.tenantId}`}>
                     <Button
                       variant="ghost"

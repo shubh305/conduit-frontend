@@ -80,7 +80,7 @@ export function SakuraFeedCard({ item, className, variant = "default", onRemove 
         <div className="absolute inset-0 bg-accent/0 group-hover:bg-accent/5 transition-colors duration-500 pointer-events-none" />
 
         {/* Floating Actions */}
-        <div className="absolute top-3 right-3 translate-y-[-10px] opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-10">
+        <div className="absolute top-3 right-3 translate-y-0 md:translate-y-[-10px] opacity-100 md:opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-10">
           <PostActions
             data={item}
             onRemove={onRemove}

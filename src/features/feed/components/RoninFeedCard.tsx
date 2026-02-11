@@ -101,7 +101,7 @@ export function RoninFeedCard({ item, className, variant = "default", onRemove, 
         </Link>
 
         {/* Action Overlay*/}
-        <div className="mt-4 relative z-50 opacity-0 group-hover:opacity-100 transition-all duration-700 pointer-events-auto">
+        <div className="mt-4 relative z-50 opacity-100 md:opacity-0 group-hover:opacity-100 transition-all duration-700 pointer-events-auto">
           <PostActions
             data={item}
             onRemove={onRemove}

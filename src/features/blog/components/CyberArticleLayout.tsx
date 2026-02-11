@@ -214,7 +214,7 @@ export function CyberArticleLayout({ post, tenant, isPreview: isPreviewProp }: A
                     target="_blank"
                     rel="noopener noreferrer"
                     className={cn(
-                      "px-3 py-1.5 text-[8px] uppercase font-bold tracking-widest bg-noir-bg/60 text-foreground backdrop-blur-md hover:text-accent transition-all opacity-0 group-hover:opacity-100",
+                      "px-3 py-1.5 text-[8px] uppercase font-bold tracking-widest bg-noir-bg/60 text-foreground backdrop-blur-md hover:text-accent transition-all opacity-100 md:opacity-0 group-hover:opacity-100",
                       isCyberCopy ? "rounded-none border-l-2 border-accent" : "rounded-full",
                     )}
                   >
