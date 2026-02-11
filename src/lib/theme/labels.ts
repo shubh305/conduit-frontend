@@ -410,7 +410,7 @@ const labelMap: Record<LabelKey, Record<ThemeVariant | "default", string>> = {
   profile: {
     cyber: "PROFILE",
     sakura: "プロフィール",
-    ronin: "Profile (身分)",
+    ronin: "Profile",
     octane: "PROFILE",
     journal: "Profile",
     terminal: "User",

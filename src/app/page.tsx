@@ -17,8 +17,6 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const { getLabel } = useLabels();
 
-  // Sync state with props during render to avoid "cascading renders" from useEffect.
-  // This immediately schedules a re-render with the updated state before the browser paints.
   const [prevParams, setPrevParams] = useState({ category, feed });
   if (prevParams.category !== category || prevParams.feed !== feed) {
     setPrevParams({ category, feed });
@@ -51,7 +49,10 @@ export default function Home() {
   if (isLoading) {
     return (
       <main className="min-h-screen flex items-center justify-center">
-        <div className="text-foreground-muted font-mono text-xs uppercase tracking-widest animate-pulse">
+        <div
+          className="text-foreground-muted font-mono text-xs uppercase tracking-widest animate-pulse"
+          suppressHydrationWarning
+        >
           {getLabel("loading")}
         </div>
       </main>

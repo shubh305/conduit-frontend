@@ -105,8 +105,8 @@ export function FeedActionBar({
   const getIconStyles = (key: keyof Exclude<FeedActionBarProps["interactive"], boolean | undefined>) => {
     const active = isInteractive(key);
     return cn(
-      "flex items-center gap-1 focus:outline-none",
-      active ? "cursor-pointer transition-all duration-200 hover:text-accent/80" : "cursor-default",
+      "flex items-center gap-1.5 focus:outline-none transition-all duration-300",
+      active ? "cursor-pointer hover:text-accent/80 active:scale-95" : "cursor-default",
     );
   };
 
@@ -126,7 +126,7 @@ export function FeedActionBar({
         className={cn(
           "flex",
           isVertical ? "flex-col items-center gap-6" : "items-center",
-          compact ? "gap-2" : "gap-3 md:gap-6",
+          compact ? "gap-2.5 md:gap-3" : "gap-4 md:gap-6",
         )}
       >
         {/* Like */}
@@ -136,11 +136,11 @@ export function FeedActionBar({
           className={cn(
             getIconStyles("likes"),
             isLiked ? iconActive : "text-foreground-subtle",
-            isVertical && "flex-col gap-1",
+            isVertical && "flex-col gap-1.5",
           )}
         >
           {mounted && isCyberCopy ? (
-            <Heart size={18} fill={isLiked ? "currentColor" : "none"} className={isLiked ? "scale-110" : ""} />
+            <Heart size={20} fill={isLiked ? "currentColor" : "none"} className={isLiked ? "scale-110" : ""} />
           ) : mounted && theme === "journal" ? (
             <Heart
               size={20}
@@ -148,7 +148,7 @@ export function FeedActionBar({
               className={cn("text-journal-accent", isLiked ? "scale-110" : "")}
             />
           ) : (
-            <Hand size={18} fill={isLiked ? "currentColor" : "none"} className={isLiked ? "scale-110" : ""} />
+            <Hand size={20} fill={isLiked ? "currentColor" : "none"} className={isLiked ? "scale-110" : ""} />
           )}
           <span className={cn("text-xs font-mono", theme === "journal" && "font-serif italic text-journal-accent")}>
             {likes}
@@ -163,9 +163,9 @@ export function FeedActionBar({
             e.stopPropagation();
             if (isInteractive("comments")) onCommentClick?.();
           }}
-          className={cn(getIconStyles("comments"), "text-foreground-subtle", isVertical && "flex-col gap-1")}
+          className={cn(getIconStyles("comments"), "text-foreground-subtle", isVertical && "flex-col gap-1.5")}
         >
-          <MessageCircle size={18} className={theme === "journal" ? "text-journal-accent" : ""} />
+          <MessageCircle size={20} className={theme === "journal" ? "text-journal-accent" : ""} />
           <span className={cn("text-xs font-mono", theme === "journal" && "font-serif italic text-journal-accent")}>
             {initialComments}
           </span>
@@ -173,7 +173,11 @@ export function FeedActionBar({
       </div>
 
       <div
-        className={cn("flex", isVertical ? "flex-col items-center gap-6" : "items-center", compact ? "gap-3" : "gap-4")}
+        className={cn(
+          "flex",
+          isVertical ? "flex-col items-center gap-6" : "items-center",
+          compact ? "gap-4 md:gap-5" : "gap-6 md:gap-8",
+        )}
       >
         {/* Share */}
         <DropdownMenu modal={false}>
@@ -186,7 +190,7 @@ export function FeedActionBar({
               }}
               className={cn(getIconStyles("share"), "text-foreground-subtle")}
             >
-              <Share size={18} className={theme === "journal" ? "text-journal-accent" : ""} />
+              <Share size={20} className={theme === "journal" ? "text-journal-accent" : ""} />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -217,7 +221,7 @@ export function FeedActionBar({
               className={cn(getIconStyles("save"), isSaved ? iconActive : "text-foreground-subtle")}
             >
               <Bookmark
-                size={18}
+                size={20}
                 fill={isSaved ? "currentColor" : "none"}
                 className={theme === "journal" ? "text-journal-accent" : ""}
               />
@@ -236,7 +240,7 @@ export function FeedActionBar({
               }}
               className={cn(getIconStyles("more"), "text-foreground-subtle")}
             >
-              <MoreHorizontal size={18} className={theme === "journal" ? "text-journal-accent" : ""} />
+              <MoreHorizontal size={20} className={theme === "journal" ? "text-journal-accent" : ""} />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent

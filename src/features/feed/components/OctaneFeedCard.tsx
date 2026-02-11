@@ -19,7 +19,7 @@ export function OctaneFeedCard({ item, className, onRemove }: OctaneFeedCardProp
   return (
     <div
       className={cn(
-        "group relative flex flex-col h-[400px] bg-noir-panel overflow-hidden border border-noir-border hover:border-accent transition-colors duration-300 shadow-xl",
+        "group relative flex flex-col bg-noir-bg octane-card octane-speedometer transition-all duration-500 h-[400px] md:h-[440px] overflow-hidden border border-noir-border rounded-sm transition-colors duration-300 shadow-xl",
         className,
       )}
     >
@@ -90,7 +90,7 @@ export function OctaneFeedCard({ item, className, onRemove }: OctaneFeedCardProp
             ))}
           </div>
 
-          <div className="flex items-center gap-3 text-foreground-subtle hover:text-accent transition-colors">
+          <div className="flex items-center gap-3 text-foreground-subtle hover:text-accent transition-colors md:bg-transparent bg-accent/5 px-3 py-1.5 md:p-0 rounded-full md:rounded-none">
             <PostActions
               data={item}
               onRemove={onRemove}

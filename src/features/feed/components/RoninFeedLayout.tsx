@@ -115,7 +115,7 @@ export function RoninFeedLayout({
 
         {/* Footer Action */}
         {hasMore && (
-          <div className="mt-12 flex flex-col items-center py-8 border-t border-white/5">
+          <div className="mt-8 flex flex-col items-center py-4 border-t border-white/5">
             <button
               onClick={onLoadMore}
               disabled={isLoadingMore}

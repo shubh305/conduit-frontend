@@ -219,7 +219,7 @@ export function FeedList({
             </div>
 
             {hasMore && (
-              <div className={cn("p-12 flex justify-center", isCyberCopy ? "border-t border-noir-border" : "")}>
+              <div className={cn("p-6 flex justify-center", isCyberCopy ? "border-t border-noir-border" : "")}>
                 <button
                   onClick={handleLoadMore}
                   disabled={isLoadingMore}

@@ -160,18 +160,21 @@ export function NavigationSidebar({ isOpen = true }: NavigationSidebarProps) {
                 <item.icon size={16} className={cn("shrink-0", isActive && "text-accent")} />
                 <span
                   className={cn(
-                    "relative z-10 leading-tight transition-opacity duration-300",
-                    isOpen ? "block" : "hidden",
+                    "relative z-10 transition-opacity duration-300",
+                    isOpen ? "flex items-center gap-2" : "hidden",
                   )}
                 >
-                  <span className="block">{item.label}</span>
+                  <span className="block leading-none">{item.label}</span>
                   {japaneseLabel && (
                     <span
                       className={cn(
-                        "block transform -translate-y-0.5",
+                        isRoninCopy
+                          ? "text-[11px] text-accent font-serif italic align-baseline opacity-70"
+                          : "block transform -translate-y-0.5",
                         isSakuraCopy
                           ? "text-[9px] text-foreground-muted font-normal"
-                          : "text-[11px] text-accent font-serif italic",
+                          : !isRoninCopy && "text-[11px] text-accent font-serif italic",
+                        isRoninCopy && "before:content-['/'] before:mr-1 before:opacity-40",
                       )}
                     >
                       {japaneseLabel}
@@ -231,15 +234,23 @@ export function NavigationSidebar({ isOpen = true }: NavigationSidebarProps) {
                               : "bg-transparent border border-foreground-subtle",
                           )}
                         />
-                        <span className={cn("leading-tight", isOpen ? "block" : "hidden")}>
-                          <span className="block">{feed.label}</span>
+                        <span
+                          className={cn(
+                            "transition-opacity duration-300",
+                            isOpen ? "flex items-center gap-2" : "hidden",
+                          )}
+                        >
+                          <span className="block leading-none">{feed.label}</span>
                           {japaneseLabel && (
                             <span
                               className={cn(
-                                "block transform",
+                                isRoninCopy
+                                  ? "text-[11px] text-accent font-serif italic align-baseline opacity-70"
+                                  : "block transform",
                                 isSakuraCopy
                                   ? "text-[9px] text-foreground-muted font-normal"
-                                  : "text-[11px] text-accent font-serif italic",
+                                  : !isRoninCopy && "text-[11px] text-accent font-serif italic",
+                                isRoninCopy && "before:content-['/'] before:mr-1 before:opacity-40",
                               )}
                             >
                               {japaneseLabel}

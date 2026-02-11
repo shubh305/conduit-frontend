@@ -397,19 +397,22 @@ function BlogCard({
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row items-center gap-3 md:gap-4 w-full xl:w-auto mt-4 md:mt-0 pt-4 md:pt-0 border-t border-noir-border/30 md:border-none">
-        <div className="flex items-center gap-2 w-full md:w-auto">
-          <Link href={`/studio/editor?tenantId=${blog.id}`} className="flex-1 md:min-w-[100px]">
-            <ThemeButton themeVariant="ghost" className="w-full gap-2 px-3 py-1.5 h-10 md:h-9 text-[10px] md:text-xs">
+      <div className="flex flex-row items-center gap-3 md:gap-4 w-full lg:w-auto mt-4 lg:mt-0 pt-4 lg:pt-0 border-t border-noir-border/30 lg:border-none flex-nowrap overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-2 flex-nowrap md:w-auto">
+          <Link href={`/studio/editor?tenantId=${blog.id}`} className="shrink-0 md:min-w-[180px]">
+            <ThemeButton
+              themeVariant="ghost"
+              className="w-full gap-2 px-3 py-1.5 h-10 md:h-9 text-[10px] md:text-xs whitespace-nowrap"
+            >
               <FileText size={14} />
               <span className="hidden xs:inline">{editorLabel}</span>
               <span className="xs:hidden">Editor</span>
             </ThemeButton>
           </Link>
-          <Link href={`/studio/config?tab=transmissions&tenantId=${blog.id}`} className="flex-1 md:min-w-[100px]">
+          <Link href={`/studio/config?tab=transmissions&tenantId=${blog.id}`} className="shrink-0 md:min-w-[180px]">
             <ThemeButton
               themeVariant={isJournalCopy ? "ghost" : "primary"}
-              className="w-full gap-2 px-3 py-1.5 h-10 md:h-9 text-[10px] md:text-xs"
+              className="w-full gap-2 px-3 py-1.5 h-10 md:h-9 text-[10px] md:text-xs whitespace-nowrap"
             >
               <Layout size={14} />
               <span className="hidden sm:inline">{studioLabel}</span>
@@ -422,7 +425,7 @@ function BlogCard({
           target="_blank"
           rel="noopener noreferrer"
           className={cn(
-            "h-9 w-9 flex items-center justify-center transition-all border border-noir-border hover:border-accent hover:text-accent bg-noir-bg cursor-pointer shrink-0",
+            "h-10 w-10 md:h-9 md:w-9 flex items-center justify-center transition-all border border-noir-border hover:border-accent hover:text-accent bg-noir-bg cursor-pointer shrink-0",
             isCyberCopy ? "rounded-none" : "rounded-full",
             isTerminalCopy && "bg-black border-accent text-accent rounded-full",
             isJournalCopy && "rounded-lg border-accent/20 bg-transparent text-accent hover:bg-accent/5",

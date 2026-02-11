@@ -146,12 +146,17 @@ function CompactLayout({
           </Link>
         </div>
 
-        <div className="flex items-center justify-between mt-2 md:mt-auto w-full gap-2">
+        <div className="flex items-center justify-between mt-3 md:mt-auto w-full gap-4">
           <div className="truncate shrink-0">
             <PostAuthor data={item} theme={theme} />
           </div>
-          <div className="ml-auto shrink-0 scale-90 md:scale-100 origin-right">
-            <PostActions data={item} onRemove={onRemove} compact className="border-none pt-0 mt-0" />
+          <div className="ml-auto shrink-0 transition-transform active:scale-95">
+            <PostActions
+              data={item}
+              onRemove={onRemove}
+              compact
+              className="border-none pt-0 mt-0 bg-accent/5 md:bg-transparent px-3 py-1.5 md:p-0 rounded-full flex gap-3 md:gap-4"
+            />
           </div>
         </div>
       </div>
@@ -226,10 +231,9 @@ function CardLayout({
   }
 
   return (
-    <Link
-      href={postUrl}
+    <div
       className={cn(
-        "group relative block w-full h-full p-6 transition-all duration-300 overflow-hidden",
+        "group relative block w-full h-[400px] md:h-[440px] p-6 transition-all duration-300 overflow-hidden",
         v.base,
         v.border,
         v.radius,
@@ -238,10 +242,13 @@ function CardLayout({
         className,
       )}
     >
+      <Link href={postUrl} className="absolute inset-0 z-0" aria-label={item.title} />
       <PostCardContent>
-        <PostMeta data={item} theme={theme} />
-        {item.featuredImage && <PostHeroImage data={item} theme={theme} isDarkMode={isDarkMode} />}
-        <div className="flex-1 flex flex-col justify-end">
+        <div className="relative z-10 pointer-events-none">
+          <PostMeta data={item} theme={theme} />
+          {item.featuredImage && <PostHeroImage data={item} theme={theme} isDarkMode={isDarkMode} />}
+        </div>
+        <div className="flex-1 flex flex-col justify-end relative z-10 pointer-events-none">
           <h3
             className={cn(
               "text-xl md:text-2xl font-bold mb-4 leading-tight group-hover:text-accent transition-colors",
@@ -254,10 +261,12 @@ function CardLayout({
           </h3>
           <PostTags data={item} theme={theme} />
           <PostAuthor data={item} theme={theme} />
+        </div>
+        <div className="relative z-20">
           <PostActions data={item} onRemove={onRemove} />
         </div>
       </PostCardContent>
-    </Link>
+    </div>
   );
 }
 
@@ -280,11 +289,11 @@ function RowLayout({
   fontFamily: string
   onRemove?: () => void
 }) {
+  const { config } = useTheme();
   return (
-    <Link
-      href={postUrl}
+    <div
       className={cn(
-        "group grid grid-cols-1 gap-8 py-12 border-b items-start transition-colors",
+        "group grid grid-cols-1 gap-8 py-12 border-b items-start transition-colors relative",
         item.featuredImage && "md:grid-cols-[1fr_300px]",
         isTerminalCopy
           ? "border-accent/20 hover:bg-black/50 font-mono text-accent"
@@ -292,7 +301,9 @@ function RowLayout({
         className,
       )}
     >
-      <div className="flex flex-col gap-4 h-full justify-between">
+      <Link href={postUrl} className="absolute inset-0 z-0" aria-label={item.title} />
+
+      <div className="flex flex-col gap-4 h-full justify-between relative z-10 pointer-events-none">
         <PostCardContent>
           <div>
             <PostMeta data={item} theme={theme} />
@@ -300,7 +311,7 @@ function RowLayout({
               className={cn(
                 "text-3xl font-black group-hover:underline decoration-2 underline-offset-4 transition-all leading-tight mt-2",
                 isTerminalCopy ? "text-accent font-mono tracking-tight" : "text-foreground",
-                !isTerminalCopy && (fontFamily === "serif" ? "font-serif" : "font-sans"),
+                !isTerminalCopy && (config.fontFamily === "serif" ? "font-serif" : "font-sans"),
               )}
             >
               {item.title}
@@ -309,7 +320,7 @@ function RowLayout({
               className={cn(
                 "text-lg line-clamp-3 leading-relaxed max-w-2xl mt-4",
                 isTerminalCopy ? "text-accent/80 font-mono text-sm uppercase tracking-wide" : "text-foreground-muted",
-                !isTerminalCopy && (fontFamily === "serif" ? "font-serif" : "font-sans"),
+                !isTerminalCopy && (config.fontFamily === "serif" ? "font-serif" : "font-sans"),
               )}
             >
               {item.excerpt}
@@ -318,16 +329,17 @@ function RowLayout({
               <PostTags data={item} theme={theme} />
             </div>
           </div>
-          <div className="mt-auto">
+          <div className="mt-auto relative z-20 pointer-events-auto">
             <PostActions data={item} onRemove={onRemove} />
           </div>
         </PostCardContent>
       </div>
 
       {item.featuredImage && (
-        <PostHeroImage data={item} theme={theme} isDarkMode={isDarkMode} className="aspect-[3/2]" />
+        <div className="relative z-10 pointer-events-none">
+          <PostHeroImage data={item} theme={theme} isDarkMode={isDarkMode} className="aspect-[3/2]" />
+        </div>
       )}
-    </Link>
+    </div>
   );
 }
-

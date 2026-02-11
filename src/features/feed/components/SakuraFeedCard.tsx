@@ -57,30 +57,32 @@ export function SakuraFeedCard({ item, className, variant = "default", onRemove 
   return (
     <div
       className={cn(
-        "group relative flex flex-col h-full bg-white/60 hover:bg-white/80 transition-all duration-500 rounded-2xl overflow-hidden border border-accent/10 shadow-sm hover:shadow-md",
+        "group relative flex flex-col bg-noir-bg shadow-sm hover:shadow-md transition-all duration-500 h-[400px] md:h-[440px] overflow-hidden rounded-xl border border-noir-border",
         className,
       )}
     >
       {/* 1. Visual Layer */}
-      <Link href={postUrl} className="relative aspect-[3/2] w-full overflow-hidden bg-noir-bg/20">
-        {item.featuredImage ? (
-          <Image
-            src={getMediaUrl(item.featuredImage) || ""}
-            alt={item.title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-[2000ms] ease-out-expo"
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-accent/10 font-serif italic text-2xl">Sakura</span>
-          </div>
-        )}
+      <div className="relative aspect-[3/2] w-full overflow-hidden bg-noir-bg/20">
+        <Link href={postUrl} className="block w-full h-full">
+          {item.featuredImage ? (
+            <Image
+              src={getMediaUrl(item.featuredImage) || ""}
+              alt={item.title}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-[2000ms] ease-out-expo"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-accent/10 font-serif italic text-2xl">Sakura</span>
+            </div>
+          )}
 
-        {/* Hover Overlay */}
-        <div className="absolute inset-0 bg-accent/0 group-hover:bg-accent/5 transition-colors duration-500 pointer-events-none" />
+          {/* Hover Overlay */}
+          <div className="absolute inset-0 bg-accent/0 group-hover:bg-accent/5 transition-colors duration-500 pointer-events-none" />
+        </Link>
 
         {/* Floating Actions */}
-        <div className="absolute top-3 right-3 translate-y-0 md:translate-y-[-10px] opacity-100 md:opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-10">
+        <div className="hidden md:flex [@media(pointer:coarse)]:md:hidden absolute top-3 right-3 translate-x-0 translate-y-[-10px] opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-10">
           <PostActions
             data={item}
             onRemove={onRemove}
@@ -88,7 +90,7 @@ export function SakuraFeedCard({ item, className, variant = "default", onRemove 
             className="border-none bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm text-accent gap-3"
           />
         </div>
-      </Link>
+      </div>
 
       {/* 2. Content Section */}
       <div className="flex flex-col p-3 flex-1 relative">
@@ -103,11 +105,22 @@ export function SakuraFeedCard({ item, className, variant = "default", onRemove 
           </span>
         </div>
 
-        <Link href={postUrl} className="block group/title">
+        <Link href={postUrl} className="block group/title flex-1">
           <h3 className="text-lg font-serif font-medium text-foreground leading-[1.25] transition-colors duration-300 group-hover/title:text-accent line-clamp-3">
             {item.title}
           </h3>
         </Link>
+
+        {/* Action Bar */}
+        <div className="mt-4 flex [@media(pointer:coarse)]:md:flex md:hidden items-center justify-between pt-3 border-t border-accent/5">
+          <PostActions
+            data={item}
+            onRemove={onRemove}
+            compact
+            interactive={{ likes: true, comments: true, share: true, save: true, more: true }}
+            className="w-full border-none bg-white/40 backdrop-blur-sm p-1.5 rounded-full justify-around text-accent/80"
+          />
+        </div>
       </div>
     </div>
   );

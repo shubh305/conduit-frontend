@@ -93,7 +93,7 @@ export function TechieFeedCard({ item, className, variant = "default", onRemove 
   return (
     <div
       className={cn(
-        "group relative flex flex-col bg-noir-panel/30 hover:bg-noir-panel/50 transition-all duration-500 h-full shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)] overflow-hidden rounded-xl",
+        "group relative flex flex-col bg-noir-panel/30 hover:bg-noir-panel/50 transition-all duration-500 h-[420px] md:h-[460px] shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)] overflow-hidden rounded-xl",
         className,
       )}
     >
@@ -134,7 +134,7 @@ export function TechieFeedCard({ item, className, variant = "default", onRemove 
             </h3>
           </div>
 
-          <div className="mt-auto pt-2 border-t border-white/5">
+          <div className="mt-auto pt-2 border-t border-white/5 flex flex-col gap-3">
             <div className="flex justify-between items-end">
               <div className="flex flex-wrap gap-2">
                 {item.tags.slice(0, 2).map(tag => (
@@ -150,12 +150,23 @@ export function TechieFeedCard({ item, className, variant = "default", onRemove 
                 {item.authorName?.split(" ")[0]}
               </span>
             </div>
+
+            {/* Action Bar */}
+            <div className="flex [@media(pointer:coarse)]:md:flex md:hidden items-center justify-between pt-2 border-t border-white/5">
+              <PostActions
+                data={item}
+                onRemove={onRemove}
+                compact
+                interactive={{ likes: true, comments: true, share: true, save: true, more: true }}
+                className="w-full border-none bg-accent/5 p-1.5 rounded-lg justify-around"
+              />
+            </div>
           </div>
         </div>
       </Link>
 
       {/* Action Bar Overlay */}
-      <div className="absolute top-8 right-3 flex flex-col translate-x-12 group-hover:translate-x-0 transition-transform duration-300 z-20">
+      <div className="hidden md:flex [@media(pointer:coarse)]:md:hidden absolute top-4 right-3 flex-col translate-x-12 group-hover:translate-x-0 transition-transform duration-300 z-20">
         <PostActions
           data={item}
           onRemove={onRemove}
