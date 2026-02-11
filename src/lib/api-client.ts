@@ -63,6 +63,9 @@ export async function fetchApi<T>(path: string, options: FetchOptions = {}): Pro
   try {
     data = await res.json();
   } catch {
+    if (res.ok && res.status !== 204) {
+      throw new ApiError(res.status, "Invalid JSON response", null);
+    }
     data = null;
   }
 
