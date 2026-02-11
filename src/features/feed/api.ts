@@ -7,6 +7,7 @@ interface FeedParams {
   tag?: string;
   author?: string;
   ids?: string[];
+  type?: "global" | "following";
 }
 
 export function getGlobalFeed(params: FeedParams = {}) {
@@ -15,6 +16,7 @@ export function getGlobalFeed(params: FeedParams = {}) {
   if (params.limit) searchParams.set("limit", params.limit.toString());
   if (params.tag) searchParams.set("tag", params.tag);
   if (params.author) searchParams.set("author", params.author);
+  if (params.type) searchParams.set("type", params.type);
   if (params.ids) {
     params.ids.forEach(id => searchParams.append("ids", id));
   }

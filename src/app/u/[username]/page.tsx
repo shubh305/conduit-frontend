@@ -118,7 +118,7 @@ export default function UserProfilePage() {
       )}
     >
       {/* 1. Header Section */}
-      <ProfileHeader user={profile} isOwner={isOwner} />
+      <ProfileHeader key={profile.id} user={profile} isOwner={isOwner} />
 
       <div
         className={cn(

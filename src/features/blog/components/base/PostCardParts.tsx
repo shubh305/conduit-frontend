@@ -13,6 +13,7 @@ interface PostCardPartsProps {
     publishedAt: string;
     authorName: string;
     authorUsername?: string;
+    authorId?: string;
     tags: string[];
     readingTimeMinutes?: number;
     likesCount?: number;
@@ -24,6 +25,8 @@ interface PostCardPartsProps {
     slug?: string;
     postSlug?: string;
     tenantId?: string;
+    isLiked?: boolean;
+    isFollowing?: boolean;
   };
   theme: ThemeVariant;
   isDarkMode?: boolean;
@@ -332,7 +335,10 @@ export function PostActions({
       slug={data.postSlug || data.slug || ""}
       tenantId={data.tenantId}
       authorUsername={data.authorUsername}
+      authorId={data.authorId}
       initialLikes={data.likesCount || 0}
+      initialIsLiked={data.isLiked}
+      initialIsFollowing={data.isFollowing}
       initialComments={data.commentsCount || 0}
       interactive={interactive}
       compact={compact}
@@ -340,7 +346,7 @@ export function PostActions({
       onRemove={onRemove}
       className={cn("pt-4 border-t border-noir-border/30", isFlat && "border-white/20 text-white/90", className)}
     />
-  )
+  );
 }
 
 // =============================================================================

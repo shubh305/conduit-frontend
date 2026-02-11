@@ -3,7 +3,7 @@ export interface Profile {
   username: string;
   displayName: string;
   bio?: string;
-  image?: string; 
+  image?: string;
   avatar?: string;
   location?: string;
   website?: string;
@@ -13,6 +13,11 @@ export interface Profile {
   isPro?: boolean;
   tagline?: string;
   createdAt?: string;
+  stats?: {
+    followers: number;
+    following: number;
+    posts: number;
+  };
   socialLinks?: {
     website?: string;
     github?: string;

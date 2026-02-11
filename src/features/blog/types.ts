@@ -51,4 +51,5 @@ export interface Post {
   tenantName?: string;
   deletedAt?: string;
   isLiked?: boolean;
+  isFollowing?: boolean;
 }

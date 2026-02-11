@@ -3,11 +3,14 @@
 import { User } from "@/features/auth/types";
 import { Profile } from "@/features/profile/types";
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
+import { getLabel } from "@/lib/theme/labels";
 import { Button } from "@/components/ui/button";
-import { Settings, MapPin, ShieldCheck, Github, Twitter, Linkedin, Globe, Instagram, ExternalLink } from "lucide-react";
+import { Settings, MapPin, ShieldCheck, Globe, ExternalLink, Loader2 } from "lucide-react";
+import { BrandIcon, BrandType } from "@/components/ui/brand-icon";
 import Link from "next/link";
 import Image from "next/image";
 import { getMediaUrl, cn } from "@/lib/utils";
+import { useFollowUser } from "../hooks/useFollowUser";
 
 interface ProfileHeaderProps {
   user: User | Profile;
@@ -35,31 +38,98 @@ interface ExtendedProfile extends Partial<User & Profile> {
 }
 
 export function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
-  const { config } = useTheme();
+  const { config, theme } = useTheme();
   const { isCyberCopy, isSakuraCopy, isRoninCopy, isOctaneCopy, isJournalCopy, isTerminalCopy, isTechieCopy } =
     useThemeHelpers();
   const profile = user as ExtendedProfile;
 
+  const {
+    isFollowing,
+    followersCount: optimisticFollowers,
+    isLoading,
+    toggleFollow,
+  } = useFollowUser({
+    userId: user.id || "",
+    initialIsFollowing: profile.isFollowing,
+    initialFollowersCount: profile.stats?.followers || 0,
+  });
+
+  const displayFollowersCount = isOwner ? profile.stats?.followers || 0 : optimisticFollowers;
+  const followingCount = profile.stats?.following || 0;
+
   const displayName = profile.displayName || profile.username || "User";
-  const bio =
-    profile.bio ||
-    (isSakuraCopy
-      ? "No description available. (自己紹介なし)"
-      : isRoninCopy
-        ? "言葉不要 (No words necessary)"
-        : isOctaneCopy
-          ? "No specs on file."
-          : isJournalCopy
-            ? "No biography written yet."
-            : isTechieCopy
-              ? "SYS::BIO::UNDEFINED - MODULE_DESCRIPTION_MISSING"
-              : "No description available for this unit.");
+  const bio = profile.bio || getLabel("noBio", theme);
   const rawAvatar = profile.avatar || profile.image;
   const avatar = getMediaUrl(rawAvatar) || "";
 
   const { isVerified, isPro, location, tagline, socialLinks } = profile;
-  const followersCount = profile.stats?.followers || 0;
-  const followingCount = profile.stats?.following || 0;
+
+  const isClassic =
+    !isTerminalCopy &&
+    !isCyberCopy &&
+    !isSakuraCopy &&
+    !isRoninCopy &&
+    !isOctaneCopy &&
+    !isJournalCopy &&
+    !isTechieCopy;
+
+  // Render function for Follow Button
+  const renderActionButton = () => {
+    if (isOwner) {
+      return (
+        <Link href="/studio/settings">
+          {isClassic ? (
+            <div className="px-8 py-2.5 border border-noir-border hover:border-accent hover:bg-accent/5 text-foreground text-[10px] uppercase tracking-[0.2em] transition-all font-mono font-bold inline-block cursor-pointer">
+              {getLabel("editProfileButton", theme)}
+            </div>
+          ) : (
+            <Button
+              variant="outline"
+              className={cn(
+                "h-9 uppercase tracking-widest gap-2 transition-all font-mono text-[10px]",
+                isCyberCopy || isTechieCopy
+                  ? "rounded-none border-accent bg-accent/5 text-accent hover:bg-accent hover:text-noir-bg shadow-[0_0_15px_rgba(var(--accent-rgb),0.2)]"
+                  : isRoninCopy
+                    ? "rounded-none border-b border-accent/50 text-accent hover:bg-accent/10"
+                    : isOctaneCopy
+                      ? "rounded-sm border-accent-warm bg-accent/5 text-accent hover:bg-accent/10"
+                      : "rounded-full border-noir-border text-foreground-subtle hover:text-accent hover:border-accent hover:bg-noir-hover",
+                isTechieCopy && "rounded-lg border-[var(--accent)]/30 hover:border-[var(--accent)] shadow-none",
+              )}
+            >
+              <Settings size={14} /> {getLabel("editProfileButton", theme)}
+            </Button>
+          )}
+        </Link>
+      );
+    }
+
+    // Follow / Unfollow Button
+    return (
+      <Button
+        onClick={toggleFollow}
+        disabled={isLoading}
+        className={cn(
+          "transition-all uppercase text-[10px] tracking-[0.2em] font-black shadow-xl",
+          isFollowing
+            ? "bg-transparent border border-noir-border text-foreground hover:border-red-500 hover:text-red-500"
+            : "bg-foreground text-noir-bg hover:bg-accent hover:shadow-accent/20",
+          isClassic ? "px-10 h-10" : "h-9 px-6",
+          (isCyberCopy || isTechieCopy) && "rounded-none",
+          isTechieCopy &&
+            isFollowing &&
+            "border-[var(--accent)]/50 text-[var(--accent)] hover:border-red-500 hover:text-red-500",
+          isTechieCopy && !isFollowing && "bg-[var(--accent)] text-black hover:bg-white",
+          isLoading && "opacity-70 cursor-wait",
+        )}
+      >
+        {isLoading ? <Loader2 className="animate-spin w-4 h-4 mr-2" /> : null}
+        {isFollowing ? getLabel("unfollowButton", theme) : getLabel("followButton", theme)}
+      </Button>
+    );
+  };
+
+
 
   // ---------------------------------------------------------
   // TERMINAL Layout
@@ -70,12 +140,10 @@ export function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
         <div className="mb-4 text-foreground-muted border-b border-accent/30 pb-2">$ finger {user.username}</div>
 
         <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-8">
-          {/* Avatar / Face */}
           <div className="border border-accent/50 p-1 bg-black">
             {rawAvatar ? (
               <div className="relative w-full aspect-square grayscale contrast-125">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={avatar} alt={user.username} className="w-full h-full object-cover opacity-80" />
+                <Image src={avatar} alt={user.username || "User"} fill className="object-cover opacity-80" />
                 <div className="absolute inset-0 bg-[url('/images/grid.png')] opacity-20 pointer-events-none" />
               </div>
             ) : (
@@ -111,16 +179,18 @@ export function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
 
             <div className="h-px bg-accent/20 my-4" />
 
+            {/* Plan Info */}
             <div className="grid grid-cols-[100px_1fr] gap-2">
               <span className="text-foreground-muted">Plan:</span>
               <div className="flex gap-2">
                 <span className={isPro ? "text-accent font-bold" : "text-foreground-subtle"}>
-                  {isPro ? "PRO_USER" : "STANDARD"}
+                  {getLabel("proLabel", theme)}
                 </span>
                 {isVerified && <span className="text-accent">[VERIFIED]</span>}
               </div>
             </div>
 
+            {/* Bio */}
             <div className="grid grid-cols-[100px_1fr] gap-2">
               <span className="text-foreground-muted">Bio:</span>
               <span className="italic text-foreground-muted">&quot;{bio || "No description."}&quot;</span>
@@ -155,21 +225,34 @@ export function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
                   {followingCount} <span className="text-foreground-subtle">following</span>
                 </span>
                 <span>
-                  {followersCount} <span className="text-foreground-subtle">followers</span>
+                  {displayFollowersCount} <span className="text-foreground-subtle">followers</span>
                 </span>
               </div>
             </div>
 
-            {isOwner && (
-              <div className="mt-6">
+            <div className="mt-6 flex items-start">
+              {!isOwner && (
+                <button
+                  onClick={toggleFollow}
+                  disabled={isLoading}
+                  className={cn(
+                    "bg-accent text-black px-3 py-1 text-xs font-bold hover:bg-white hover:text-black transition-colors uppercase disabled:opacity-50",
+                    isFollowing &&
+                      "bg-transparent text-accent border border-accent hover:bg-red-500 hover:text-black hover:border-red-500",
+                  )}
+                >
+                  {isFollowing ? getLabel("unfollowButton", theme) : getLabel("followButton", theme)}
+                </button>
+              )}
+              {isOwner && (
                 <Link
                   href="/studio/settings"
                   className="bg-accent text-black px-3 py-1 text-xs font-bold hover:bg-white hover:text-black transition-colors"
                 >
-                  [EDIT_CONFIG]
+                  {getLabel("editProfileButton", theme)}
                 </Link>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -199,7 +282,6 @@ export function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
             <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-accent/50" />
           </>
         )}
-
         {isTechieCopy && (
           <div
             className="absolute inset-0 opacity-[0.03] pointer-events-none"
@@ -210,7 +292,6 @@ export function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
             }}
           />
         )}
-
         {isSakuraCopy && (
           <div className="absolute -top-24 -right-24 w-64 h-64 bg-accent/5 blur-[100px] rounded-full pointer-events-none" />
         )}
@@ -276,9 +357,6 @@ export function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
                     {user.username[0]}
                   </span>
                 )}
-                {(isCyberCopy || isTechieCopy) && (
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/10 to-transparent h-2 w-full animate-pulse top-0" />
-                )}
               </div>
             </div>
             <div
@@ -288,9 +366,7 @@ export function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
                 isTechieCopy && "rounded-md border-[var(--accent)]/20 text-[var(--accent)]/50 font-bold",
               )}
             >
-              {isTechieCopy
-                ? `NODE_ID::${user.id?.slice(0, 8) || "UNKNOWN"}`
-                : `UID: ${user.id?.slice(0, 8) || user.username.toUpperCase()}`}
+              {getLabel("uidLabel", theme)}: {user.id?.slice(0, 8) || user.username.toUpperCase()}
             </div>
           </div>
 
@@ -335,55 +411,14 @@ export function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
                           : "bg-accent/10 text-accent px-1.5 py-0.5 text-[8px] border border-accent/30 font-bold tracking-widest",
                       )}
                     >
-                      {isTechieCopy
-                        ? "CORE_SYSTEMS"
-                        : isCyberCopy
-                          ? "PRO_OPERATOR"
-                          : isRoninCopy
-                            ? "師 (Master)"
-                            : isOctaneCopy
-                              ? "MECHANIC"
-                              : isJournalCopy
-                                ? "Author"
-                                : "COMMANDER"}
+                      {getLabel("proLabel", theme)}
                     </span>
                   )}
                 </div>
               </div>
 
-              {isOwner && (
-                <Link href="/studio/settings">
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "h-9 uppercase tracking-widest gap-2 transition-all font-mono text-[10px]",
-                      isCyberCopy || isTechieCopy
-                        ? "rounded-none border-accent bg-accent/5 text-accent hover:bg-accent hover:text-noir-bg shadow-[0_0_15px_rgba(var(--accent-rgb),0.2)]"
-                        : isRoninCopy
-                          ? "rounded-none border-b border-accent/50 text-accent hover:bg-accent/10"
-                          : isOctaneCopy
-                            ? "rounded-sm border-accent-warm bg-accent/5 text-accent hover:bg-accent/10"
-                            : "rounded-full border-noir-border text-foreground-subtle hover:text-accent hover:border-accent hover:bg-noir-hover",
-                      isTechieCopy && "rounded-lg border-[var(--accent)]/30 hover:border-[var(--accent)] shadow-none",
-                    )}
-                  >
-                    <Settings size={14} />{" "}
-                    {isSakuraCopy
-                      ? "Settings (プロフィール設定)"
-                      : isTechieCopy
-                        ? "SYS::EDIT_IDENT"
-                        : isCyberCopy
-                          ? "CONFIG_PROFILE"
-                          : isRoninCopy
-                            ? "武器庫 (Armory)"
-                            : isOctaneCopy
-                              ? "WORKSHOP"
-                              : isJournalCopy
-                                ? "Edit Profile"
-                                : "Settings"}
-                  </Button>
-                </Link>
-              )}
+              {/* Action Button */}
+              <div>{renderActionButton()}</div>
             </div>
 
             {/* Social Links Bar */}
@@ -397,13 +432,24 @@ export function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
               >
                 {Object.entries(socialLinks).map(([key, value]) => {
                   if (!value) return null;
+                  const isBrand = ["github", "twitter", "linkedin", "instagram"].includes(key);
+
+                  if (isBrand) {
+                    return (
+                      <Link
+                        key={key}
+                        href={value}
+                        target="_blank"
+                        className="text-foreground-subtle hover:text-accent transition-all hover:scale-110"
+                      >
+                        <BrandIcon brand={key as BrandType} size={16} />
+                      </Link>
+                    );
+                  }
+
                   const Icon =
                     {
-                      github: Github,
-                      twitter: Twitter,
-                      linkedin: Linkedin,
                       website: Globe,
-                      instagram: Instagram,
                       stackoverflow: ExternalLink,
                     }[key] || Globe;
                   return (
@@ -448,25 +494,13 @@ export function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
                 <span className={cn("text-foreground font-bold", isTechieCopy && "text-[var(--accent)]")}>
                   {followingCount}
                 </span>{" "}
-                {isSakuraCopy
-                  ? "Following (フォロー中)"
-                  : isRoninCopy
-                    ? "絆 (Bonds)"
-                    : isJournalCopy
-                      ? "Following"
-                      : "Following"}
+                {getLabel("followingLabel", theme)}
               </div>
               <div className="flex items-center gap-2 text-[10px] font-mono text-foreground-subtle uppercase tracking-widest">
                 <span className={cn("text-foreground font-bold", isTechieCopy && "text-[var(--accent)]")}>
-                  {followersCount}
+                  {displayFollowersCount}
                 </span>{" "}
-                {isSakuraCopy
-                  ? "Followers (フォロワー)"
-                  : isRoninCopy
-                    ? "衆 (Allies)"
-                    : isJournalCopy
-                      ? "Readers"
-                      : "Followers"}
+                {getLabel("followersLabel", theme)}
               </div>
               {location && (
                 <div className="flex items-center gap-2 text-[10px] font-mono text-foreground-subtle uppercase tracking-widest">
@@ -512,13 +546,23 @@ export function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
             <div className="flex flex-wrap items-center gap-6 md:gap-8 py-4 border-t border-b border-noir-border w-full md:w-fit transition-all justify-center md:justify-start">
               {Object.entries(socialLinks).map(([key, value]) => {
                 if (!value) return null;
+                const isBrand = ["github", "twitter", "linkedin", "instagram"].includes(key);
+
+                if (isBrand) {
+                  return (
+                    <Link key={key} href={value} target="_blank">
+                      <BrandIcon
+                        brand={key as BrandType}
+                        size={18}
+                        className="text-foreground-subtle hover:text-accent transition-all hover:scale-125"
+                      />
+                    </Link>
+                  );
+                }
+
                 const Icon =
                   {
-                    github: Github,
-                    twitter: Twitter,
-                    linkedin: Linkedin,
                     website: Globe,
-                    instagram: Instagram,
                     stackoverflow: ExternalLink,
                   }[key] || Globe;
                 return (
@@ -552,28 +596,15 @@ export function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
           <div className="flex flex-wrap gap-12 py-6 border-t border-b border-noir-border">
             <div className="text-[10px] uppercase tracking-[0.3em] font-mono">
               <span className="text-foreground font-black text-base mr-3">{followingCount}</span>
-              <span className="text-foreground-subtle">Following</span>
+              <span className="text-foreground-subtle">{getLabel("followingLabel", theme)}</span>
             </div>
             <div className="text-[10px] uppercase tracking-[0.3em] font-mono">
-              <span className="text-foreground font-black text-base mr-3">{followersCount}</span>
-              <span className="text-foreground-subtle">Followers</span>
+              <span className="text-foreground font-black text-base mr-3">{displayFollowersCount}</span>
+              <span className="text-foreground-subtle">{getLabel("followersLabel", theme)}</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-6 pt-6">
-            {isOwner ? (
-              <Link
-                href="/studio/settings"
-                className="px-8 py-2.5 border border-noir-border hover:border-accent hover:bg-accent/5 text-foreground text-[10px] uppercase tracking-[0.2em] transition-all font-mono font-bold"
-              >
-                Edit Identification
-              </Link>
-            ) : (
-              <Button className="px-10 h-10 bg-foreground text-noir-bg hover:bg-accent transition-all uppercase text-[10px] tracking-[0.2em] font-black shadow-xl hover:shadow-accent/20">
-                Establish Connection
-              </Button>
-            )}
-          </div>
+          <div className="flex items-center gap-6 pt-6">{renderActionButton()}</div>
         </div>
 
         <div className="shrink-0 group">

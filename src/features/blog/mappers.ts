@@ -28,6 +28,7 @@ export function mapPostToFeedItem(post: Post, tenant: Tenant): FeedItemExtended 
     excerpt: post.excerpt,
     featuredImage: getMediaUrl(post.featuredImage),
     authorName: post.authorName,
+    authorId: post.authorId,
     authorUsername: post.authorUsername,
     authorAvatar: p.authorAvatar,
     tags: post.tags || [],
@@ -39,5 +40,6 @@ export function mapPostToFeedItem(post: Post, tenant: Tenant): FeedItemExtended 
     readingTimeMinutes: post.readingTimeMinutes || 0,
     status: post.status as "draft" | "published" | "archived",
     isLiked: p.isLiked || false,
+    isFollowing: p.isFollowing || false,
   };
 }

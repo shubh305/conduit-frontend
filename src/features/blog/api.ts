@@ -51,6 +51,7 @@ const mapPost = (p: RawPost | null): Post | null => {
     ...p,
     id: p.id || p._id || "",
     isLiked: p.isLiked || false,
+    isFollowing: p.isFollowing || false,
   };
 };
 
@@ -76,6 +77,7 @@ export function getPosts(
     data: res.data ? res.data.map(p => mapPost(p) as Post).filter(Boolean) : [],
   }));
 }
+
 
 export function getPost(slug: string, tenantId?: string) {
   return fetchApi<RawPost | null>(`/posts/${slug}`, {
