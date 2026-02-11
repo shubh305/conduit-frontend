@@ -22,7 +22,6 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
         router.push("/login?redirect=/studio");
       } else {
         const tenants = user.tenants;
-        console.log("StudioLayout Check:", { user: user.username, tenants: tenants?.length });
 
         if (tenants && tenants.length === 0) {
           console.warn("No tenants found, redirecting to dashboard");

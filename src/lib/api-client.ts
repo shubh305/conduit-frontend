@@ -55,7 +55,7 @@ export async function fetchApi<T>(path: string, options: FetchOptions = {}): Pro
     ...rest,
   });
 
-  if (res.status === 401 && onUnauthorizedHandler) {
+  if (res.status === 401 && onUnauthorizedHandler && !path.includes("/auth/login")) {
     onUnauthorizedHandler();
   }
 

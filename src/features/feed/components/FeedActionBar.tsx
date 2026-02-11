@@ -249,7 +249,7 @@ export function FeedActionBar({
             className="bg-noir-panel border-noir-border text-foreground"
             style={{ borderRadius: isCyberCopy ? "0" : "var(--theme-radius-md)" }}
           >
-            {authorId && (!user || user.id !== authorId) && (
+            {user && authorId && user.id !== authorId && (
               <DropdownMenuItem
                 onClick={e => {
                   e.preventDefault();

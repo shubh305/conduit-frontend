@@ -262,7 +262,7 @@ export default function UserProfilePage() {
                       <span className="w-1 h-1 bg-noir-border rounded-full" />
                       <span className="text-foreground">{isSakuraCopy ? "Post Published" : "TRANS_NODE_LINKED"}</span>
                     </div>
-                    <FeedCard item={post} variant="compact" />
+                    <FeedCard item={post} variant="compact" index={idx} />
                   </div>
                 </div>
               </div>

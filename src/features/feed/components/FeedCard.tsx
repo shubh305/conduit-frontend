@@ -18,38 +18,40 @@ export function FeedCard({
   className,
   onRemove,
   variant = "default",
+  index = 0,
 }: {
-  item: FeedItem
-  className?: string
-  onRemove?: () => void
-  variant?: "default" | "compact"
+  item: FeedItem;
+  className?: string;
+  onRemove?: () => void;
+  variant?: "default" | "compact";
+  index?: number;
 }) {
-  const { theme, config } = useTheme()
-  const { isDarkMode, isTerminalCopy, isTechieCopy, isJournalCopy, isRoninCopy } = useThemeHelpers()
-  const [mounted, setMounted] = useState(false)
+  const { theme } = useTheme();
+  const { isDarkMode, isTerminalCopy, isTechieCopy, isJournalCopy, isRoninCopy } = useThemeHelpers();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
-  if (!mounted) return null
+  if (!mounted) return null;
 
   if (isTechieCopy) {
-    return <TechieFeedCard item={item} variant={variant} className={className} />
+    return <TechieFeedCard item={item} variant={variant} className={className} />;
   }
 
   if (isJournalCopy) {
-    return <JournalFeedCard item={item} variant={variant} className={className} />
+    return <JournalFeedCard item={item} variant={variant} className={className} />;
   }
 
   if (isRoninCopy) {
-    return <RoninFeedCard item={item} variant={variant} className={className} />
+    return <RoninFeedCard item={item} variant={variant} className={className} index={index} />;
   }
 
-  const postUrl = getPostUrl(item)
-  const themeVariant = theme as ThemeVariant
-  const useCardLayout = (CARD_LAYOUT_THEMES as readonly string[]).includes(theme)
+  const postUrl = getPostUrl(item);
+  const themeVariant = theme as ThemeVariant;
+  const useCardLayout = (CARD_LAYOUT_THEMES as readonly string[]).includes(theme);
 
   if (variant === "compact") {
     return (
@@ -61,7 +63,7 @@ export function FeedCard({
         isDarkMode={isDarkMode}
         onRemove={onRemove}
       />
-    )
+    );
   }
 
   if (useCardLayout) {
@@ -74,7 +76,7 @@ export function FeedCard({
         isDarkMode={isDarkMode}
         onRemove={onRemove}
       />
-    )
+    );
   }
 
   return (
@@ -85,10 +87,9 @@ export function FeedCard({
       theme={themeVariant}
       isTerminalCopy={isTerminalCopy}
       isDarkMode={isDarkMode}
-      fontFamily={config.fontFamily}
       onRemove={onRemove}
     />
-  )
+  );
 }
 
 function CompactLayout({
@@ -277,7 +278,6 @@ function RowLayout({
   theme,
   isTerminalCopy,
   isDarkMode,
-  fontFamily,
   onRemove,
 }: {
   item: FeedItem
@@ -286,7 +286,6 @@ function RowLayout({
   theme: ThemeVariant
   isTerminalCopy: boolean
   isDarkMode: boolean
-  fontFamily: string
   onRemove?: () => void
 }) {
   const { config } = useTheme();

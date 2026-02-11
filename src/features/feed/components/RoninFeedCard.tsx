@@ -23,7 +23,7 @@ export function RoninFeedCard({ item, className, variant = "default", onRemove, 
     return (
       <div
         className={cn(
-          "group relative flex items-center bg-[#0D0D0D] hover:bg-[#151515] transition-all duration-700 overflow-hidden h-24 border-l-2 border-[#ff4655]",
+          "group relative flex items-center bg-[#0D0D0D] hover:bg-[#151515] transition-all duration-700 overflow-hidden min-h-[6rem] border-l-2 border-[#ff4655]",
           className,
         )}
       >
@@ -45,7 +45,7 @@ export function RoninFeedCard({ item, className, variant = "default", onRemove, 
             <div className="flex items-center gap-2 mb-1">
               <span className="text-[7px] font-mono text-[#ff4655] uppercase tracking-widest font-black">ENTRY</span>
             </div>
-            <h3 className="text-sm font-noto font-bold text-white uppercase tracking-tight leading-tight group-hover:text-[#ff4655] transition-colors line-clamp-1">
+            <h3 className="text-sm font-noto font-bold text-white uppercase tracking-tight leading-tight group-hover:text-[#ff4655] transition-colors line-clamp-2">
               {item.title}
             </h3>
             <span className="text-[8px] font-noto text-white/30 uppercase tracking-tighter mt-1">
