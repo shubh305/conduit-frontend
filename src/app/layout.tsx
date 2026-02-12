@@ -8,6 +8,10 @@ import { LibraryProvider } from "@/features/library/context/LibraryContext";
 import { LayoutWrapper } from "@/components/shared/LayoutWrapper";
 import { Toaster } from "@/components/ui/sonner";
 import QueryProvider from "@/providers/QueryProvider";
+import { FluidicWrapper } from "@/features/theme/FluidicWrapper";
+import { StatusBarLoader } from "@/features/layout/components/StatusBarLoader";
+import { InstallPrompt } from "@/components/pwa/InstallPrompt";
+import { SWRegistration } from "@/components/pwa/SWRegistration";
 
 const interTight = Inter_Tight({
   subsets: ["latin"],
@@ -45,13 +49,27 @@ const spectral = Spectral({
 export const metadata: Metadata = {
   title: "Conduit",
   description: "Multi-tenant blogging platform",
+  manifest: "/manifest.json",
   icons: {
     icon: "/favicon.svg",
+    apple: "/pwa-icon.png",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Conduit",
   },
 };
 
-import { FluidicWrapper } from "@/features/theme/FluidicWrapper";
-import { StatusBarLoader } from "@/features/layout/components/StatusBarLoader";
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+  themeColor: "#000000",
+};
+
 
 export default function RootLayout({
   children,
@@ -80,6 +98,8 @@ export default function RootLayout({
                   <LayoutWrapper>
                     {children}
                     <Toaster />
+                    <InstallPrompt />
+                    <SWRegistration />
                   </LayoutWrapper>
                 </FluidicWrapper>
               </LibraryProvider>
