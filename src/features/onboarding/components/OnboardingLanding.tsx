@@ -23,7 +23,8 @@ export interface UserBlog {
 
 export function OnboardingLanding() {
   const { theme, config } = useTheme();
-  const { isCyberCopy, isSakuraCopy, isTerminalCopy, isJournalCopy, isDarkMode } = useThemeHelpers();
+  const { isCyberCopy, isTerminalCopy, isSakuraCopy, isJournalCopy, isDarkMode, isTechieCopy, isOctaneCopy } =
+    useThemeHelpers();
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -114,7 +115,12 @@ export function OnboardingLanding() {
         <div className="fixed inset-0 pointer-events-none bg-gradient-to-tr from-accent/5 via-transparent to-accent/5" />
       )}
 
-      <div className="relative z-10 max-w-5xl mx-auto mysites-container">
+      <div
+        className={cn(
+          "relative z-10 max-w-5xl mx-auto mysites-container px-0 md:my-10",
+          (isOctaneCopy || isCyberCopy || isTechieCopy) && "border-none shadow-none bg-transparent",
+        )}
+      >
         {/* Terminal System Status Bar */}
         {isTerminalCopy && (
           <div className="flex justify-between items-center mb-10 pb-2 border-b border-accent/20 text-[10px] uppercase tracking-widest text-accent/50 font-mono">
@@ -130,17 +136,16 @@ export function OnboardingLanding() {
           </div>
         )}
 
-        {/* Header */}
         <header
           className={cn(
-            "flex flex-col lg:flex-row lg:items-center justify-between gap-4 lg:gap-12 border-b transition-all border-noir-border",
-            "px-4 md:px-8 lg:px-12 py-6 md:py-10",
-            "mb-2 md:mb-6",
+            "flex flex-col lg:flex-row lg:items-center justify-between gap-2 lg:gap-12 border-b transition-all border-noir-border",
+            "px-4 md:px-6 lg:px-12 py-6 md:py-10",
+            "mb-2 md:mb-1",
             isTerminalCopy && "border-accent/30",
             isJournalCopy && "border-accent/20",
           )}
         >
-          <div className="space-y-4 md:space-y-6">
+          <div className="space-y-2 md:space-y-6">
             <h1
               className={cn(
                 "text-4xl md:text-6xl lg:text-8xl font-black leading-[0.9] tracking-tighter",
@@ -174,9 +179,11 @@ export function OnboardingLanding() {
             onClick={() => setIsCreateModalOpen(true)}
             className={cn(
               "group flex items-center gap-3 transition-all shrink-0 p-1 bg-noir-panel border shadow-2xl hover:border-accent cursor-pointer",
-              isCyberCopy ? "rounded-none pr-6 border-noir-border" : "rounded-full pr-8 border-noir-border",
+              "my-4 md:my-0",
+              isCyberCopy ? "rounded-none pr-8 border-noir-border" : "rounded-full pr-8 border-noir-border",
               isTerminalCopy && "rounded-full border-accent bg-black pr-8 hover:bg-accent hover:text-black",
-              "rounded-xl border-accent/20 bg-journal-paper pr-6 shadow-sm hover:shadow-md hover:border-accent/40",
+              isJournalCopy &&
+                "rounded-xl border-accent/20 bg-journal-paper pr-8 shadow-sm hover:shadow-md hover:border-accent/40",
             )}
           >
             <div
@@ -203,7 +210,7 @@ export function OnboardingLanding() {
         </header>
 
         {/* Your Blogs Section */}
-        <section className="px-0 md:px-8 py-2 md:py-8">
+        <section className="px-2 md:px-6 py-4">
           <div
             className="flex items-center justify-between cursor-pointer select-none group mb-4 md:mb-8"
             onClick={() => setIsBlogsOpen(!isBlogsOpen)}
@@ -223,7 +230,8 @@ export function OnboardingLanding() {
                 "flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest transition-all px-3 py-2 md:px-4 md:py-1.5 bg-noir-panel border border-noir-border hover:border-accent shadow-sm",
                 isCyberCopy ? "rounded-none" : "rounded-full",
                 isTerminalCopy && "bg-black border-accent text-accent",
-                "rounded-lg border-accent/20 bg-journal-paper text-accent italic font-serif capitalize tracking-normal hover:bg-noir-hover/20",
+                isJournalCopy &&
+                  "rounded-lg border-accent/20 bg-journal-paper text-accent italic font-serif capitalize tracking-normal hover:bg-noir-hover/20",
               )}
             >
               <span className="hidden xs:inline">
@@ -248,7 +256,7 @@ export function OnboardingLanding() {
                 transition={{ duration: 0.3, ease: "easeInOut" }}
                 className="overflow-hidden"
               >
-                <div className="grid gap-6 pt-1">
+                <div className="grid gap-4 pt-1 px-2">
                   {blogs.length === 0 ? (
                     <EmptyBlogsState
                       isCyberCopy={isCyberCopy}
@@ -355,10 +363,10 @@ function BlogCard({
       className={cn(
         "border flex flex-col xl:flex-row xl:items-center justify-between gap-3 md:gap-6 transition-all group",
         "bg-noir-panel border-noir-border hover:border-accent shadow-xl",
-        isCyberCopy ? "rounded-none p-4 md:p-6" : "rounded-2xl p-4 md:p-6",
-        isTerminalCopy && "bg-black border-accent/20 rounded-2xl hover:border-accent/60 p-4 md:p-6",
-        isJournalCopy &&
-          "bg-journal-paper border-accent/20 rounded-xl shadow-lg hover:shadow-xl journal-page-curl p-6 md:p-10",
+        "p-4 md:p-6",
+        isCyberCopy ? "rounded-none" : "rounded-2xl",
+        isTerminalCopy && "bg-black border-accent/20 hover:border-accent/60",
+        isJournalCopy && "bg-journal-paper border-accent/20 rounded-xl shadow-lg hover:shadow-xl journal-page-curl",
       )}
     >
       <div className="flex items-center gap-6">
@@ -397,23 +405,23 @@ function BlogCard({
         </div>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-4 w-full lg:w-auto mt-4 lg:mt-0 pt-4 lg:pt-0 border-t border-noir-border/30 lg:border-none">
+      <div className="flex items-center gap-2 sm:gap-4 w-full lg:w-auto mt-2 lg:mt-0 pt-2 lg:pt-0 border-t border-noir-border/30 lg:border-none">
         <div className="grid grid-cols-2 gap-2 flex-1 md:flex md:flex-row md:items-center md:gap-2 md:w-auto">
           <Link href={`/studio/editor?tenantId=${blog.id}`} className="w-full md:w-auto">
             <ThemeButton
               themeVariant="ghost"
-              className="w-full gap-2 px-3 py-1.5 h-10 md:h-9 text-[10px] md:text-xs whitespace-nowrap"
+              className="w-full gap-2 px-2 py-1 h-8 md:h-9 text-[9px] md:text-xs whitespace-nowrap"
             >
-              <FileText size={14} />
+              <FileText size={12} className="md:w-3.5 md:h-3.5" />
               <span>{editorLabel}</span>
             </ThemeButton>
           </Link>
           <Link href={`/studio/config?tab=transmissions&tenantId=${blog.id}`} className="w-full md:w-auto">
             <ThemeButton
               themeVariant={isJournalCopy ? "ghost" : "primary"}
-              className="w-full gap-2 px-3 py-1.5 h-10 md:h-9 text-[10px] md:text-xs whitespace-nowrap"
+              className="w-full gap-2 px-2 py-1 h-8 md:h-9 text-[9px] md:text-xs whitespace-nowrap"
             >
-              <Layout size={14} />
+              <Layout size={12} className="md:w-3.5 md:h-3.5" />
               <span>{studioLabel}</span>
             </ThemeButton>
           </Link>
@@ -423,14 +431,14 @@ function BlogCard({
           target="_blank"
           rel="noopener noreferrer"
           className={cn(
-            "h-10 w-10 md:h-9 md:w-9 flex items-center justify-center transition-all border border-noir-border hover:border-accent hover:text-accent bg-noir-bg cursor-pointer shrink-0",
+            "h-8 w-8 md:h-9 md:w-9 flex items-center justify-center transition-all border border-noir-border hover:border-accent hover:text-accent bg-noir-bg cursor-pointer shrink-0",
             isCyberCopy ? "rounded-none" : "rounded-full",
             isTerminalCopy && "bg-black border-accent text-accent rounded-full",
             isJournalCopy && "rounded-lg border-accent/20 bg-transparent text-accent hover:bg-accent/5",
           )}
           title="Open Site"
         >
-          <ArrowUpRight size={16} />
+          <ArrowUpRight size={14} className="md:w-4 md:h-4" />
         </a>
       </div>
     </div>

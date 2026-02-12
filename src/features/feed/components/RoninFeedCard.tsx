@@ -31,13 +31,14 @@ export function RoninFeedCard({
     return (
       <div
         className={cn(
-          "group relative flex items-center bg-[#0D0D0D] hover:bg-[#151515] transition-all duration-700 overflow-hidden min-h-[6rem] border-l-2 border-[#ff4655]",
+          "group relative flex bg-[#0D0D0D] hover:bg-[#151515] transition-all duration-700 overflow-hidden min-h-[6rem] border-l-2 border-[#ff4655]",
           className,
         )}
       >
         <Link href={postUrl} className="flex items-center flex-1 h-full min-w-0">
           {/* Left Visual: Brush Edge Image */}
-          {item.featuredImage && (
+          {/* Left Visual: Brush Edge Image */}
+          {item.featuredImage ? (
             <div className={cn("relative w-28 h-full overflow-hidden shrink-0 border-r border-white/5", brushClass)}>
               <Image
                 src={getMediaUrl(item.featuredImage) || ""}
@@ -46,19 +47,41 @@ export function RoninFeedCard({
                 className="object-cover grayscale contrast-125 group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000"
               />
             </div>
+          ) : (
+            <div
+              className={cn(
+                "relative w-28 h-full overflow-hidden shrink-0 border-r border-white/5 bg-white/5 flex items-center justify-center",
+                brushClass,
+              )}
+            >
+              <span className="text-white/10 font-noto font-bold text-2xl uppercase tracking-widest opacity-50">
+                Ronin
+              </span>
+            </div>
           )}
 
           {/* Right Content */}
-          <div className="flex-1 min-w-0 p-3 flex flex-col justify-center h-full relative z-20">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-[7px] font-mono text-[#ff4655] uppercase tracking-widest font-black">ENTRY</span>
+          <div className="flex-1 min-w-0 p-3 flex flex-col justify-between h-full relative z-20">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[7px] font-mono text-[#ff4655] uppercase tracking-widest font-black">ENTRY</span>
+              </div>
+              <h3 className="text-sm font-noto font-bold text-white uppercase tracking-tight leading-tight group-hover:text-[#ff4655] transition-colors line-clamp-2">
+                {item.title}
+              </h3>
+              <span className="text-[8px] font-noto text-white/30 uppercase tracking-tighter mt-1 block">
+                作者: {item.authorName}
+              </span>
             </div>
-            <h3 className="text-sm font-noto font-bold text-white uppercase tracking-tight leading-tight group-hover:text-[#ff4655] transition-colors line-clamp-2">
-              {item.title}
-            </h3>
-            <span className="text-[8px] font-noto text-white/30 uppercase tracking-tighter mt-1">
-              作者: {item.authorName}
-            </span>
+
+            <div className="mt-2">
+              <PostActions
+                data={item}
+                onRemove={onRemove}
+                compact
+                className="border-none bg-transparent pt-0 mt-0 text-white/40 hover:text-white/80 p-0 h-auto"
+              />
+            </div>
           </div>
         </Link>
       </div>

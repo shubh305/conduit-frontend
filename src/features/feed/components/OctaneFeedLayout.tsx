@@ -44,13 +44,13 @@ export function OctaneFeedLayout({
         {/* Active Border Effect */}
         <div className="absolute bottom-0 left-0 h-1 w-0 bg-accent group-hover:w-full transition-all duration-500 ease-out z-20" />
 
-        <div className="max-w-[1800px] mx-auto px-6 py-12 md:py-16 relative z-10 flex flex-col md:flex-row justify-between items-end gap-6">
+        <div className="max-w-[1800px] mx-auto px-4 md:px-6 py-8 md:py-16 relative z-10 flex flex-col md:flex-row justify-between items-end gap-6">
           <div className="absolute inset-x-8 top-8 h-[2px] bg-noir-border flex justify-between">
             <div className="w-12 h-1 bg-accent" />
             <div className="w-1/2 h-[1px] bg-white/5" />
             <div className="w-12 h-1 bg-noir-border" />
           </div>
-          <div className="absolute bottom-8 right-8 text-accent font-mono text-xs tracking-widest animate-pulse">
+          <div className="absolute top-24 right-8 text-accent font-mono text-[8px] md:text-xs tracking-[0.3em] animate-pulse md:hidden">
             {"// SYSTEM_READY"}
           </div>
           <div className="flex flex-col gap-2">
@@ -58,6 +58,9 @@ export function OctaneFeedLayout({
               <div className="w-12 h-2 bg-accent skew-x-[-20deg]" />
               <div className="w-4 h-2 bg-accent/50 skew-x-[-20deg]" />
               <div className="w-2 h-2 bg-noir-border skew-x-[-20deg]" />
+              <div className="hidden md:block text-accent font-mono text-[10px] tracking-[0.3em] animate-pulse ml-4">
+                {"// SYSTEM_READY"}
+              </div>
             </div>
             <h1 className="text-6xl md:text-8xl font-black italic tracking-tighter uppercase font-sans text-white drop-shadow-lg">
               {blogTitle || "OCTANE_MAG"}
@@ -91,7 +94,7 @@ export function OctaneFeedLayout({
       </header>
 
       {/* Main Grid */}
-      <main className="max-w-[1800px] mx-auto w-full p-6 md:p-12 gap-12 flex flex-col">
+      <main className="max-w-[1800px] mx-auto w-full p-4 md:p-12 gap-8 md:gap-12 flex flex-col">
         {featured && (
           <div className="w-full mb-8">
             <OctaneHero item={featured} currentTenantSlug={currentTenantSlug} />
