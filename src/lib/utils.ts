@@ -107,8 +107,7 @@ export function getPostUrl(
 
   if (item.tenantSlug === "default" && item.authorUsername) {
     if (typeof window === "undefined") return `/u/${item.authorUsername}/${item.postSlug}`;
-    const root = getRootDomain();
-    return `${window.location.protocol}//${root}/u/${item.authorUsername}/${item.postSlug}`;
+    return `${getRootUrl()}u/${item.authorUsername}/${item.postSlug}`;
   }
 
   const slug = item.tenantSlug || "public";

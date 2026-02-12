@@ -100,7 +100,7 @@ export function TechieFeedCard({
   return (
     <div
       className={cn(
-        "group relative flex flex-col bg-noir-panel/30 hover:bg-noir-panel/50 transition-all duration-500 h-auto min-h-[380px] md:h-[400px] shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)] overflow-hidden rounded-xl",
+        "group relative flex flex-col bg-noir-panel/30 hover:bg-noir-panel/50 transition-all duration-500 h-auto min-h-[280px] md:h-auto shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)] overflow-hidden rounded-xl",
         className,
       )}
     >
@@ -116,7 +116,7 @@ export function TechieFeedCard({
         </div>
 
         {/* 2. Visual Layer */}
-        {item.featuredImage && (
+        {item.featuredImage ? (
           <div className="relative aspect-[21/9] w-full bg-black overflow-hidden group-hover:bg-accent/5">
             <Image
               src={getMediaUrl(item.featuredImage) || ""}
@@ -125,6 +125,11 @@ export function TechieFeedCard({
               className="object-cover opacity-50 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700 grayscale group-hover:grayscale-0"
             />
             <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(var(--accent-rgb),0.03)_1px,transparent_1px),linear-gradient(rgba(var(--accent-rgb),0.03)_1px,transparent_1px)] bg-[length:15px_15px] pointer-events-none" />
+          </div>
+        ) : (
+          <div className="relative aspect-[21/9] w-full bg-black overflow-hidden border-b border-white/5 flex items-center justify-center">
+            <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.02)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.02)_50%,rgba(255,255,255,0.02)_75%,transparent_75%,transparent)] bg-[length:20px_20px]" />
+            <div className="text-[10px] font-mono text-white/10 tracking-[0.2em] font-bold">NO SIGNAL</div>
           </div>
         )}
 

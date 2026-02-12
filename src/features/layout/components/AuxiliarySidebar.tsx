@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
-import { cn, getRootDomain } from "@/lib/utils";
+import { cn, getRootUrl } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { getGlobalFeed } from "@/features/feed/api";
@@ -153,8 +153,7 @@ export function AuxiliarySidebarContent() {
 
   const getProfileUrl = (username: string) => {
     if (typeof window === "undefined") return `/u/${username}`;
-    const root = getRootDomain();
-    return `${window.location.protocol}//${root}/u/${username}`;
+    return `${getRootUrl()}u/${username}`;
   };
 
   return (

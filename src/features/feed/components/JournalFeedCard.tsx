@@ -89,7 +89,7 @@ export function JournalFeedCard({
   return (
     <div
       className={cn(
-        "group relative flex flex-col bg-[var(--journal-paper)] hover:bg-white transition-all duration-500 h-[500px] md:h-[560px] shadow-[6px_6px_0_rgba(0,0,0,0.05),12px_12px_0_rgba(0,0,0,0.02)] hover:shadow-2xl overflow-hidden border border-accent/10 rounded-sm journal-page-curl p-0",
+        "group relative flex flex-col bg-[var(--journal-paper)] hover:bg-white transition-all duration-500 h-auto min-h-[280px] shadow-[6px_6px_0_rgba(0,0,0,0.05),12px_12px_0_rgba(0,0,0,0.02)] hover:shadow-2xl overflow-hidden border border-accent/10 rounded-sm journal-page-curl p-0",
         className,
       )}
     >
@@ -116,7 +116,7 @@ export function JournalFeedCard({
           </div>
 
           {/* 2. Visual Layer */}
-          {item.featuredImage && (
+          {item.featuredImage ? (
             <div className="block relative aspect-[16/10] w-full overflow-hidden m-3 self-center max-w-[calc(100%-1.5rem)] shadow-inner">
               <Image
                 src={getMediaUrl(item.featuredImage) || ""}
@@ -126,6 +126,10 @@ export function JournalFeedCard({
               />
               {/* Subtle Vignette on Image */}
               <div className="absolute inset-0 shadow-[inset_0_0_40px_rgba(0,0,0,0.1)] pointer-events-none" />
+            </div>
+          ) : (
+            <div className="block relative aspect-[16/10] w-full overflow-hidden m-3 self-center max-w-[calc(100%-1.5rem)] border-b border-noir-border/10 flex items-center justify-center bg-black/5 opacity-50">
+              <div className="text-[10px] font-serif italic text-accent/30 tracking-[0.2em]">NO IMAGE</div>
             </div>
           )}
 
