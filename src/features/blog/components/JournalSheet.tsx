@@ -8,7 +8,7 @@ import { FeedItem } from "@/features/feed/types"
 import { TiptapContent } from "@/features/blog/types"
 import { cn, getMediaUrl } from "@/lib/utils";
 import { motion } from "framer-motion"
-import { forwardRef } from "react"
+import React, { useRef, useLayoutEffect, forwardRef } from "react";
 import { useTheme } from "@/features/theme/ThemeProvider";
 
 import { useBlogNavigation } from "@/features/blog/hooks/useBlogNavigation";
@@ -22,6 +22,8 @@ interface JournalSheetProps {
   className?: string;
   disableInitialAnimation?: boolean;
   isStatic?: boolean;
+  initialScrollOffset?: number;
+  onScroll?: (e: React.UIEvent<HTMLDivElement>) => void;
 }
 
 export const JournalSheet = forwardRef<HTMLDivElement, JournalSheetProps>(
@@ -35,11 +37,21 @@ export const JournalSheet = forwardRef<HTMLDivElement, JournalSheetProps>(
       className,
       disableInitialAnimation,
       isStatic,
+      initialScrollOffset = 0,
+      onScroll,
     },
     ref,
   ) => {
     const { focusMode } = useTheme();
     const { navigateToBlogHome } = useBlogNavigation(tenantSlug);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+    useLayoutEffect(() => {
+      if (scrollContainerRef.current && initialScrollOffset > 0) {
+        scrollContainerRef.current.scrollTop = initialScrollOffset;
+      }
+    }, [initialScrollOffset]);
+
     return (
       <div
         ref={ref}
@@ -54,10 +66,21 @@ export const JournalSheet = forwardRef<HTMLDivElement, JournalSheetProps>(
 
         {/* Content Scroller */}
         <div
+          ref={scrollContainerRef}
+          onScroll={onScroll}
           className={cn(
-            "flex-1 px-6 xs:px-12 md:px-20 lg:px-32 pt-2 md:pt-16 xs:pt-24 pb-20 selection:bg-accent/20 selection:text-foreground",
-            isStatic ? "overflow-hidden" : "overflow-y-auto custom-scrollbar relative z-20",
+            "flex-1 px-3 xs:px-6 md:px-20 lg:px-32 pt-2 md:pt-16 xs:pt-16 pb-8 md:pb-12 selection:bg-accent/20 selection:text-foreground",
+            isStatic
+              ? "overflow-y-auto pointer-events-none [&::-webkit-scrollbar]:hidden"
+              : "overflow-y-auto custom-scrollbar relative z-20",
           )}
+          style={
+            isStatic
+              ? ({ scrollbarWidth: "none", msOverflowStyle: "none" } as React.CSSProperties & {
+                  msOverflowStyle?: string;
+                })
+              : undefined
+          }
         >
           {isLoading ? (
             /* Loading Skeleton (Pulsing) */
@@ -175,7 +198,7 @@ export const JournalSheet = forwardRef<HTMLDivElement, JournalSheetProps>(
               </article>
 
               {/* Post Footer / Navigation */}
-              <footer className="mt-12 pt-8 border-t-2 border-accent/10 flex flex-col items-center pb-8 gap-8">
+              <footer className="mt-4 md:mt-8 pt-4 md:pt-6 border-t-2 border-accent/10 flex flex-col items-center pb-4 md:pb-6 gap-3 md:gap-4">
                 <p className="font-serif italic text-accent/50 tracking-widest uppercase text-xs">
                   — End of Transcription —
                 </p>
@@ -183,7 +206,7 @@ export const JournalSheet = forwardRef<HTMLDivElement, JournalSheetProps>(
                 {onShowRecommendations && (
                   <button
                     onClick={onShowRecommendations}
-                    className="px-8 py-3 bg-[#2a2520] text-[#fdfcf8] font-serif italic hover:bg-accent hover:text-[#2a2520] transition-all duration-300 shadow-md hover:shadow-xl rounded-sm flex items-center gap-2 group border border-[#2a2520]"
+                    className="px-8 py-3 bg-[var(--journal-binding)] text-[var(--journal-paper)] font-serif italic hover:bg-accent hover:text-[var(--journal-binding)] transition-all duration-300 shadow-md hover:shadow-xl rounded-sm flex items-center gap-2 group border border-[var(--journal-binding)]"
                   >
                     <span>More from {post.authorName}</span>
                     <span className="group-hover:translate-x-1 transition-transform">→</span>
@@ -199,7 +222,7 @@ export const JournalSheet = forwardRef<HTMLDivElement, JournalSheetProps>(
 
         {/* Floating Vertical Action Bar - Right Edge Tab Style */}
         <div className="absolute right-0 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center">
-          <div className="bg-journal-paper shadow-[2px_0_10px_rgba(0,0,0,0.1),inset_1px_0_0_rgba(255,255,255,0.8)] border-l border-y border-accent/10 py-6 px-3 rounded-l-xl flex items-center justify-center translate-x-1 group-hover:translate-x-0 transition-transform duration-500">
+          <div className="bg-[var(--journal-paper)] shadow-[2px_0_10px_rgba(0,0,0,0.1)] border-l border-y border-accent/10 py-6 px-3 rounded-l-xl flex items-center justify-center translate-x-1 group-hover:translate-x-0 transition-transform duration-500 z-50">
             <FeedActionBar
               postId={post.postId}
               slug={post.postSlug}

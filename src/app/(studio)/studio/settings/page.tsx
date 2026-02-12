@@ -112,7 +112,7 @@ export default function SettingsPage() {
       {/* HEADER SECTION */}
       <div
         className={cn(
-          "w-full pt-8 md:pt-16 pb-24 md:pb-32 px-6 md:px-12 transition-all duration-500",
+          "w-full pt-8 md:pt-16 pb-24 md:pb-32 px-2 md:px-12 transition-all duration-500",
           isTechieCopy
             ? "bg-[var(--bg-primary)] border-b border-[var(--bg-panel)]/50"
             : isCyberCopy || isTerminalCopy
@@ -155,11 +155,11 @@ export default function SettingsPage() {
       </div>
 
       {/* CONTENT SECTION */}
-      <div className="max-w-6xl mx-auto px-4 md:px-12 -mt-16 md:-mt-12 pb-24">
+      <div className="max-w-6xl mx-auto px-0 md:px-12 -mt-16 md:-mt-12 pb-24">
         <ThemeCard
           className={cn(
             "transition-all duration-300 relative overflow-hidden",
-            "p-8 md:p-12 shadow-2xl backdrop-blur-sm",
+            "p-3 md:p-12 shadow-2xl backdrop-blur-sm",
             isTechieCopy && "border-white/5 bg-[var(--bg-primary)]/80 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]",
             isCyberCopy && "bg-noir-bg/90 border-accent/20",
             !isCyberCopy && !isTechieCopy && !isJournalCopy && !isTerminalCopy && "bg-noir-panel",

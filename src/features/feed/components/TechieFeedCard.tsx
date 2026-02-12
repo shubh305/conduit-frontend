@@ -28,13 +28,13 @@ export function TechieFeedCard({
     return (
       <div
         className={cn(
-          "group relative flex items-center bg-noir-panel/30 hover:bg-noir-panel/50 transition-all duration-500 shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.4)] overflow-hidden h-28 rounded-lg",
+          "group relative flex bg-noir-panel/30 hover:bg-noir-panel/50 transition-all duration-500 shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.4)] overflow-hidden h-auto min-h-[7rem] md:h-32 rounded-lg",
           className,
         )}
       >
-        <Link href={postUrl} className="flex items-center flex-1 h-full min-w-0">
-          {item.featuredImage && (
-            <div className="relative w-36 h-full bg-black overflow-hidden shrink-0 border-r border-white/5">
+        <Link href={postUrl} className="flex flex-1 h-full min-w-0">
+          {item.featuredImage ? (
+            <div className="relative w-28 md:w-32 self-stretch bg-black overflow-hidden shrink-0 border-r border-white/5">
               <Image
                 src={getMediaUrl(item.featuredImage) || ""}
                 alt={item.title}
@@ -43,9 +43,16 @@ export function TechieFeedCard({
               />
               <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(var(--accent-rgb),0.03)_1px,transparent_1px),linear-gradient(rgba(var(--accent-rgb),0.03)_1px,transparent_1px)] bg-[length:10px_10px] pointer-events-none" />
             </div>
+          ) : (
+            <div className="relative w-28 md:w-32 self-stretch bg-black overflow-hidden shrink-0 border-r border-white/5 flex items-center justify-center">
+              <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.02)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.02)_50%,rgba(255,255,255,0.02)_75%,transparent_75%,transparent)] bg-[length:20px_20px]" />
+              <div className="text-[10px] font-mono text-white/10 tracking-[0.2em] font-bold text-center px-2">
+                NO SIGNAL
+              </div>
+            </div>
           )}
 
-          <div className="flex-1 min-w-0 p-3 flex flex-col justify-between h-full">
+          <div className="flex-1 min-w-0 p-3 flex flex-col justify-between h-full gap-2">
             <div className="flex items-start gap-2">
               <span className="text-[8px] font-mono leading-none bg-accent/20 text-accent px-1 py-0.5 font-bold shadow-sm shrink-0">
                 {score}
@@ -55,7 +62,7 @@ export function TechieFeedCard({
               </h3>
             </div>
 
-            <div className="flex items-center gap-2 mt-auto">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-auto">
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 <span className="text-[8px] font-mono text-accent/60 uppercase shrink-0">
                   {new Date(item.publishedAt)
@@ -81,7 +88,7 @@ export function TechieFeedCard({
                 </div>
               </div>
 
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 self-end sm:self-auto">
                 <PostActions
                   data={item}
                   onRemove={onRemove}

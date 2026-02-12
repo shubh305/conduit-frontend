@@ -38,7 +38,7 @@ export function CyberArticleLayout({ post, tenant, isPreview: isPreviewProp }: A
       {/* Immersive Header */}
       <div
         className={cn(
-          "border-b border-noir-border min-h-[400px] md:min-h-[500px] flex flex-col relative justify-end pb-12 sm:pb-20 px-6 md:px-24 transition-all",
+          "border-b border-noir-border min-h-[400px] md:min-h-[500px] flex flex-col relative justify-end pb-12 sm:pb-20 px-2 md:px-24 transition-all",
           isSakuraCopy && "bg-gradient-to-br from-noir-bg via-noir-bg to-accent/10",
         )}
       >
@@ -177,7 +177,7 @@ export function CyberArticleLayout({ post, tenant, isPreview: isPreviewProp }: A
       {/* Main Content Area */}
       <div className="max-w-[1920px] mx-auto">
         <article
-          className={cn("mx-auto py-12 md:py-32 px-6 md:px-16 transition-all duration-700", {
+          className={cn("mx-auto py-12 md:py-32 px-2 md:px-16 transition-all duration-700", {
             "max-w-3xl lg:max-w-5xl": !useTheme().focusMode,
             "max-w-[1400px]": useTheme().focusMode,
           })}

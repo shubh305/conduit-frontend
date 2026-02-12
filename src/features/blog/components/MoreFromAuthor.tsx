@@ -41,8 +41,8 @@ export function MoreFromAuthor({
   if (posts.length === 0) return null;
 
   return (
-    <div className={cn("py-24 border-t border-noir-border bg-noir-bg transition-all duration-700", className)}>
-      <div className="container mx-auto px-6 max-w-7xl">
+    <div className={cn("py-12 md:py-24 border-t border-noir-border bg-noir-bg transition-all duration-700", className)}>
+      <div className="container mx-auto px-2 md:px-6 max-w-7xl">
         {!hideHeader && (
           <div
             className={cn(
@@ -69,7 +69,7 @@ export function MoreFromAuthor({
           </div>
         )}
 
-        <div className={cn("grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-10", gridClassName)}>
+        <div className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-10", gridClassName)}>
           {posts.map(post => {
             const href = getPostUrl({
               ...post,

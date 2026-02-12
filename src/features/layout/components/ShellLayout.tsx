@@ -9,7 +9,7 @@ import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
 import { NavigationSidebar } from "./NavigationSidebar";
 import { AuxiliarySidebar } from "./AuxiliarySidebar";
 import { StudioSidebar } from "@/features/studio/components/StudioSidebar";
-import { cn } from "@/lib/utils";
+import { cn, getRootUrl } from "@/lib/utils";
 import { TopNavigation } from "./TopNavigation";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { WIP_LIMITS } from "@/lib/wip-limits";
@@ -23,8 +23,17 @@ interface ShellLayoutProps {
 
 export function ShellLayout({ children }: ShellLayoutProps) {
   const { focusMode, setFocusMode } = useTheme();
-  const { isCyber, isDarkMode, isRoninCopy, isSakuraCopy, isJournalCopy, isTerminalCopy, isTechieCopy, fontFamily } =
-    useThemeHelpers();
+  const {
+    isCyber,
+    isDarkMode,
+    isRoninCopy,
+    isJournalCopy,
+    fontFamily,
+    isTerminalCopy,
+    isSakuraCopy,
+    isTechieCopy,
+    isOctaneCopy,
+  } = useThemeHelpers();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { user } = useAuth();
@@ -128,7 +137,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
         />
         <div className="flex justify-center min-h-screen">
           <div className="hidden md:block shrink-0 transition-all duration-300 w-64" />
-          <main className="flex-1 min-w-0 px-4 md:px-8 py-8 transition-all duration-300 xl:border-r w-full pt-24 xl:border-noir-border">
+          <main className="flex-1 min-w-0 px-0 md:px-12 py-8 transition-all duration-300 xl:border-r w-full pt-24 xl:border-noir-border">
             {children}
           </main>
           <div className="hidden xl:block w-80 shrink-0" />
@@ -140,6 +149,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
   const isProfilePage = pathname.startsWith("/u/");
 
   const isStudioRoute = pathname.startsWith("/studio");
+  const isDashboardRoute = pathname === "/dashboard";
   const isEditorRoute = pathname.startsWith("/studio/editor");
   const segments = pathname.split("/").filter(Boolean);
   const isPostView =
@@ -168,7 +178,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
       key={layoutKey}
       className={cn(
         "min-h-screen transition-all duration-1000 ease-in-out text-foreground max-w-[100vw] overflow-x-hidden overscroll-behavior-none",
-        isEditorRoute && "h-[100dvh] overflow-hidden overscroll-none",
+        isEditorRoute ? "h-[100dvh] overflow-hidden overscroll-none" : "min-h-screen",
         isRoninCopy || isSakuraCopy || isJournalCopy || isTerminalCopy || isTechieCopy
           ? "bg-transparent"
           : "bg-noir-bg",
@@ -266,9 +276,14 @@ export function ShellLayout({ children }: ShellLayoutProps) {
         />
       )}
 
-      {/* Studio Mobile Header */}
       {isStudioRoute && !focusMode && !pathname.startsWith("/studio/editor") && (
-        <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-noir-bg border-b border-noir-border flex items-center px-4 z-[180]">
+        <div
+          className={cn(
+            "md:hidden fixed top-0 left-0 right-0 h-16 bg-noir-bg border-b border-noir-border flex items-center px-2 z-[200]",
+            isJournalCopy && "bg-[var(--journal-paper)] border-accent/20",
+            isSakuraCopy && "bg-[var(--bg-sidebar)] border-accent/20",
+          )}
+        >
           <button
             onClick={e => {
               e.stopPropagation();
@@ -304,9 +319,18 @@ export function ShellLayout({ children }: ShellLayoutProps) {
         {/* Center Content */}
         <main
           className={cn(
-            "flex-1 min-w-0 transition-all duration-300 xl:border-r w-full border-noir-border px-4 md:px-8 pt-20 md:pt-24 pb-24 md:pb-8",
+            "flex-1 min-w-0 transition-all duration-300 xl:border-r w-full border-noir-border pb-24 md:pb-8",
+            isDashboardRoute ? "pt-[64px]" : "pt-20 md:pt-24",
+            isCyber || isTechieCopy || isOctaneCopy || isDashboardRoute || isProfilePage
+              ? "px-2 md:px-8"
+              : "px-2 md:px-8",
             isTechieCopy && "xl:border-none",
-            isStudioRoute && "pt-16 md:pt-0 border-none px-4 md:px-0 pb-0",
+            isStudioRoute &&
+              cn(
+                "pt-16 md:pt-0 border-none pb-0",
+                isOctaneCopy || isCyber || isTechieCopy ? "px-2 md:px-0" : "px-2 md:px-0",
+              ),
+            isDashboardRoute && cn("pb-0", isOctaneCopy || isCyber || isTechieCopy ? "px-2 md:px-0" : "px-2 md:px-0"),
             isEditorRoute && "pt-0 md:pt-0 px-0 md:px-0 flex flex-col h-full overflow-hidden",
             isJournalImmersion && "h-screen pt-0 pb-0 mt-0 px-0 overflow-hidden bg-journal-parchment flex flex-col",
             isJournalCopy && "bg-journal-ink/5",
@@ -328,38 +352,51 @@ export function ShellLayout({ children }: ShellLayoutProps) {
       {user && !pathname.startsWith("/studio/editor") && (
         <div
           className={cn(
-            "md:hidden fixed bottom-0 left-0 right-0 border-t px-6 py-3 flex justify-between items-center z-[180]",
+            "md:hidden fixed bottom-0 left-0 right-0 border-t px-6 py-3 flex justify-between items-center z-[200]",
             "bg-noir-bg/95 backdrop-blur-xl border-noir-border shadow-[0_-4px_12px_rgba(0,0,0,0.5)]",
+            isJournalCopy && "bg-[var(--journal-paper)] border-accent/20",
           )}
         >
-          <Link
-            href="/"
-            className="flex flex-col items-center gap-1 text-foreground-muted hover:text-foreground transition-colors cursor-pointer"
+          <a
+            href={getRootUrl()}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-colors cursor-pointer",
+              pathname === "/" ? "text-accent" : "text-foreground-muted hover:text-foreground",
+            )}
           >
-            <Home size={20} strokeWidth={1.5} />
+            <Home size={20} strokeWidth={pathname === "/" ? 2 : 1.5} />
             <span className="text-[10px] uppercase tracking-wide">{t("home")}</span>
-          </Link>
+          </a>
           <Link
             href="/search"
-            className="flex flex-col items-center gap-1 text-foreground-muted hover:text-foreground transition-colors cursor-pointer"
+            className={cn(
+              "flex flex-col items-center gap-1 transition-colors cursor-pointer",
+              pathname.startsWith("/search") ? "text-accent" : "text-foreground-muted hover:text-foreground",
+            )}
           >
-            <Search size={20} strokeWidth={1.5} />
+            <Search size={20} strokeWidth={pathname.startsWith("/search") ? 2 : 1.5} />
             <span className="text-[10px] uppercase tracking-wide">{t("search")}</span>
           </Link>
           {user && (
             <Link
               href="/dashboard"
-              className="flex flex-col items-center gap-1 text-foreground-muted hover:text-foreground transition-colors cursor-pointer"
+              className={cn(
+                "flex flex-col items-center gap-1 transition-colors cursor-pointer",
+                pathname.startsWith("/dashboard") ? "text-accent" : "text-foreground-muted hover:text-foreground",
+              )}
             >
-              <LayoutDashboard size={20} strokeWidth={1.5} />
+              <LayoutDashboard size={20} strokeWidth={pathname.startsWith("/dashboard") ? 2 : 1.5} />
               <span className="text-[10px] uppercase tracking-wide">{t("mySites")}</span>
             </Link>
           )}
           <Link
             href="/me/library"
-            className="flex flex-col items-center gap-1 text-foreground-muted hover:text-foreground transition-colors cursor-pointer"
+            className={cn(
+              "flex flex-col items-center gap-1 transition-colors cursor-pointer",
+              pathname.startsWith("/me/library") ? "text-accent" : "text-foreground-muted hover:text-foreground",
+            )}
           >
-            <Bookmark size={20} strokeWidth={1.5} />
+            <Bookmark size={20} strokeWidth={pathname.startsWith("/me/library") ? 2 : 1.5} />
             <span className="text-[10px] uppercase tracking-wide">{t("library")}</span>
           </Link>
           <UserNavWidget variant="bottom-nav" />

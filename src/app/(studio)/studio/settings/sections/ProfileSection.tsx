@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { ThemedButton } from "@/components/ui/themed-button";
 import { Input } from "@/components/ui/input";
 import { Save } from "lucide-react";
 import { toast } from "sonner";
@@ -57,24 +58,23 @@ export function ProfileSection({
               <span className="text-2xl font-bold text-foreground-subtle">{user.username[0]?.toUpperCase()}</span>
             )}
 
-
             <input
               ref={fileInputRef}
               type="file"
               accept="image/*"
               className="hidden"
               onChange={async e => {
-                const file = e.target.files?.[0]
-                if (!file) return
+                const file = e.target.files?.[0];
+                if (!file) return;
 
-                const toastId = toast.loading("Uploading avatar...")
+                const toastId = toast.loading("Uploading avatar...");
                 try {
-                  const { url } = await uploadFile(file)
-                  setFormData(prev => ({ ...prev, avatar: url }))
-                  toast.success("Avatar uploaded", { id: toastId })
+                  const { url } = await uploadFile(file);
+                  setFormData(prev => ({ ...prev, avatar: url }));
+                  toast.success("Avatar uploaded", { id: toastId });
                 } catch (err) {
-                  console.error(err)
-                  toast.error("Failed to upload avatar", { id: toastId })
+                  console.error(err);
+                  toast.error("Failed to upload avatar", { id: toastId });
                 }
               }}
             />
@@ -276,26 +276,13 @@ export function ProfileSection({
         </div>
 
         {/* Save Button */}
-        <div className="pt-8 flex justify-end">
-          <Button
-            type="submit"
-            disabled={isSaving}
-            className={cn(
-              "gap-2 min-w-[240px] font-bold tracking-[0.3em] uppercase text-[10px] h-14 shadow-2xl transition-all",
-              isCyberCopy || isTerminalCopy
-                ? "rounded-none bg-accent text-noir-bg hover:bg-white font-mono"
-                : isJournalCopy
-                  ? "bg-journal-ink text-journal-paper hover:bg-accent rounded-xl font-serif italic tracking-widest border-none"
-                  : isTechieCopy
-                    ? "bg-[var(--accent)] text-black font-mono rounded-lg hover:shadow-[0_0_30px_rgba(var(--accent-rgb),0.4)] border-none"
-                    : "bg-accent text-noir-bg hover:scale-105 active:scale-95",
-            )}
-          >
-            <Save size={16} />
+        <div className="pt-4 flex justify-end">
+          <ThemedButton type="submit" disabled={isSaving}>
+            <Save size={16} className="mr-2" />
             {isSaving ? labels.savingText : labels.saveChangesLabel}
-          </Button>
+          </ThemedButton>
         </div>
       </div>
     </div>
-  )
+  );
 }

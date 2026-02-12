@@ -82,8 +82,8 @@ function ConfigContent() {
 
   return (
     <ThemePage>
-      <div className="max-w-4xl mx-auto py-6 md:py-12 px-0 md:px-6">
-        <header className="mb-8 md:mb-16">
+      <div className="max-w-4xl mx-auto px-4 md:px-6 py-2 md:py-12">
+        <header className="mb-4 md:mb-16">
           <h1 className={cn("text-4xl font-bold tracking-tight mb-4 transition-all", getHeadingClasses(theme))}>
             {activeTab === "transmissions" && getLabel("publications")}
             {activeTab === "appearance" && getLabel("appearance")}
@@ -94,7 +94,7 @@ function ConfigContent() {
             {activeTab === "appearance" && getLabel("appearance_desc")}
             {activeTab === "notifications" && getLabel("notifications_desc")}
           </p>
-          <div className="h-px w-full bg-noir-border opacity-30 mt-8" />
+          <div className="h-px w-full bg-noir-border opacity-30 mt-4" />
         </header>
 
         <main>

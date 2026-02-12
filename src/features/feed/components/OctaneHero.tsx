@@ -37,12 +37,12 @@ export function OctaneHero({ item, currentTenantSlug }: { item: FeedItem; curren
         <div className="w-1/2 h-[1px] bg-white/5" />
         <div className="w-12 h-1 bg-noir-border" />
       </div>
-      <div className="absolute bottom-8 right-8 text-accent font-mono text-xs tracking-widest animate-pulse">
+      <div className="absolute bottom-8 right-8 text-accent font-mono text-xs tracking-widest animate-pulse hidden md:block">
         {"// SYSTEM_READY"}
       </div>
 
       {/* 3. Content Block (Bottom Left) */}
-      <div className="absolute bottom-0 left-0 p-8 md:p-16 w-full md:w-2/3 z-10 flex flex-col gap-6">
+      <div className="absolute bottom-0 left-0 p-4 md:p-16 w-full md:w-2/3 z-10 flex flex-col gap-4 md:gap-6">
         {/* Metadata Pill */}
         <div className="flex items-center gap-4">
           <span className="px-3 py-1 bg-accent text-white font-black uppercase text-xs skew-x-[-10deg]">

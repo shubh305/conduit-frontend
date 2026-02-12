@@ -50,21 +50,22 @@ export function DialogContent({ children, className }: { children: React.ReactNo
 
   const content = (
     <>
-      <div 
+      <div
         className="fixed inset-0 z-[10000] bg-black/80 backdrop-blur-sm"
-        onClick={(e) => {
+        onClick={e => {
           e.stopPropagation();
           onOpenChange(false);
         }}
       />
-      <div 
-        onClick={(e) => e.stopPropagation()}
+      <div
+        onClick={e => e.stopPropagation()}
         className={cn(
-        "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[20000] w-full max-w-lg sm:max-w-[700px]",
-        "bg-noir-panel border-2 border-accent shadow-2xl overflow-hidden min-h-[400px]",
-        isCyberCopy ? "rounded-none" : "rounded-3xl",
-        className
-      )}>
+          "fixed left-0 top-0 sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 z-[20000] w-full h-[100dvh] sm:h-auto sm:max-w-lg sm:max-h-[85vh]",
+          "bg-noir-panel border-0 sm:border-2 border-accent shadow-2xl overflow-hidden sm:min-h-[400px]",
+          isCyberCopy ? "rounded-none" : "rounded-3xl",
+          className,
+        )}
+      >
         {children}
       </div>
     </>
@@ -75,7 +76,7 @@ export function DialogContent({ children, className }: { children: React.ReactNo
 
 
 export function DialogHeader({ children }: { children: React.ReactNode }) {
-  return <div className="px-6 py-4 border-b border-noir-border">{children}</div>;
+  return <div className="px-4 md:px-6 py-2 md:py-4 border-b border-noir-border">{children}</div>;
 }
 
 export function DialogTitle({ children, className }: { children: React.ReactNode, className?: string }) {

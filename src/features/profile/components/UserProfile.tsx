@@ -146,8 +146,9 @@ export function UserProfile() {
   return (
     <div
       className={cn(
-        "max-w-5xl mx-auto profile-container",
-        isTerminalCopy ? "space-y-6 p-2 md:p-8" : "space-y-8 p-0 md:p-0",
+        "max-w-5xl mx-auto profile-container w-full",
+        isTerminalCopy ? "space-y-6 p-2 md:p-8" : "space-y-8 p-4 md:p-8",
+        (isCyberCopy || isTechieCopy) && "border-none shadow-none bg-transparent",
       )}
     >
       {/* 1. Header Section */}
@@ -273,7 +274,7 @@ export function UserProfile() {
           <div className="space-y-6">
             {posts.map((post, idx) => (
               <div key={post.postId}>
-                <div className="relative pl-12">
+                <div className="relative pl-4 md:pl-12">
                   {/* Timeline Marker */}
                   <div className="absolute left-0 top-2 bottom-0 w-px bg-noir-border">
                     <div
@@ -291,7 +292,9 @@ export function UserProfile() {
 
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 text-[10px] font-mono text-foreground-subtle uppercase">
-                      <span>{new Date(post.publishedAt).toLocaleDateString("en-US")}</span>
+                      <span>
+                        {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString("en-US") : "PENDING_SYNC"}
+                      </span>
                       <span className="w-1 h-1 bg-noir-border rounded-full" />
                       <span className="text-foreground">{isSakuraCopy ? "Post Published" : "TRANS_NODE_LINKED"}</span>
                     </div>

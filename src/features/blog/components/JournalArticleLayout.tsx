@@ -49,6 +49,15 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
     (FeedItem & { content: TiptapContent; readingTimeMinutes: number }) | null
   >(null);
 
+  const [currentScroll, setCurrentScroll] = useState(0);
+  const [preservedScroll, setPreservedScroll] = useState(0);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    if (!isFlipping) {
+      setCurrentScroll(e.currentTarget.scrollTop);
+    }
+  };
+
   useEffect(() => {
     setActivePost(post);
   }, [post]);
@@ -98,26 +107,35 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
   const handleSeamlessPageTurn = () => {
     if (isFlipping || !nextContent) return;
 
-    // 1. Freeze current content and start flip
+    setPreservedScroll(currentScroll);
     setFrozenPost(activePost);
     setFlippingPost(activePost);
     setIsFlipping(true);
 
-    // 2. Setup URL and Fetch
-    const nextUrl = `/${nextContent.tenantSlug || nextContent.tenantId}/${nextContent.postSlug}`;
+    const currentPath = window.location.pathname;
+    const isTenantInPath = currentPath.startsWith(`/${tenant.slug}`);
+
+    const nextUrl = isTenantInPath ? `/${tenant.slug}/${nextContent.postSlug}` : `/${nextContent.postSlug}`;
+
     const newSlug = nextContent.postSlug;
 
     setTimeout(() => {
       setActivePost({ ...nextContent, content: nextContent.content });
       setFrozenPost(null);
+      setCurrentScroll(0);
       window.history.pushState(null, "", nextUrl);
       fetchNextData(newSlug);
     }, 150);
-  };
+
+    setTimeout(() => {
+      setIsFlipping(false);
+      setFlippingPost(null);
+    }, 1400);
+  }
 
   const handleManualNavigation = () => {
     navigateToBlogHome();
-  };
+  }
 
   useEffect(() => {
     const updateHeight = () => {
@@ -141,11 +159,11 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
   const ringCount = containerHeight > 0 ? Math.ceil(containerHeight / 30) : 24;
 
   return (
-    <div className="w-full min-h-screen flex flex-col items-center justify-start p-4 md:p-8 lg:p-12 pt-16 sm:pt-10 overflow-x-hidden">
+    <div className="w-full min-h-[100dvh] flex flex-col items-center justify-start p-0 md:p-8 lg:p-12 pt-0 md:pt-16 sm:pt-10 overflow-x-hidden">
       {/* 2D LAYOUT CONTAINER - No global 3D context to mess up z-index */}
       <main
         className={cn(
-          "relative w-full h-[85vh] min-h-[500px] md:min-h-[650px] flex shadow-2xl rounded-r-lg bg-journal-binding overflow-hidden transition-all duration-700",
+          "relative w-full h-[85dvh] min-h-[500px] md:min-h-[650px] flex shadow-2xl rounded-r-lg bg-journal-binding overflow-hidden transition-all duration-700",
           focusMode ? "max-w-[1700px]" : "max-w-6xl",
         )}
       >
@@ -161,7 +179,7 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
           {!isPreview && (
             <button
               onClick={navigateToBlogHome}
-              className="relative z-40 mb-8 flex items-center justify-center w-10 h-10 rounded-full bg-journal-paper/10 text-journal-paper/80 hover:bg-journal-paper/20 hover:text-white transition-all border border-white/10"
+              className="relative z-40 mb-8 flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-journal-paper/10 text-journal-paper/80 hover:bg-journal-paper/20 hover:text-white transition-all border border-white/10"
               title="Back to Blog"
             >
               <ArrowLeft size={18} />
@@ -178,11 +196,11 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
 
               {/* The Metal Coil */}
               <div
-                className="absolute left-[-2px] xs:left-[-4px] top-1/2 -translate-y-1/2 h-[12px] xs:h-[18px] w-[50px] xs:w-[70px] bg-gradient-to-b from-journal-coil-metal via-journal-coil-highlight to-journal-coil-shadow rounded-full shadow-[0_4px_6px_rgba(0,0,0,0.4),_inset_0_-1px_1px_rgba(0,0,0,0.6)] transform -rotate-[8deg] origin-left z-50 ring-1 ring-white/30"
+                className="absolute left-[-2px] xs:left-[-4px] top-1/2 -translate-y-1/2 h-[10px] xs:h-[18px] w-[35px] xs:w-[70px] bg-gradient-to-b from-journal-coil-metal via-journal-coil-highlight to-journal-coil-shadow rounded-full shadow-[0_4px_6px_rgba(0,0,0,0.4),_inset_0_-1px_1px_rgba(0,0,0,0.6)] transform -rotate-[8deg] origin-left z-50 ring-1 ring-white/30"
                 style={{ clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%, 15% 50%)" }}
               />
 
-              <div className="absolute left-2 xs:left-3 top-1/2 -translate-y-1/2 h-[8px] xs:h-[12px] w-[40px] xs:w-[55px] bg-gradient-to-b from-journal-coil-dark-base via-[#333] to-[#000] rounded-full transform -rotate-[2deg] origin-left -z-10 opacity-90 shadow-inner" />
+              <div className="absolute left-2 xs:left-3 top-1/2 -translate-y-1/2 h-[6px] xs:h-[12px] w-[30px] xs:w-[55px] bg-gradient-to-b from-journal-coil-dark-base via-[#333] to-[#000] rounded-full transform -rotate-[2deg] origin-left -z-10 opacity-90 shadow-inner" />
             </div>
           ))}
         </div>
@@ -199,18 +217,18 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
               key={activePost.postId}
               post={frozenPost || activePost}
               tenantSlug={tenant.slug || tenant.id}
+              isLoading={!activePost}
               onShowRecommendations={hasMorePosts ? () => setIsRecommendationsOpen(true) : undefined}
               onShowComments={() => setIsCommentsOpen(true)}
-              className="z-10 rounded-l-none border-l border-black/5"
+              className="w-full h-full"
               disableInitialAnimation={isFlipping}
+              initialScrollOffset={frozenPost ? preservedScroll : 0}
+              onScroll={handleScroll}
             />
-
-            {/* Binding Shadow Overlay */}
-            <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-black/20 to-transparent pointer-events-none z-20" />
           </div>
 
           {/* FLIPPING OVERLAY */}
-          <AnimatePresence>
+          <AnimatePresence mode="popLayout">
             {isFlipping && flippingPost && (
               <motion.div
                 key="flipper"
@@ -219,7 +237,6 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
                 initial={{ rotateY: 0 }}
                 animate={{
                   rotateY: [0, -90, -180],
-                  skewY: [0, 2, 0],
                 }}
                 transition={{
                   duration: 1.4,
@@ -235,12 +252,13 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
                 }}
               >
                 {/* FRONT FACE (Old Content) */}
-                <div className="absolute inset-0 backface-hidden bg-noir-hover rounded-r-[2rem] overflow-hidden flex flex-col border-l border-black/5 shadow-[-5px_0_15px_rgba(0,0,0,0.1)]">
+                <div className="absolute inset-0 backface-hidden bg-noir-hover rounded-r-xl overflow-hidden flex flex-col border-l border-black/5 shadow-[-5px_0_15px_rgba(0,0,0,0.1)]">
                   <JournalSheet
                     post={flippingPost}
                     tenantSlug={tenant.slug || tenant.id}
                     disableInitialAnimation={true}
                     isStatic={true}
+                    initialScrollOffset={preservedScroll}
                   />
                   {/* CYLINDRICAL SHADING OVERLAY*/}
                   <motion.div

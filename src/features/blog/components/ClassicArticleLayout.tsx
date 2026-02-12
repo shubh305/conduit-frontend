@@ -34,7 +34,7 @@ export function ClassicArticleLayout({ post, tenant, isPreview: isPreviewProp }:
     <main className="min-h-screen bg-noir-bg text-foreground pb-20 transition-all duration-700">
       {/* Editorial Header */}
       <div className="border-b border-noir-border py-6 bg-noir-panel/50 backdrop-blur-md sticky top-0 z-[40]">
-        <div className="container mx-auto px-6 max-w-5xl flex items-center justify-between">
+        <div className="container mx-auto px-2 md:px-6 max-w-5xl flex items-center justify-between">
           <div className="flex items-center gap-6">
             {!isPreview && (
               <button
@@ -59,7 +59,7 @@ export function ClassicArticleLayout({ post, tenant, isPreview: isPreviewProp }:
         </div>
       </div>
 
-      <div className="container mx-auto px-6 mt-4 md:mt-20 max-w-4xl animate-in fade-in slide-in-from-bottom-8 duration-1000">
+      <div className="container mx-auto px-2 md:px-6 mt-4 md:mt-20 max-w-4xl animate-in fade-in slide-in-from-bottom-8 duration-1000">
         <article className="feed-container">
           <header className="mb-8 md:mb-16 space-y-6 md:space-y-10">
             <div className="flex flex-wrap gap-2 md:gap-3">

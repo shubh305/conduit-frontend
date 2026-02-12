@@ -40,7 +40,7 @@ export function TechieArticleLayout({ post, tenant, isPreview: isPreviewProp }: 
         <div className="container mx-auto max-w-[1600px]">
           <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[500px]">
             {/* Header Left: Content */}
-            <div className="p-6 sm:p-12 lg:p-20 flex flex-col justify-center gap-6 sm:gap-8 relative overflow-hidden">
+            <div className="p-2 sm:p-12 lg:p-20 flex flex-col justify-center gap-6 sm:gap-8 relative overflow-hidden">
               {/* Background Grid Decoration */}
               <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--border-primary)_1px,transparent_1px),linear-gradient(to_bottom,var(--border-primary)_1px,transparent_1px)] bg-[size:40px_40px] opacity-[0.05] pointer-events-none" />
 
@@ -120,7 +120,7 @@ export function TechieArticleLayout({ post, tenant, isPreview: isPreviewProp }: 
                   alt={post.title}
                   fill
                   className={cn(
-                    "object-cover transition-all duration-1000 scale-100 group-hover:scale-105 opacity-80 group-hover:opacity-100",
+                    "object-cover transition-all duration-700 scale-100 group-hover:scale-105 opacity-80 group-hover:opacity-100",
                     isDarkMode && "grayscale-[20%] group-hover:grayscale-0",
                   )}
                 />
@@ -227,7 +227,7 @@ export function TechieArticleLayout({ post, tenant, isPreview: isPreviewProp }: 
           </aside>
 
           {/* Content Area (Right) */}
-          <div className="p-6 sm:p-12 lg:p-20 relative">
+          <div className="p-2 sm:p-12 lg:p-20 relative">
             <div
               ref={el => {
                 contentRef.current = el;

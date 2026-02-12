@@ -130,7 +130,7 @@ export default function LibraryPage() {
   }
 
   return (
-    <ThemePage className="max-w-7xl mx-auto px-0 md:px-8 py-6 md:py-16">
+    <ThemePage className="max-w-7xl mx-auto px-2 md:px-8 py-6 md:py-16">
       <div className="max-w-5xl mx-auto">
         <header
           className={cn(

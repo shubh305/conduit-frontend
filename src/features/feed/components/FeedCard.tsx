@@ -124,7 +124,7 @@ function CompactLayout({
   return (
     <div
       className={cn(
-        "group relative flex flex-row items-center gap-2 md:gap-4 p-2 md:p-4 transition-all duration-300 overflow-hidden w-full min-h-[90px] md:h-32",
+        "group relative flex flex-row items-center gap-2 md:gap-4 p-2 md:p-4 transition-all duration-300 overflow-hidden w-full min-h-[6rem] h-auto",
         v.base,
         v.border,
         v.radius,
@@ -133,7 +133,7 @@ function CompactLayout({
       )}
     >
       {item.featuredImage && (
-        <Link href={postUrl} className="shrink-0 w-24 md:w-32 h-24 md:h-full relative overflow-hidden rounded-md block">
+        <Link href={postUrl} className="shrink-0 w-24 md:w-32 self-stretch relative overflow-hidden rounded-md block">
           <PostHeroImage
             data={item}
             theme={theme}
@@ -143,7 +143,7 @@ function CompactLayout({
         </Link>
       )}
 
-      <div className="flex-1 min-w-0 flex flex-col justify-between h-full py-0.5 md:py-1">
+      <div className="flex-1 min-w-0 flex flex-col justify-between h-full py-0.5 md:py-1 gap-2">
         <div className="space-y-1">
           <PostMeta data={item} theme={theme} />
           <Link href={postUrl} className="block group/title">
@@ -159,11 +159,11 @@ function CompactLayout({
           </Link>
         </div>
 
-        <div className="flex items-center justify-between mt-3 md:mt-auto w-full gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-auto w-full gap-2 sm:gap-4">
           <div className="truncate shrink-0">
             <PostAuthor data={item} theme={theme} />
           </div>
-          <div className="ml-auto shrink-0 transition-transform active:scale-95">
+          <div className="self-end sm:self-auto sm:ml-auto shrink-0 transition-transform active:scale-95">
             <PostActions
               data={item}
               onRemove={onRemove}
