@@ -1,13 +1,12 @@
 "use client";
 
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
-import { cn } from "@/lib/utils";
+import { cn, getRootDomain, getBlogHomeUrl } from "@/lib/utils";
 import { ArrowUpRight, ChevronDown, ChevronUp, FileText, Layout, Plus } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getRootDomain } from "@/lib/utils";
 import { CreateBlogModal } from "./CreateBlogModal";
 import { getMyTenants } from "@/features/blog/api";
 import { ThemePage, ThemeButton, useThemeLabel } from "@/components/theme";
@@ -393,7 +392,7 @@ function BlogCard({
             {blog.name}
           </h3>
           <div className={cn("text-xs font-mono text-accent/70 tracking-tighter", isTerminalCopy && "text-accent/50")}>
-            {blog.subdomain}.conduit.dev
+            {blog.subdomain}.{getRootDomain()}
           </div>
         </div>
       </div>
@@ -420,19 +419,7 @@ function BlogCard({
           </Link>
         </div>
         <a
-          href={
-            typeof window !== "undefined"
-              ? `${window.location.protocol}//${blog.subdomain}.${getRootDomain()}${
-                  localStorage.getItem("accessToken")
-                    ? `?token=${localStorage.getItem("accessToken")}${
-                        localStorage.getItem("refreshToken")
-                          ? `&refreshToken=${localStorage.getItem("refreshToken")}`
-                          : ""
-                      }`
-                    : ""
-                }`
-              : `/${blog.subdomain}`
-          }
+          href={getBlogHomeUrl(blog.subdomain)}
           target="_blank"
           rel="noopener noreferrer"
           className={cn(

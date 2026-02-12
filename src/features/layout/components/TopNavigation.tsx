@@ -153,7 +153,7 @@ export function TopNavigation({ onToggleSidebar, onToggleRightSidebar }: TopNavi
           </button>
         )}
 
-        <div className="pl-2 hidden md:block">
+        <div className={cn("pl-2", user ? "hidden md:block" : "block")}>
           <UserNavWidget />
         </div>
       </div>

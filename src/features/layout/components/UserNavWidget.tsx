@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Settings, LogOut, LayoutDashboard, UserIcon, LogIn, UserPlus } from "lucide-react";
 import { useThemeHelpers } from "@/features/theme/ThemeProvider";
-import { cn, getRootDomain } from "@/lib/utils";
+import { cn, getRootUrl } from "@/lib/utils";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { useThemeLabel } from "@/components/theme/ThemeLabel";
 import { getRoundedClass } from "@/lib/theme-variants";
@@ -161,9 +161,7 @@ export function UserNavWidget({ variant = "top-nav" }: UserNavWidgetProps) {
               className={cn("cursor-pointer focus:bg-noir-hover transition-colors", getRoundedClass(theme, "md"))}
             >
               <a
-                href={
-                  typeof window !== "undefined" ? `${window.location.protocol}//${getRootDomain()}/login` : "/login"
-                }
+                href={`${getRootUrl()}login`}
                 className="flex items-center gap-3 px-4 py-2.5 text-xs text-foreground hover:text-accent font-mono uppercase tracking-widest"
               >
                 <LogIn size={14} />
@@ -176,9 +174,7 @@ export function UserNavWidget({ variant = "top-nav" }: UserNavWidgetProps) {
               className={cn("cursor-pointer focus:bg-noir-hover transition-colors", getRoundedClass(theme, "md"))}
             >
               <a
-                href={
-                  typeof window !== "undefined" ? `${window.location.protocol}//${getRootDomain()}/signup` : "/signup"
-                }
+                href={`${getRootUrl()}signup`}
                 className="flex items-center gap-3 px-4 py-2.5 text-xs text-foreground hover:text-accent font-mono uppercase tracking-widest"
               >
                 <UserPlus size={14} />
