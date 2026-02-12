@@ -14,4 +14,5 @@ export interface LayoutProps {
   };
   showHero?: boolean;
   density?: string;
+  currentTenantSlug?: string;
 }

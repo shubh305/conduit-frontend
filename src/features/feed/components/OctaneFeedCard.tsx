@@ -11,10 +11,11 @@ interface OctaneFeedCardProps {
   variant?: "default" | "compact";
   className?: string;
   onRemove?: () => void;
+  currentTenantSlug?: string;
 }
 
-export function OctaneFeedCard({ item, className, onRemove }: OctaneFeedCardProps) {
-  const postUrl = getPostUrl(item);
+export function OctaneFeedCard({ item, className, onRemove, currentTenantSlug }: OctaneFeedCardProps) {
+  const postUrl = getPostUrl(item, currentTenantSlug);
 
   return (
     <div

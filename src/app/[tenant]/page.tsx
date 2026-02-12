@@ -86,7 +86,15 @@ export default async function TenantHome({ params }: PageProps) {
         tenant={tenant}
         items={feedItems}
         classicHeader={ClassicHeader}
-        fallbackFeed={<FeedList items={feedItems} blogDescription={tenant.description} blogTitle={tenant.name} />}
+        currentTenantSlug={tenant.slug}
+        fallbackFeed={
+          <FeedList
+            items={feedItems}
+            blogDescription={tenant.description}
+            blogTitle={tenant.name}
+            currentTenantSlug={tenant.slug}
+          />
+        }
       />
     </main>
   );

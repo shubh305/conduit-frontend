@@ -1,22 +1,23 @@
 "use client";
 
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
-import { cn, getMediaUrl } from "@/lib/utils";
+import { cn, getMediaUrl, getPostUrl } from "@/lib/utils";
 import Link from "next/link";
 import { Hand, ArrowRight } from "lucide-react";
 import { useThemeLabel } from "@/components/theme";
 import { useMoreFromAuthor } from "@/features/blog/hooks/useMoreFromAuthor";
 
 interface MoreFromAuthorProps {
-  authorName: string
-  currentPostId: string
-  tenantSlug: string
-  tenantId: string
-  className?: string
-  gridClassName?: string
-  hideHeader?: boolean
-  hideFooter?: boolean
-  compact?: boolean
+  authorName: string;
+  currentPostId: string;
+  tenantSlug: string;
+  tenantId: string;
+  currentTenantSlug?: string;
+  className?: string;
+  gridClassName?: string;
+  hideHeader?: boolean;
+  hideFooter?: boolean;
+  compact?: boolean;
 }
 
 export function MoreFromAuthor({
@@ -24,19 +25,20 @@ export function MoreFromAuthor({
   currentPostId,
   tenantSlug,
   tenantId,
+  currentTenantSlug,
   className,
   gridClassName,
   hideHeader = false,
   hideFooter = false,
   compact = false,
 }: MoreFromAuthorProps) {
-  const { config } = useTheme()
-  const { isCyberCopy, isSakuraCopy, isDarkMode } = useThemeHelpers()
-  const t = useThemeLabel()
+  const { config } = useTheme();
+  const { isCyberCopy, isSakuraCopy, isDarkMode } = useThemeHelpers();
+  const t = useThemeLabel();
   const { posts, isLoading } = useMoreFromAuthor(tenantId, currentPostId);
 
   if (isLoading) return null;
-  if (posts.length === 0) return null
+  if (posts.length === 0) return null;
 
   return (
     <div className={cn("py-24 border-t border-noir-border bg-noir-bg transition-all duration-700", className)}>
@@ -69,10 +71,12 @@ export function MoreFromAuthor({
 
         <div className={cn("grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-10", gridClassName)}>
           {posts.map(post => {
-            const href =
-              tenantSlug === "default" && (post as unknown as { authorUsername?: string }).authorUsername
-                ? `/u/${(post as unknown as { authorUsername?: string }).authorUsername}/${post.slug}`
-                : `/${tenantSlug}/${post.slug}`;
+            const href = getPostUrl({
+              ...post,
+              postSlug: post.slug,
+              tenantSlug,
+              authorUsername: post.authorUsername,
+            });
 
             return (
               <Link key={post.id} href={href} className="group block h-full">
@@ -185,7 +189,7 @@ export function MoreFromAuthor({
         {!hideFooter && (
           <div className={cn("text-center", compact ? "mt-8" : "mt-20")}>
             <Link
-              href={`/${tenantSlug}`}
+              href={currentTenantSlug && tenantSlug === currentTenantSlug ? "/" : `/${tenantSlug}`}
               className={cn(
                 "inline-flex items-center gap-3 border font-black uppercase tracking-[0.3em] transition-all shadow-xl hover:-translate-y-1",
                 "bg-noir-panel border-noir-border text-foreground hover:border-accent hover:text-accent hover:shadow-accent/10",

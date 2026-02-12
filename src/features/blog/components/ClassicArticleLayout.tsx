@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Calendar } from "lucide-react";
 import { PostContent } from "@/features/blog/components/PostContent";
@@ -13,6 +12,7 @@ import { MoreFromAuthor } from "./MoreFromAuthor";
 import { useSearchParams } from "next/navigation";
 import { cn, getMediaUrl, formatDate } from "@/lib/utils";
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
+import { useBlogNavigation } from "@/features/blog/hooks/useBlogNavigation";
 
 interface ArticleLayoutProps {
   post: FeedItem & { content: TiptapContent; readingTimeMinutes: number };
@@ -27,6 +27,7 @@ export function ClassicArticleLayout({ post, tenant, isPreview: isPreviewProp }:
   const searchParams = useSearchParams();
   const isPreview = isPreviewProp || searchParams.get("preview") === "true";
 
+  const { navigateToBlogHome } = useBlogNavigation(tenant.slug);
   const isProfessional = config.id === "professional";
 
   return (
@@ -36,13 +37,13 @@ export function ClassicArticleLayout({ post, tenant, isPreview: isPreviewProp }:
         <div className="container mx-auto px-6 max-w-5xl flex items-center justify-between">
           <div className="flex items-center gap-6">
             {!isPreview && (
-              <Link
-                href={`/${tenant.slug || tenant.id}`}
+              <button
+                onClick={navigateToBlogHome}
                 className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-foreground-subtle hover:text-accent transition-all group"
               >
                 <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
                 <span>{isProfessional ? "BACK_TO_ARCHIVE" : "BACK TO BLOG"}</span>
-              </Link>
+              </button>
             )}
             <div className="h-4 w-px bg-noir-border hidden sm:block" />
             <span className="font-mono text-[9px] text-foreground-subtle uppercase tracking-[0.3em] hidden sm:block">
@@ -190,6 +191,7 @@ export function ClassicArticleLayout({ post, tenant, isPreview: isPreviewProp }:
             currentPostId={post.postId}
             tenantSlug={tenant.slug || tenant.id}
             tenantId={tenant.id}
+            currentTenantSlug={tenant.slug}
           />
         </div>
       )}

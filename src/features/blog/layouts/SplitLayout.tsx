@@ -1,11 +1,12 @@
 "use client";
 
 import { BasePostCard } from "../components/base/BasePostCard";
+import { getPostUrl } from "@/lib/utils";
 import { LayoutProps } from "./types";
 import Link from "next/link";
 import Image from "next/image";
 
-export function SplitLayout({ posts, tenantSlug, themeConfig }: LayoutProps) {
+export function SplitLayout({ posts, tenantSlug, currentTenantSlug, themeConfig }: LayoutProps) {
   const splitThemeConfig = {
     ...themeConfig,
     showExcerpt: true,
@@ -19,7 +20,7 @@ export function SplitLayout({ posts, tenantSlug, themeConfig }: LayoutProps) {
         {posts.map(post => (
           <Link
             key={post.id}
-            href={`/${tenantSlug}/${post.slug}`}
+            href={getPostUrl({ ...post, postSlug: post.slug, tenantSlug }, currentTenantSlug)}
             className="group relative overflow-hidden rounded-xl"
           >
             <div className="aspect-[16/9] w-full relative">
@@ -53,6 +54,7 @@ export function SplitLayout({ posts, tenantSlug, themeConfig }: LayoutProps) {
             key={post.id}
             post={post}
             tenantSlug={tenantSlug}
+            currentTenantSlug={currentTenantSlug}
             orientation="horizontal"
             reversed={index % 2 !== 0}
             className="grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 py-12 md:py-16 border-b border-noir-border/30 last:border-b-0"

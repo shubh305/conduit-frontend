@@ -11,13 +11,13 @@ interface TerminalFeedLayoutProps {
   items: FeedItem[];
   blogDescription?: string;
   blogTitle?: string;
+  currentTenantSlug?: string;
 }
 
-export function TerminalFeedLayout({ items, blogDescription, blogTitle }: TerminalFeedLayoutProps) {
+export function TerminalFeedLayout({ items, blogDescription, blogTitle, currentTenantSlug }: TerminalFeedLayoutProps) {
   const featured = items[0];
   const rest = items.slice(1);
   const hostname = typeof window !== "undefined" ? window.location.hostname : "localhost";
-
 
   const directoryItems: TerminalListItem[] = rest.map(item => ({
     id: item.postId,
@@ -31,7 +31,7 @@ export function TerminalFeedLayout({ items, blogDescription, blogTitle }: Termin
       minute: "2-digit",
     }),
     name: item.title,
-    link: getPostUrl(item),
+    link: getPostUrl(item, currentTenantSlug),
     extraInfo: item.tags?.join(", ") || "post",
   }));
 
@@ -74,7 +74,7 @@ export function TerminalFeedLayout({ items, blogDescription, blogTitle }: Termin
                 </p>
 
                 <Link
-                  href={getPostUrl(featured)}
+                  href={getPostUrl(featured, currentTenantSlug)}
                   className="bg-accent text-black px-4 py-1 w-fit font-bold hover:bg-white transition-colors"
                 >
                   [EXECUTE_READ]

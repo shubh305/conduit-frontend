@@ -15,6 +15,7 @@ interface ProfessionalFeedLayoutProps {
   onLoadMore: () => void;
   isLoadingMore: boolean;
   loadMoreText: string;
+  currentTenantSlug?: string;
 }
 
 export function ProfessionalFeedLayout({
@@ -25,6 +26,7 @@ export function ProfessionalFeedLayout({
   onLoadMore,
   isLoadingMore,
   loadMoreText,
+  currentTenantSlug,
 }: ProfessionalFeedLayoutProps) {
   const mounted = useMounted();
   const featured = items[0];
@@ -59,7 +61,7 @@ export function ProfessionalFeedLayout({
             {/* Image */}
             {featured.featuredImage && (
               <div className="lg:col-span-8 relative aspect-[16/9] w-full overflow-hidden rounded-lg shadow-sm">
-                <Link href={getPostUrl(featured)}>
+                <Link href={getPostUrl(featured, currentTenantSlug)}>
                   <Image
                     src={getMediaUrl(featured.featuredImage) || ""}
                     alt={featured.title}
@@ -83,7 +85,7 @@ export function ProfessionalFeedLayout({
                 <div className="w-12 h-[1px] bg-accent/30" />
               </div>
 
-              <Link href={getPostUrl(featured)}>
+              <Link href={getPostUrl(featured, currentTenantSlug)}>
                 <h2 className="text-3xl md:text-5xl font-serif font-bold text-foreground leading-tight group-hover:text-accent transition-colors">
                   {featured.title}
                 </h2>
@@ -128,7 +130,7 @@ export function ProfessionalFeedLayout({
                     <span className="text-foreground-subtle">{formatDate(item.publishedAt)}</span>
                   </div>
 
-                  <Link href={getPostUrl(item)}>
+                  <Link href={getPostUrl(item, currentTenantSlug)}>
                     <h3 className="text-2xl font-serif font-bold text-foreground leading-snug group-hover:text-accent transition-colors">
                       {item.title}
                     </h3>
@@ -137,7 +139,7 @@ export function ProfessionalFeedLayout({
 
                   <div className="mt-2 flex items-center gap-4">
                     <Link
-                      href={getPostUrl(item)}
+                      href={getPostUrl(item, currentTenantSlug)}
                       className="text-sm font-bold text-foreground flex items-center gap-1 group-hover:gap-2 transition-all"
                     >
                       Read Story <ArrowRight size={14} className="text-accent" />
@@ -151,7 +153,7 @@ export function ProfessionalFeedLayout({
                 {item.featuredImage && (
                   <div className="hidden md:block pl-4 xl:pl-0">
                     <Link
-                      href={getPostUrl(item)}
+                      href={getPostUrl(item, currentTenantSlug)}
                       className="block relative aspect-[3/2] w-full max-w-[280px] ml-auto rounded-sm overflow-hidden bg-bg-panel border border-border-primary shadow-sm hover:shadow-md transition-all"
                     >
                       <Image

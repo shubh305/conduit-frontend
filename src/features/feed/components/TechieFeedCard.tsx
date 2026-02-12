@@ -11,10 +11,17 @@ interface TechieFeedCardProps {
   variant?: "default" | "compact";
   className?: string;
   onRemove?: () => void;
+  currentTenantSlug?: string;
 }
 
-export function TechieFeedCard({ item, className, variant = "default", onRemove }: TechieFeedCardProps) {
-  const postUrl = getPostUrl(item);
+export function TechieFeedCard({
+  item,
+  className,
+  variant = "default",
+  onRemove,
+  currentTenantSlug,
+}: TechieFeedCardProps) {
+  const postUrl = getPostUrl(item, currentTenantSlug);
   const score = (((parseInt((item.postId || "0").substring(0, 8), 16) % 30) + 70) / 10).toFixed(1);
 
   if (variant === "compact") {

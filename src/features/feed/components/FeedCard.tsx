@@ -19,12 +19,14 @@ export function FeedCard({
   onRemove,
   variant = "default",
   index = 0,
+  currentTenantSlug,
 }: {
   item: FeedItem;
   className?: string;
   onRemove?: () => void;
   variant?: "default" | "compact";
   index?: number;
+  currentTenantSlug?: string;
 }) {
   const { theme } = useTheme();
   const { isDarkMode, isTerminalCopy, isTechieCopy, isJournalCopy, isRoninCopy } = useThemeHelpers();
@@ -38,18 +40,28 @@ export function FeedCard({
   if (!mounted) return null;
 
   if (isTechieCopy) {
-    return <TechieFeedCard item={item} variant={variant} className={className} />;
+    return <TechieFeedCard item={item} variant={variant} className={className} currentTenantSlug={currentTenantSlug} />;
   }
 
   if (isJournalCopy) {
-    return <JournalFeedCard item={item} variant={variant} className={className} />;
+    return (
+      <JournalFeedCard item={item} variant={variant} className={className} currentTenantSlug={currentTenantSlug} />
+    );
   }
 
   if (isRoninCopy) {
-    return <RoninFeedCard item={item} variant={variant} className={className} index={index} />;
+    return (
+      <RoninFeedCard
+        item={item}
+        variant={variant}
+        className={className}
+        index={index}
+        currentTenantSlug={currentTenantSlug}
+      />
+    );
   }
 
-  const postUrl = getPostUrl(item);
+  const postUrl = getPostUrl(item, currentTenantSlug);
   const themeVariant = theme as ThemeVariant;
   const useCardLayout = (CARD_LAYOUT_THEMES as readonly string[]).includes(theme);
 

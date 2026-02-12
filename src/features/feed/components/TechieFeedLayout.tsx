@@ -13,6 +13,7 @@ interface TechieFeedLayoutProps {
   onLoadMore: () => void;
   isLoadingMore: boolean;
   loadMoreText: string;
+  currentTenantSlug?: string;
 }
 
 export function TechieFeedLayout({
@@ -23,6 +24,7 @@ export function TechieFeedLayout({
   onLoadMore,
   isLoadingMore,
   loadMoreText,
+  currentTenantSlug,
 }: TechieFeedLayoutProps) {
   const featured = items[0];
   const gridItems = items.slice(1);
@@ -52,12 +54,12 @@ export function TechieFeedLayout({
 
       {/* 2. Main Content */}
       <main className="flex-1 flex flex-col gap-8 min-w-0">
-        {featured && <TechieHero item={featured} />}
+        {featured && <TechieHero item={featured} currentTenantSlug={currentTenantSlug} />}
 
         {/* Posts Grid (Fixed 3-column technical layout) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {gridItems.map(item => (
-            <TechieFeedCard key={item.postId} item={item} />
+            <TechieFeedCard key={item.postId} item={item} currentTenantSlug={currentTenantSlug} />
           ))}
         </div>
 

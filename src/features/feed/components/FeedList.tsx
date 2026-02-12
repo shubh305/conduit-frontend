@@ -25,11 +25,13 @@ export function FeedList({
   blogDescription,
   blogTitle,
   feedType,
+  currentTenantSlug,
 }: {
   items: FeedItem[];
   blogDescription?: string;
   blogTitle?: string;
   feedType?: "global" | "following";
+  currentTenantSlug?: string;
 }) {
   const { theme } = useTheme();
   const { isTerminalCopy, isCyberCopy, isSakuraCopy, isJournalCopy, isTechieCopy, isRoninCopy } = useThemeHelpers();
@@ -96,12 +98,20 @@ export function FeedList({
         isLoadingMore={isLoadingMore}
         onLoadMore={handleLoadMore}
         loadMoreText=""
+        currentTenantSlug={currentTenantSlug}
       />
     );
   }
 
   if (isTerminalCopy) {
-    return <TerminalFeedLayout items={items} blogDescription={blogDescription} blogTitle={blogTitle} />;
+    return (
+      <TerminalFeedLayout
+        items={items}
+        blogDescription={blogDescription}
+        blogTitle={blogTitle}
+        currentTenantSlug={currentTenantSlug}
+      />
+    );
   }
 
   if (useGridLayout) {
@@ -117,6 +127,7 @@ export function FeedList({
           isLoadingMore={isLoadingMore}
           onLoadMore={handleLoadMore}
           loadMoreText={loadMoreText}
+          currentTenantSlug={currentTenantSlug}
         />
       );
     }
@@ -131,6 +142,7 @@ export function FeedList({
           isLoadingMore={isLoadingMore}
           onLoadMore={handleLoadMore}
           loadMoreText={loadMoreText}
+          currentTenantSlug={currentTenantSlug}
         />
       );
     }
@@ -144,6 +156,7 @@ export function FeedList({
           isLoadingMore={isLoadingMore}
           onLoadMore={handleLoadMore}
           loadMoreText={loadMoreText}
+          currentTenantSlug={currentTenantSlug}
         />
       );
     }
@@ -157,6 +170,7 @@ export function FeedList({
           isLoadingMore={isLoadingMore}
           onLoadMore={handleLoadMore}
           loadMoreText={loadMoreText}
+          currentTenantSlug={currentTenantSlug}
         />
       );
     }
@@ -171,6 +185,7 @@ export function FeedList({
           isLoadingMore={isLoadingMore}
           onLoadMore={handleLoadMore}
           loadMoreText={loadMoreText}
+          currentTenantSlug={currentTenantSlug}
         />
       );
     }
@@ -205,12 +220,16 @@ export function FeedList({
             >
               {featured && (
                 <div className={cn(isTechieCopy && "col-span-full")}>
-                  <FeedCard item={featured} variant={isTechieCopy ? "default" : "default"} />
+                  <FeedCard
+                    item={featured}
+                    variant={isTechieCopy ? "default" : "default"}
+                    currentTenantSlug={currentTenantSlug}
+                  />
                 </div>
               )}
 
               {items.slice(1).map(item => (
-                <FeedCard key={item.postId} item={item} />
+                <FeedCard key={item.postId} item={item} currentTenantSlug={currentTenantSlug} />
               ))}
 
               {items.length === 0 && (
@@ -260,6 +279,7 @@ export function FeedList({
       isLoadingMore={isLoadingMore}
       onLoadMore={handleLoadMore}
       loadMoreText={loadMoreText}
+      currentTenantSlug={currentTenantSlug}
     />
   );
 }

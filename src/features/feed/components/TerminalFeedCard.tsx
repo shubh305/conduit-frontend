@@ -4,9 +4,10 @@ import { FeedItem } from "../types";
 
 interface TerminalFeedCardProps {
   item: FeedItem;
+  currentTenantSlug?: string;
 }
 
-export function TerminalFeedCard({ item }: TerminalFeedCardProps) {
+export function TerminalFeedCard({ item, currentTenantSlug }: TerminalFeedCardProps) {
   const validDate = item.publishedAt ? new Date(item.publishedAt) : new Date();
   const dateStr = validDate.toLocaleDateString("en-US", {
     month: "short",
@@ -15,7 +16,7 @@ export function TerminalFeedCard({ item }: TerminalFeedCardProps) {
     minute: "2-digit",
   });
 
-  const postUrl = getPostUrl(item);
+  const postUrl = getPostUrl(item, currentTenantSlug);
 
   return (
     <Link

@@ -15,6 +15,7 @@ import { JournalRecommendationsDrawer } from "./JournalRecommendationsDrawer"
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/features/theme/ThemeProvider";
 import { useMoreFromAuthor } from "@/features/blog/hooks/useMoreFromAuthor";
+import { useBlogNavigation } from "@/features/blog/hooks/useBlogNavigation";
 
 interface JournalArticleLayoutProps {
   post: FeedItem & { content: TiptapContent; readingTimeMinutes: number }
@@ -29,6 +30,7 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
   const { focusMode } = useTheme();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { navigateToBlogHome } = useBlogNavigation(tenant.slug);
   const isPreview = isPreviewProp || searchParams.get("preview") === "true";
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState(0);
@@ -114,7 +116,7 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
   };
 
   const handleManualNavigation = () => {
-    router.push("/search");
+    navigateToBlogHome();
   };
 
   useEffect(() => {
@@ -158,13 +160,7 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
           {/* Back Button */}
           {!isPreview && (
             <button
-              onClick={() => {
-                if (typeof window !== "undefined" && window.history.length > 2) {
-                  router.back();
-                } else {
-                  router.push(`/${tenant.slug || tenant.id}`);
-                }
-              }}
+              onClick={navigateToBlogHome}
               className="relative z-40 mb-8 flex items-center justify-center w-10 h-10 rounded-full bg-journal-paper/10 text-journal-paper/80 hover:bg-journal-paper/20 hover:text-white transition-all border border-white/10"
               title="Back to Blog"
             >
@@ -351,6 +347,7 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
         isOpen={isRecommendationsOpen}
         onClose={() => setIsRecommendationsOpen(false)}
         post={activePost}
+        currentTenantSlug={tenant.slug}
       />
     </div>
   );

@@ -13,6 +13,7 @@ interface OctaneFeedLayoutProps {
   onLoadMore: () => void;
   isLoadingMore: boolean;
   loadMoreText: string;
+  currentTenantSlug?: string;
 }
 
 export function OctaneFeedLayout({
@@ -22,7 +23,8 @@ export function OctaneFeedLayout({
   hasMore,
   onLoadMore,
   isLoadingMore,
-  loadMoreText
+  loadMoreText,
+  currentTenantSlug,
 }: OctaneFeedLayoutProps) {
   const featured = items[0];
   const gridItems = items.slice(1);
@@ -92,7 +94,7 @@ export function OctaneFeedLayout({
       <main className="max-w-[1800px] mx-auto w-full p-6 md:p-12 gap-12 flex flex-col">
         {featured && (
           <div className="w-full mb-8">
-            <OctaneHero item={featured} />
+            <OctaneHero item={featured} currentTenantSlug={currentTenantSlug} />
           </div>
         )}
 
@@ -103,7 +105,7 @@ export function OctaneFeedLayout({
               className="animate-in fade-in slide-in-from-bottom-4"
               style={{ animationDelay: `${idx * 100}ms` }}
             >
-              <OctaneFeedCard item={item} />
+              <OctaneFeedCard item={item} currentTenantSlug={currentTenantSlug} />
             </div>
           ))}
         </div>

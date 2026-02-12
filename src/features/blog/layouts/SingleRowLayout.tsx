@@ -1,17 +1,22 @@
 "use client";
 
 import { BasePostCard } from "../components/base/BasePostCard";
+import { getPostUrl } from "@/lib/utils";
 import { LayoutProps } from "./types";
 import Link from "next/link";
 import Image from "next/image";
 
-export function SingleRowLayout({ posts, tenantSlug, themeConfig }: LayoutProps) {
+export function SingleRowLayout({ posts, tenantSlug, currentTenantSlug, themeConfig }: LayoutProps) {
   return (
     <div className="w-full">
       {/* Mobile View */}
       <div className="flex flex-col gap-6 sm:hidden px-4 py-6">
         {posts.map(post => (
-          <Link key={post.id} href={`/${tenantSlug}/${post.slug}`} className="group block">
+          <Link
+            key={post.id}
+            href={getPostUrl({ ...post, postSlug: post.slug, tenantSlug }, currentTenantSlug)}
+            className="group block"
+          >
             <div className="relative overflow-hidden rounded-2xl mb-3">
               {post.featuredImage && (
                 <div className="aspect-[16/9] w-full relative">
@@ -56,6 +61,7 @@ export function SingleRowLayout({ posts, tenantSlug, themeConfig }: LayoutProps)
             <BasePostCard
               post={post}
               tenantSlug={tenantSlug}
+              currentTenantSlug={currentTenantSlug}
               orientation="vertical"
               themeConfig={{
                 ...themeConfig,

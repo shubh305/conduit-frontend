@@ -8,23 +8,28 @@ import { useEffect } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 
 interface JournalRecommendationsDrawerProps {
-  isOpen: boolean
-  onClose: () => void
-  post: FeedItem
+  isOpen: boolean;
+  onClose: () => void;
+  post: FeedItem;
+  currentTenantSlug?: string;
 }
 
-export function JournalRecommendationsDrawer({ isOpen, onClose, post }: JournalRecommendationsDrawerProps) {
-
+export function JournalRecommendationsDrawer({
+  isOpen,
+  onClose,
+  post,
+  currentTenantSlug,
+}: JournalRecommendationsDrawerProps) {
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = "hidden"
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset"
+      document.body.style.overflow = "unset";
     }
     return () => {
-      document.body.style.overflow = "unset"
-    }
-  }, [isOpen])
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
 
   return (
     <AnimatePresence>
@@ -67,6 +72,7 @@ export function JournalRecommendationsDrawer({ isOpen, onClose, post }: JournalR
                 authorName={post.authorName}
                 tenantId={post.tenantId}
                 tenantSlug={post.tenantSlug}
+                currentTenantSlug={currentTenantSlug}
                 hideHeader={false}
                 compact={true}
                 className="py-1 pt-4 border-none bg-transparent"
@@ -77,5 +83,5 @@ export function JournalRecommendationsDrawer({ isOpen, onClose, post }: JournalR
         </>
       )}
     </AnimatePresence>
-  )
+  );
 }

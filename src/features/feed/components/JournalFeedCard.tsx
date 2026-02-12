@@ -11,10 +11,17 @@ interface JournalFeedCardProps {
   variant?: "default" | "compact";
   className?: string;
   onRemove?: () => void;
+  currentTenantSlug?: string;
 }
 
-export function JournalFeedCard({ item, className, variant = "default", onRemove }: JournalFeedCardProps) {
-  const postUrl = getPostUrl(item);
+export function JournalFeedCard({
+  item,
+  className,
+  variant = "default",
+  onRemove,
+  currentTenantSlug,
+}: JournalFeedCardProps) {
+  const postUrl = getPostUrl(item, currentTenantSlug);
 
   if (variant === "compact") {
     return (

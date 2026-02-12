@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
-import { cn } from "@/lib/utils";
+import { cn, getRootDomain } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { getGlobalFeed } from "@/features/feed/api";
@@ -151,6 +151,12 @@ export function AuxiliarySidebarContent() {
       .catch(() => {});
   }, []);
 
+  const getProfileUrl = (username: string) => {
+    if (typeof window === "undefined") return `/u/${username}`;
+    const root = getRootDomain();
+    return `${window.location.protocol}//${root}/u/${username}`;
+  };
+
   return (
     <>
       {/* Recommended Topics */}
@@ -216,7 +222,7 @@ export function AuxiliarySidebarContent() {
         {whoToFollow.length > 0 ? (
           <div className="flex flex-col gap-4 md:gap-6">
             {whoToFollow.map(user => (
-              <Link key={user.username} href={`/u/${user.username}`}>
+              <Link key={user.username} href={getProfileUrl(user.username)}>
                 <div
                   className={cn(
                     "flex items-center justify-between gap-3 group cursor-pointer transition-all duration-300",

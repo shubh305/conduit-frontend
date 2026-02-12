@@ -322,8 +322,8 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                       : isTechieCopy
                         ? "bg-accent text-noir-bg rounded-none hover:bg-accent-secondary shadow-[0_0_12px_rgba(var(--accent-rgb),0.2)]"
                         : isJournalCopy
-                          ? "bg-accent text-white hover:bg-accent/90"
-                          : "bg-accent text-white hover:bg-accent/90",
+                          ? "rounded-lg bg-[#8B4513] text-[#fdf5e6] hover:bg-[#A0522D] font-serif shadow-md hover:shadow-lg border border-transparent"
+                          : "bg-accent hover:bg-accent/80 text-noir-bg",
                   )}
                   style={{ borderRadius: isCyberCopy ? "0" : config.tokens.borderRadius }}
                 >

@@ -36,60 +36,61 @@ const feedItemToPost = (item: FeedItem): Post => ({
 });
 
 interface PublicBlogViewerProps {
-  tenant: Tenant
-  items: FeedItem[]
-  classicHeader?: React.ReactNode
-  fallbackFeed?: React.ReactNode
+  tenant: Tenant;
+  items: FeedItem[];
+  classicHeader?: React.ReactNode;
+  fallbackFeed?: React.ReactNode;
+  currentTenantSlug?: string;
 }
 
-export function PublicBlogViewer({ tenant, items }: PublicBlogViewerProps) {
-  const { theme, config } = useTheme()
-  const { layout: layoutConfig } = useLayoutManager(tenant.id)
+export function PublicBlogViewer({ tenant, items, currentTenantSlug }: PublicBlogViewerProps) {
+  const { theme, config } = useTheme();
+  const { layout: layoutConfig } = useLayoutManager(tenant.id);
 
-  const layout = (layoutConfig.mode as LayoutType) || "stacked"
+  const layout = (layoutConfig.mode as LayoutType) || "stacked";
 
-  const [isMounted, setIsMounted] = useState(false)
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
-  }, [])
+  }, []);
 
   useEffect(() => {
-    const shouldHide = layout === "magazine" || theme === "terminal"
+    const shouldHide = layout === "magazine" || theme === "terminal";
     if (shouldHide) {
-      document.body.style.overflow = "hidden"
-      document.body.classList.add("terminal-overflow-lock")
+      document.body.style.overflow = "hidden";
+      document.body.classList.add("terminal-overflow-lock");
     } else {
-      document.body.style.overflow = ""
-      document.body.classList.remove("terminal-overflow-lock")
+      document.body.style.overflow = "";
+      document.body.classList.remove("terminal-overflow-lock");
     }
     return () => {
-      document.body.style.overflow = ""
-      document.body.classList.remove("terminal-overflow-lock")
-    }
-  }, [layout, theme])
+      document.body.style.overflow = "";
+      document.body.classList.remove("terminal-overflow-lock");
+    };
+  }, [layout, theme]);
 
-  const { isTerminalCopy, isTechieCopy } = useThemeHelpers()
-  const isTerminal = isTerminalCopy
+  const { isTerminalCopy, isTechieCopy } = useThemeHelpers();
+  const isTerminal = isTerminalCopy;
 
-  const posts = items.map(feedItemToPost)
+  const posts = items.map(feedItemToPost);
 
-  if (!isMounted) return <div className="min-h-screen bg-transparent" />
+  if (!isMounted) return <div className="min-h-screen bg-transparent" />;
 
-  const allTags = items.flatMap(item => item.tags || [])
+  const allTags = items.flatMap(item => item.tags || []);
   const tagCounts = allTags.reduce(
     (acc, tag) => {
-      acc[tag] = (acc[tag] || 0) + 1
-      return acc
+      acc[tag] = (acc[tag] || 0) + 1;
+      return acc;
     },
     {} as Record<string, number>,
-  )
+  );
 
   const tagStats = Object.entries(tagCounts).map(([name, count]) => ({
     name,
     count,
-  }))
+  }));
 
   const trendingPosts = posts.slice(0, 5).map(post => ({
     id: post.id,
@@ -99,11 +100,16 @@ export function PublicBlogViewer({ tenant, items }: PublicBlogViewerProps) {
     publishedAt: post.publishedAt,
     likesCount: post.likesCount || 0,
     readingTimeMinutes: post.readingTimeMinutes,
-  }))
+  }));
 
   if (isTerminal) {
     return (
-      <TerminalBlogShell tenant={tenant} tags={tagStats} trendingPosts={trendingPosts}>
+      <TerminalBlogShell
+        tenant={tenant}
+        tags={tagStats}
+        trendingPosts={trendingPosts}
+        currentTenantSlug={currentTenantSlug}
+      >
         <style
           dangerouslySetInnerHTML={{
             __html: `
@@ -116,6 +122,7 @@ export function PublicBlogViewer({ tenant, items }: PublicBlogViewerProps) {
           <TerminalLayoutManager
             posts={posts}
             tenantSlug={tenant.slug}
+            currentTenantSlug={currentTenantSlug}
             layout={layout}
             showHero={layoutConfig.showHero}
             themeConfig={{
@@ -124,7 +131,7 @@ export function PublicBlogViewer({ tenant, items }: PublicBlogViewerProps) {
           />
         </div>
       </TerminalBlogShell>
-    )
+    );
   }
 
   return (
@@ -142,6 +149,7 @@ export function PublicBlogViewer({ tenant, items }: PublicBlogViewerProps) {
       <LayoutManager
         posts={posts}
         tenantSlug={tenant.slug}
+        currentTenantSlug={currentTenantSlug}
         layout={layout}
         showHero={layoutConfig.showHero}
         density={layoutConfig.density}
@@ -150,5 +158,5 @@ export function PublicBlogViewer({ tenant, items }: PublicBlogViewerProps) {
         }}
       />
     </div>
-  )
+  );
 }

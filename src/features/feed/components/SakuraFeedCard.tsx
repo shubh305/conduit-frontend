@@ -12,10 +12,17 @@ interface SakuraFeedCardProps {
   className?: string;
   onRemove?: () => void;
   index?: number;
+  currentTenantSlug?: string;
 }
 
-export function SakuraFeedCard({ item, className, variant = "default", onRemove }: SakuraFeedCardProps) {
-  const postUrl = getPostUrl(item);
+export function SakuraFeedCard({
+  item,
+  className,
+  variant = "default",
+  onRemove,
+  currentTenantSlug,
+}: SakuraFeedCardProps) {
+  const postUrl = getPostUrl(item, currentTenantSlug);
 
   if (variant === "compact") {
     return (

@@ -7,11 +7,12 @@ import Image from "next/image";
 
 interface JournalHeroProps {
   item: FeedItem;
+  currentTenantSlug?: string;
 }
 
-export function JournalHero({ item }: JournalHeroProps) {
-  const postUrl = getPostUrl(item);
-  
+export function JournalHero({ item, currentTenantSlug }: JournalHeroProps) {
+  const postUrl = getPostUrl(item, currentTenantSlug);
+
   return (
     <div className="relative w-full shadow-2xl overflow-hidden bg-noir-panel group/hero border-double border-[6px] border-noir-border/40 journal-page-curl">
       <div className="flex flex-col md:flex-row min-h-[350px]">
@@ -80,5 +81,5 @@ export function JournalHero({ item }: JournalHeroProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

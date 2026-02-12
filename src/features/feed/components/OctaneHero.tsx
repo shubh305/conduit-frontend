@@ -5,9 +5,9 @@ import { getPostUrl, getMediaUrl } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
 
-export function OctaneHero({ item }: { item: FeedItem }) {
-  const postUrl = getPostUrl(item);
-  
+export function OctaneHero({ item, currentTenantSlug }: { item: FeedItem; currentTenantSlug?: string }) {
+  const postUrl = getPostUrl(item, currentTenantSlug);
+
   return (
     <div className="relative group/hero w-full h-[600px] bg-noir-bg overflow-hidden border-2 border-noir-border hover:border-accent transition-colors duration-500">
       {/* 1. Full Bleed Image */}

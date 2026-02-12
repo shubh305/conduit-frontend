@@ -14,6 +14,7 @@ interface JournalFeedLayoutProps {
   onLoadMore: () => void;
   isLoadingMore: boolean;
   loadMoreText: string;
+  currentTenantSlug?: string;
 }
 
 export function JournalFeedLayout({
@@ -23,11 +24,12 @@ export function JournalFeedLayout({
   hasMore,
   onLoadMore,
   isLoadingMore,
-  loadMoreText
+  loadMoreText,
+  currentTenantSlug,
 }: JournalFeedLayoutProps) {
   const featured = items[0];
   const gridItems = items.slice(1);
-  
+
   return (
     <ThemePage className="max-w-[1200px] mx-auto px-4 py-8 flex flex-col gap-8">
       {/* Paper Texture Body Overlay */}
@@ -52,7 +54,7 @@ export function JournalFeedLayout({
       <main className="flex-1 flex flex-col gap-8 min-w-0">
         {featured && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <JournalHero item={featured} />
+            <JournalHero item={featured} currentTenantSlug={currentTenantSlug} />
           </div>
         )}
 
@@ -64,7 +66,7 @@ export function JournalFeedLayout({
               className={cn("animate-in fade-in slide-in-from-bottom-4 duration-700")}
               style={{ animationDelay: `${(idx + 1) * 100}ms` }}
             >
-              <JournalFeedCard item={item} />
+              <JournalFeedCard item={item} currentTenantSlug={currentTenantSlug} />
             </div>
           ))}
         </div>

@@ -1,16 +1,16 @@
 "use client";
 
-import Link from "next/link";
 import NextImage from "next/image";
 import { Bell, Edit3, Menu, Compass } from "lucide-react";
 import { WIP_LIMITS } from "@/lib/wip-limits";
 import { usePathname } from "next/navigation";
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
-import { cn } from "@/lib/utils";
+import { cn, getRootUrl } from "@/lib/utils";
 import { UserNavWidget } from "./UserNavWidget";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { SearchInput } from "@/features/search/components/SearchInput";
+import { useAuth } from "@/features/auth/AuthProvider";
 
 interface TopNavigationProps {
   onToggleSidebar?: () => void;
@@ -22,6 +22,7 @@ export function TopNavigation({ onToggleSidebar, onToggleRightSidebar }: TopNavi
   const { isCyberCopy, isSakuraCopy, isRoninCopy, isOctaneCopy, isJournalCopy, isTechieCopy } = useThemeHelpers();
   const router = useRouter();
   const pathname = usePathname();
+  const { user } = useAuth();
 
   const isStudioRoute = pathname.startsWith("/studio");
   const showRightSidebarToggle = pathname === "/" || pathname.startsWith("/search");
@@ -55,19 +56,21 @@ export function TopNavigation({ onToggleSidebar, onToggleRightSidebar }: TopNavi
     >
       {/* Left Side */}
       <div className="flex items-center gap-4">
-        <button
-          onClick={onToggleSidebar}
-          className={cn(
-            "p-2 rounded-md transition-colors text-foreground-muted hover:text-foreground hover:bg-noir-hover cursor-pointer",
-            isStudioRoute ? "block" : "hidden md:block",
-          )}
-          style={{ borderRadius: "var(--theme-radius-md)" }}
-        >
-          <Menu size={20} />
-        </button>
+        {user && (
+          <button
+            onClick={onToggleSidebar}
+            className={cn(
+              "p-2 rounded-md transition-colors text-foreground-muted hover:text-foreground hover:bg-noir-hover cursor-pointer",
+              isStudioRoute ? "block" : "hidden md:block",
+            )}
+            style={{ borderRadius: "var(--theme-radius-md)" }}
+          >
+            <Menu size={20} />
+          </button>
+        )}
 
         {/* Brand Logo - Theme-aware */}
-        <Link href="/" className="flex items-center gap-2 group">
+        <a href={getRootUrl()} className="flex items-center gap-2 group">
           <div
             className={cn(
               "w-8 h-8 flex items-center justify-center relative",
@@ -89,8 +92,7 @@ export function TopNavigation({ onToggleSidebar, onToggleRightSidebar }: TopNavi
           >
             {isSakuraCopy ? "コンジット" : isRoninCopy ? "浪人" : isJournalCopy ? "Journal" : "CONDUIT"}
           </span>
-        </Link>
-
+        </a>
         {/* Network Status - Cyber/Sakura/Ronin only */}
         {getNetworkStatus() && (
           <div
@@ -114,21 +116,23 @@ export function TopNavigation({ onToggleSidebar, onToggleRightSidebar }: TopNavi
 
       {/* Right Side Controls */}
       <div className="flex items-center gap-4 md:gap-6">
-        <Button
-          variant="ghost"
-          onClick={() => router.push("/dashboard?action=write")}
-          className="flex items-center gap-2 text-foreground-muted hover:text-foreground hover:bg-noir-hover px-2 md:px-4"
-        >
-          <Edit3 size={18} />
-          <span
-            className={cn(
-              "text-xs tracking-wider hidden sm:inline",
-              config.fontFamily === "mono" ? "font-mono" : "font-sans font-bold",
-            )}
+        {WIP_LIMITS.showWriteButton && (
+          <Button
+            variant="ghost"
+            onClick={() => router.push("/dashboard?action=write")}
+            className="flex items-center gap-2 text-foreground-muted hover:text-foreground hover:bg-noir-hover px-2 md:px-4"
           >
-            {getWriteLabel()}
-          </span>
-        </Button>
+            <Edit3 size={18} />
+            <span
+              className={cn(
+                "text-xs tracking-wider hidden sm:inline",
+                config.fontFamily === "mono" ? "font-mono" : "font-sans font-bold",
+              )}
+            >
+              {getWriteLabel()}
+            </span>
+          </Button>
+        )}
 
         {!WIP_LIMITS.showNotifications ? null : (
           <button className="transition-colors relative text-foreground-muted hover:text-foreground">
@@ -138,7 +142,7 @@ export function TopNavigation({ onToggleSidebar, onToggleRightSidebar }: TopNavi
         )}
 
         {/* Right Sidebar Toggle (Mobile only) */}
-        {showRightSidebarToggle && (
+        {user && showRightSidebarToggle && (
           <button
             onClick={onToggleRightSidebar}
             className="xl:hidden p-2 rounded-md transition-colors text-foreground-muted hover:text-foreground hover:bg-noir-hover cursor-pointer"

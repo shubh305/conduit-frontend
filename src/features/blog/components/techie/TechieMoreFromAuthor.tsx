@@ -3,13 +3,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
-import { cn, getMediaUrl } from "@/lib/utils";
+import { cn, getMediaUrl, getPostUrl } from "@/lib/utils";
 import { useMoreFromAuthor } from "@/features/blog/hooks/useMoreFromAuthor";
 
 interface TechieMoreFromAuthorProps {
   currentPostId: string;
   tenantSlug: string;
   tenantId: string;
+  currentTenantSlug?: string;
   className?: string;
 }
 
@@ -17,6 +18,7 @@ export function TechieMoreFromAuthor({
   currentPostId,
   tenantSlug,
   tenantId,
+  currentTenantSlug,
   className,
 }: TechieMoreFromAuthorProps) {
   const { posts, isLoading } = useMoreFromAuthor(tenantId, currentPostId);
@@ -33,7 +35,7 @@ export function TechieMoreFromAuthor({
             GO_EVEN_DEEPER
           </h3>
           <Link
-            href={`/${tenantSlug}`}
+            href={currentTenantSlug && tenantSlug === currentTenantSlug ? "/" : `/${tenantSlug}`}
             className="text-[10px] font-mono text-accent/60 uppercase tracking-widest hover:text-white transition-colors flex items-center gap-2 group"
           >
             VIEW_ALL_TRANSMISSIONS <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
@@ -46,7 +48,12 @@ export function TechieMoreFromAuthor({
             return (
               <Link
                 key={post.id}
-                href={`/${tenantSlug}/${post.slug}`}
+                href={getPostUrl({
+                  ...post,
+                  postSlug: post.slug,
+                  tenantSlug,
+                  authorUsername: post.authorUsername,
+                })}
                 className="group block bg-noir-panel/30 shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)] transition-all duration-500 relative overflow-hidden rounded-xl border-none"
               >
                 {/* Image */}

@@ -7,6 +7,9 @@ import { setUnauthorizedHandler } from "@/lib/api-client";
 import { getMyTenants } from "@/features/blog/api";
 import { User, AuthState, LoginDto, RegisterDto } from "./types";
 import { toast } from "sonner";
+import { getRootDomain } from "@/lib/utils";
+
+import { setAuthCookie, getAuthCookie, removeAuthCookie } from "@/lib/auth-cookies";
 
 interface AuthContextType extends AuthState {
   login: (data: LoginDto) => Promise<void>;
@@ -24,7 +27,68 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem("accessToken");
+      if (typeof window === "undefined") {
+        setIsLoading(false);
+        return;
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlToken = urlParams.get("token");
+      const urlRefreshToken = urlParams.get("refreshToken");
+      const isLoggingOut = urlParams.get("action") === "logout";
+
+      if (isLoggingOut) {
+        console.log("[Auth] Logout handshake detected. Clearing session...");
+        removeAuthCookie("accessToken");
+        removeAuthCookie("refreshToken");
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("conduit_user");
+
+        window.history.replaceState({}, document.title, window.location.pathname);
+        setIsLoading(false);
+        setUser(null);
+        return;
+      }
+
+      if (urlToken) {
+        setAuthCookie("accessToken", urlToken);
+        localStorage.setItem("accessToken", urlToken);
+        if (urlRefreshToken) {
+          setAuthCookie("refreshToken", urlRefreshToken);
+          localStorage.setItem("refreshToken", urlRefreshToken);
+        }
+
+        const newUrl =
+          window.location.pathname +
+          window.location.search
+            .replace(/[?&]token=[^&]+/, "")
+            .replace(/[?&]refreshToken=[^&]+/, "")
+            .replace(/^[?&]/, "?");
+        window.history.replaceState({}, document.title, newUrl);
+      }
+
+      const cookieToken = getAuthCookie("accessToken");
+      const localToken = localStorage.getItem("accessToken");
+      const token = cookieToken || localToken;
+
+      console.log("[Auth] Init shared session:", {
+        hostname: window.location.hostname,
+        hasCookie: !!cookieToken,
+        hasLocalStorage: !!localToken,
+      });
+
+      if (localToken && !cookieToken) {
+        console.log("[Auth] Syncing localStorage token to cookies...");
+        const refreshToken = localStorage.getItem("refreshToken");
+        setAuthCookie("accessToken", localToken);
+        if (refreshToken) setAuthCookie("refreshToken", refreshToken);
+
+        if (getAuthCookie("accessToken")) {
+          console.log("[Auth] Cookie successfully synced.");
+        }
+      }
+
       if (!token) {
         console.log("[Auth] No token found in storage.");
         setIsLoading(false);
@@ -52,6 +116,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(user);
       } catch (error) {
         console.error("[Auth] Initialization failed. Clearing session.", error);
+        removeAuthCookie("accessToken");
+        removeAuthCookie("refreshToken");
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         setUser(null);
@@ -66,6 +132,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async (data: LoginDto) => {
       try {
         const response = await apiLogin(data);
+        setAuthCookie("accessToken", response.accessToken);
+        setAuthCookie("refreshToken", response.refreshToken);
         localStorage.setItem("accessToken", response.accessToken);
         localStorage.setItem("refreshToken", response.refreshToken);
 
@@ -92,6 +160,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async (data: RegisterDto) => {
       try {
         const response = await apiRegister(data);
+        setAuthCookie("accessToken", response.accessToken);
+        setAuthCookie("refreshToken", response.refreshToken);
         localStorage.setItem("accessToken", response.accessToken);
         localStorage.setItem("refreshToken", response.refreshToken);
 
@@ -116,12 +186,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(() => {
     setUser(null);
+    removeAuthCookie("accessToken");
+    removeAuthCookie("refreshToken");
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("conduit_user");
-    router.push("/");
+
+    const root = getRootDomain();
+
+    if (root.includes("localhost")) {
+      removeAuthCookie("accessToken", { domain: ".localhost", path: "/" });
+      removeAuthCookie("refreshToken", { domain: ".localhost", path: "/" });
+    }
+
     toast.success("Logged out.");
-  }, [router]);
+
+    const rootUrl = `${window.location.protocol}//${root}/login`;
+    window.location.href = `${rootUrl}?action=logout`;
+  }, []);
 
   const refreshUser = useCallback(async () => {
     try {

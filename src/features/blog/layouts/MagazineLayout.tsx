@@ -4,20 +4,18 @@ import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { BasePostCard } from "../components/base/BasePostCard";
 import { LayoutProps } from "./types";
-import { cn } from "@/lib/utils";
+import { cn, getPostUrl } from "@/lib/utils";
 import Image from "next/image";
 
-export function MagazineLayout({ posts, tenantSlug, themeConfig }: LayoutProps) {
+export function MagazineLayout({ posts, tenantSlug, currentTenantSlug, themeConfig }: LayoutProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-
 
   const chunkSize = 6;
   const pages = [];
   for (let i = 0; i < posts.length; i += chunkSize) {
     pages.push(posts.slice(i, i + chunkSize));
   }
-
 
   useEffect(() => {
     const container = scrollContainerRef.current;
@@ -31,7 +29,6 @@ export function MagazineLayout({ posts, tenantSlug, themeConfig }: LayoutProps) 
     container.addEventListener("scroll", handleScroll);
     return () => container.removeEventListener("scroll", handleScroll);
   }, []);
-
 
   const getGridClasses = (index: number) => {
     switch (index) {
@@ -54,21 +51,21 @@ export function MagazineLayout({ posts, tenantSlug, themeConfig }: LayoutProps) 
   };
 
   const magazineConfig = {
-      ...themeConfig,
-      cardStyle: "flat" as const,
-      showBio: false,
-      showExcerpt: true, 
+    ...themeConfig,
+    cardStyle: "flat" as const,
+    showBio: false,
+    showExcerpt: true,
   };
 
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
-        scrollContainerRef.current.scrollBy({ left: -scrollContainerRef.current.clientWidth, behavior: "smooth" });
+      scrollContainerRef.current.scrollBy({ left: -scrollContainerRef.current.clientWidth, behavior: "smooth" });
     }
   };
 
   const scrollRight = () => {
     if (scrollContainerRef.current) {
-        scrollContainerRef.current.scrollBy({ left: scrollContainerRef.current.clientWidth, behavior: "smooth" });
+      scrollContainerRef.current.scrollBy({ left: scrollContainerRef.current.clientWidth, behavior: "smooth" });
     }
   };
 
@@ -82,7 +79,7 @@ export function MagazineLayout({ posts, tenantSlug, themeConfig }: LayoutProps) 
           {posts.slice(0, 10).map(post => (
             <Link
               key={post.id}
-              href={`/${tenantSlug}/${post.slug}`}
+              href={getPostUrl({ ...post, postSlug: post.slug, tenantSlug }, currentTenantSlug)}
               className="group flex-shrink-0 w-[85vw] snap-center"
             >
               <div className="relative aspect-[4/5] overflow-hidden rounded-2xl">
@@ -184,6 +181,7 @@ export function MagazineLayout({ posts, tenantSlug, themeConfig }: LayoutProps) 
                     <BasePostCard
                       post={post}
                       tenantSlug={tenantSlug}
+                      currentTenantSlug={currentTenantSlug}
                       orientation="vertical"
                       className="h-full w-full"
                       imageClassName="absolute inset-0 w-full h-full"

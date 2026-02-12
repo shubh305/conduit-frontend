@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Settings, LogOut, LayoutDashboard, UserIcon, LogIn, UserPlus } from "lucide-react";
 import { useThemeHelpers } from "@/features/theme/ThemeProvider";
-import { cn } from "@/lib/utils";
+import { cn, getRootDomain } from "@/lib/utils";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { useThemeLabel } from "@/components/theme/ThemeLabel";
 import { getRoundedClass } from "@/lib/theme-variants";
@@ -160,26 +160,30 @@ export function UserNavWidget({ variant = "top-nav" }: UserNavWidgetProps) {
               asChild
               className={cn("cursor-pointer focus:bg-noir-hover transition-colors", getRoundedClass(theme, "md"))}
             >
-              <Link
-                href="/login"
+              <a
+                href={
+                  typeof window !== "undefined" ? `${window.location.protocol}//${getRootDomain()}/login` : "/login"
+                }
                 className="flex items-center gap-3 px-4 py-2.5 text-xs text-foreground hover:text-accent font-mono uppercase tracking-widest"
               >
                 <LogIn size={14} />
                 <span>{t("signIn")}</span>
-              </Link>
+              </a>
             </DropdownMenuItem>
 
             <DropdownMenuItem
               asChild
               className={cn("cursor-pointer focus:bg-noir-hover transition-colors", getRoundedClass(theme, "md"))}
             >
-              <Link
-                href="/signup"
+              <a
+                href={
+                  typeof window !== "undefined" ? `${window.location.protocol}//${getRootDomain()}/signup` : "/signup"
+                }
                 className="flex items-center gap-3 px-4 py-2.5 text-xs text-foreground hover:text-accent font-mono uppercase tracking-widest"
               >
                 <UserPlus size={14} />
                 <span>{t("signUp")}</span>
-              </Link>
+              </a>
             </DropdownMenuItem>
           </>
         )}

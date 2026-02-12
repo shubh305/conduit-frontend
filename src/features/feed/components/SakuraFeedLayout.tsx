@@ -15,6 +15,7 @@ interface SakuraFeedLayoutProps {
   onLoadMore: () => void;
   isLoadingMore: boolean;
   loadMoreText: string;
+  currentTenantSlug?: string;
 }
 
 interface Petal {
@@ -33,7 +34,8 @@ export function SakuraFeedLayout({
   hasMore,
   onLoadMore,
   isLoadingMore,
-  loadMoreText
+  loadMoreText,
+  currentTenantSlug,
 }: SakuraFeedLayoutProps) {
   const featured = items[0];
   const gridItems = items.slice(1);
@@ -55,7 +57,7 @@ export function SakuraFeedLayout({
 
     return () => clearTimeout(timer);
   }, []);
-  
+
   return (
     <ThemePage className="max-w-7xl mx-auto px-8 md:px-16 py-12 md:py-20 flex flex-col items-center gap-12 relative overflow-hidden bg-noir-bg">
       {/* 1. Atmospheric Layer - Falling Petals */}
@@ -98,7 +100,7 @@ export function SakuraFeedLayout({
       <main className="w-full flex flex-col gap-24 relative z-20">
         {featured && (
           <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000">
-            <SakuraHero item={featured} />
+            <SakuraHero item={featured} currentTenantSlug={currentTenantSlug} />
           </div>
         )}
 
@@ -110,7 +112,7 @@ export function SakuraFeedLayout({
               className={cn("animate-in fade-in slide-in-from-bottom-8 duration-1000")}
               style={{ animationDelay: `${(idx + 1) * 100}ms` }}
             >
-              <SakuraFeedCard item={item} />
+              <SakuraFeedCard item={item} currentTenantSlug={currentTenantSlug} />
             </div>
           ))}
         </div>

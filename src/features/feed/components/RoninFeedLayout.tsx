@@ -15,6 +15,7 @@ interface RoninFeedLayoutProps {
   onLoadMore: () => void;
   isLoadingMore: boolean;
   loadMoreText: string;
+  currentTenantSlug?: string;
 }
 
 interface Leaf {
@@ -32,7 +33,8 @@ export function RoninFeedLayout({
   hasMore,
   onLoadMore,
   isLoadingMore,
-  loadMoreText
+  loadMoreText,
+  currentTenantSlug,
 }: RoninFeedLayoutProps) {
   const featured = items[0];
   const gridItems = items.slice(1);
@@ -44,16 +46,16 @@ export function RoninFeedLayout({
       left: `${Math.random() * 100}%`,
       duration: `${10 + Math.random() * 10}s`,
       delay: `${Math.random() * 15}s`,
-      opacity: 0.1 + Math.random() * 0.3
+      opacity: 0.1 + Math.random() * 0.3,
     }));
 
     const timer = setTimeout(() => {
       setLeaves(generatedLeaves);
     }, 100);
-    
+
     return () => clearTimeout(timer);
   }, []);
-  
+
   return (
     <ThemePage className="max-w-7xl mx-auto px-4 py-8 md:py-12 flex flex-col items-center gap-10 relative overflow-hidden bg-black text-gray-200">
       {/* 1. Atmospheric Layer */}
@@ -98,7 +100,7 @@ export function RoninFeedLayout({
       <main className="w-full flex flex-col gap-16 relative z-20">
         {featured && (
           <div className="animate-in fade-in slide-in-from-top-4 duration-1500 ease-out-expo">
-            <RoninHero item={featured} />
+            <RoninHero item={featured} currentTenantSlug={currentTenantSlug} />
           </div>
         )}
 
@@ -110,7 +112,7 @@ export function RoninFeedLayout({
               className={cn("animate-in fade-in slide-in-from-bottom-8 duration-1000")}
               style={{ animationDelay: `${(idx + 1) * 100}ms` }}
             >
-              <RoninFeedCard item={item} index={idx} />
+              <RoninFeedCard item={item} index={idx} currentTenantSlug={currentTenantSlug} />
             </div>
           ))}
         </div>

@@ -8,7 +8,8 @@ import { TiptapContent } from "@/features/blog/types";
 import { FeedActionBar } from "@/features/feed/components/FeedActionBar";
 import { useState } from "react";
 import { CommentSection } from "@/features/feed/components/CommentSection";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useBlogNavigation } from "@/features/blog/hooks/useBlogNavigation";
 import { cn, getMediaUrl, formatDate } from "@/lib/utils";
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
 import { useTableOfContents } from "@/features/blog/hooks/useTableOfContents";
@@ -21,7 +22,7 @@ interface ArticleLayoutProps {
 }
 
 export function TechieArticleLayout({ post, tenant, isPreview: isPreviewProp }: ArticleLayoutProps) {
-  const router = useRouter();
+  const { navigateToBlogHome } = useBlogNavigation(tenant.slug);
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const { focusMode } = useTheme();
   const { isDarkMode } = useThemeHelpers();
@@ -52,7 +53,7 @@ export function TechieArticleLayout({ post, tenant, isPreview: isPreviewProp }: 
 
               {!isPreview && (
                 <button
-                  onClick={() => router.push(`/${tenant.slug || tenant.id}`)}
+                  onClick={navigateToBlogHome}
                   className="lg:hidden inline-flex items-center gap-2 group text-[10px] font-mono text-accent hover:text-white transition-colors"
                 >
                   <ArrowLeft size={12} className="group-hover:-translate-x-1 transition-transform" />
@@ -144,7 +145,7 @@ export function TechieArticleLayout({ post, tenant, isPreview: isPreviewProp }: 
               {/* Back Nav */}
               {!isPreview && (
                 <button
-                  onClick={() => router.push(`/${tenant.slug || tenant.id}`)}
+                  onClick={navigateToBlogHome}
                   className="group flex items-center gap-3 text-xs font-mono text-accent hover:text-white transition-colors text-left"
                 >
                   <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
@@ -276,7 +277,12 @@ export function TechieArticleLayout({ post, tenant, isPreview: isPreviewProp }: 
       />
 
       {!isPreview && (
-        <TechieMoreFromAuthor currentPostId={post.postId} tenantSlug={tenant.slug || tenant.id} tenantId={tenant.id} />
+        <TechieMoreFromAuthor
+          currentPostId={post.postId}
+          tenantSlug={tenant.slug || tenant.id}
+          tenantId={tenant.id}
+          currentTenantSlug={tenant.slug}
+        />
       )}
     </main>
   );

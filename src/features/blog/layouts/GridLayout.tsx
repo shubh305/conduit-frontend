@@ -1,15 +1,16 @@
 "use client";
 
 import { BasePostCard } from "../components/base/BasePostCard";
+import { getPostUrl } from "@/lib/utils";
 import { LayoutProps } from "./types";
 import Link from "next/link";
 import Image from "next/image";
 
-export function GridLayout({ posts, tenantSlug, themeConfig }: LayoutProps) {
+export function GridLayout({ posts, tenantSlug, currentTenantSlug, themeConfig }: LayoutProps) {
   const gridThemeConfig = {
     ...themeConfig,
     cardStyle: themeConfig?.cardStyle || "bordered",
-    showExcerpt: themeConfig?.showExcerpt !== false
+    showExcerpt: themeConfig?.showExcerpt !== false,
   } as const;
 
   return (
@@ -19,7 +20,7 @@ export function GridLayout({ posts, tenantSlug, themeConfig }: LayoutProps) {
         {posts.map(post => (
           <Link
             key={post.id}
-            href={`/${tenantSlug}/${post.slug}`}
+            href={getPostUrl({ ...post, postSlug: post.slug, tenantSlug }, currentTenantSlug)}
             className="group flex flex-col gap-2 p-3 bg-noir-panel/30 rounded-lg border border-noir-border/30 hover:border-accent/50 transition-all"
           >
             {post.featuredImage && (
@@ -48,6 +49,7 @@ export function GridLayout({ posts, tenantSlug, themeConfig }: LayoutProps) {
             key={post.id}
             post={post}
             tenantSlug={tenantSlug}
+            currentTenantSlug={currentTenantSlug}
             orientation="vertical"
             imageClassName="aspect-[16/10] object-cover"
             className="h-full"

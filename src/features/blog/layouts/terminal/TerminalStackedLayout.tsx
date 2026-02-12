@@ -3,7 +3,7 @@
 import React, { useMemo } from "react";
 import Link from "next/link";
 import { LayoutProps } from "../types";
-import { cn, getMediaUrl } from "@/lib/utils";
+import { cn, getMediaUrl, getPostUrl } from "@/lib/utils";
 import {
   TERMINAL_HOVER_CONTAINER,
   TERMINAL_HOVER_TEXT,
@@ -13,7 +13,7 @@ import {
 /**
  * Terminal Stacked Layout
  */
-export function TerminalStackedLayout({ posts, tenantSlug }: LayoutProps) {
+export function TerminalStackedLayout({ posts, tenantSlug, currentTenantSlug }: LayoutProps) {
   return (
     <div className="w-full h-full font-mono flex flex-col">
       {/* Command header */}
@@ -36,7 +36,7 @@ export function TerminalStackedLayout({ posts, tenantSlug }: LayoutProps) {
               {/* Decorative connector line between posts */}
               {index !== posts.length - 1 && <div className="absolute left-4 -bottom-8 w-px h-8 bg-accent/20" />}
 
-              <StackedPostCard post={post} tenantSlug={tenantSlug} />
+              <StackedPostCard post={post} tenantSlug={tenantSlug} currentTenantSlug={currentTenantSlug} />
             </div>
           ))
         )}
@@ -65,8 +65,16 @@ interface PostData {
 }
 
 // Internal maximal card component for this layout
-function StackedPostCard({ post, tenantSlug }: { post: PostData; tenantSlug: string }) {
-  const postLink = `/${tenantSlug}/${post.slug}`;
+function StackedPostCard({
+  post,
+  tenantSlug,
+  currentTenantSlug,
+}: {
+  post: PostData;
+  tenantSlug: string;
+  currentTenantSlug?: string;
+}) {
+  const postLink = getPostUrl({ ...post, postSlug: post.slug, tenantSlug }, currentTenantSlug);
   const imageUrl = getMediaUrl(post.featuredImage);
 
   const formattedDate = useMemo(() => {

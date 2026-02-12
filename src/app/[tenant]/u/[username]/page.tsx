@@ -2,6 +2,6 @@
 
 import { UserProfile } from "@/features/profile/components/UserProfile";
 
-export default function UserProfilePage() {
+export default function TenantUserProfilePage() {
   return <UserProfile />;
 }

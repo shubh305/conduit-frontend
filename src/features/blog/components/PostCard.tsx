@@ -3,17 +3,33 @@
 import Link from "next/link";
 import { Post } from "../types";
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
-import { cn } from "@/lib/utils";
+import { cn, getPostUrl } from "@/lib/utils";
 
-export function PostCard({ post, tenantSlug }: { post: Post; tenantSlug: string }) {
+export function PostCard({
+  post,
+  tenantSlug,
+  currentTenantSlug,
+}: {
+  post: Post;
+  tenantSlug: string;
+  currentTenantSlug?: string;
+}) {
   const { config } = useTheme();
   const { isCyberCopy, isSakuraCopy } = useThemeHelpers();
 
   return (
-    <Link href={`/${tenantSlug}/${post.slug}`} className="group block py-12 border-b border-noir-border hover:bg-noir-panel transition-colors -mx-4 px-4">
+    <Link
+      href={getPostUrl({ ...post, postSlug: post.slug, tenantSlug }, currentTenantSlug)}
+      className="group block py-12 border-b border-noir-border hover:bg-noir-panel transition-colors -mx-4 px-4"
+    >
       <div className="flex flex-col md:flex-row gap-8 items-start">
         <div className="flex-1 space-y-4">
-          <div className={cn("flex items-center gap-4 text-xs uppercase text-foreground-subtle", isCyberCopy ? "font-mono" : "font-sans")}>
+          <div
+            className={cn(
+              "flex items-center gap-4 text-xs uppercase text-foreground-subtle",
+              isCyberCopy ? "font-mono" : "font-sans",
+            )}
+          >
             <span>{new Date(post.publishedAt).toLocaleDateString("en-US")}</span>
             <span>
               {post.readingTimeMinutes} {isSakuraCopy ? "分" : "min read"}
@@ -23,13 +39,24 @@ export function PostCard({ post, tenantSlug }: { post: Post; tenantSlug: string 
           <h2
             className={cn(
               "text-3xl font-bold leading-tight group-hover:text-accent group-hover:underline decoration-1 underline-offset-4 decoration-foreground-subtle text-foreground",
-              isCyberCopy ? "font-mono uppercase tracking-tight" : config.fontFamily === "serif" ? "font-serif" : "font-sans",
+              isCyberCopy
+                ? "font-mono uppercase tracking-tight"
+                : config.fontFamily === "serif"
+                  ? "font-serif"
+                  : "font-sans",
             )}
           >
             {post.title}
           </h2>
 
-          <p className={cn("leading-relaxed text-sm md:text-base max-w-3xl text-foreground-muted", isCyberCopy ? "font-mono" : "font-sans")}>{post.excerpt}</p>
+          <p
+            className={cn(
+              "leading-relaxed text-sm md:text-base max-w-3xl text-foreground-muted",
+              isCyberCopy ? "font-mono" : "font-sans",
+            )}
+          >
+            {post.excerpt}
+          </p>
 
           <div className="flex gap-2 pt-2">
             {post.tags.map((tag: string) => (

@@ -113,6 +113,8 @@ export function FeedActionBar({
   const iconActive = "text-accent";
   const isVertical = layout === "vertical";
 
+  if (!user) return null;
+
   return (
     <div
       className={cn(

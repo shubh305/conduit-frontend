@@ -14,6 +14,7 @@ import { getJapaneseSubLabel } from "@/lib/theme-variants";
 import { getFollowingUsers } from "@/features/profile/api";
 import { Profile } from "@/features/profile/types";
 import { useEffect, useState, useCallback } from "react";
+import { getRootUrl, isRootSite } from "@/lib/utils";
 
 interface NavigationSidebarProps {
   isOpen?: boolean;
@@ -24,17 +25,21 @@ export function NavigationSidebar({ isOpen = true }: NavigationSidebarProps) {
   const searchParams = useSearchParams();
   const { theme, config } = useTheme();
   const { user } = useAuth();
-
+  const [mounted, setMounted] = useState(false);
   const currentFeed = searchParams.get("feed") || "foryou";
-  const isHome = pathname === "/";
 
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
+  }, [pathname]);
+
+  const isHome = pathname === "/";
 
   const isCyberCopy = theme === "cyber";
   const isSakuraCopy = theme === "sakura";
   const isRoninCopy = theme === "ronin";
   const isTerminalCopy = theme === "terminal";
-  const isTechieCopy = theme === "techie"
-
+  const isTechieCopy = theme === "techie";
 
   const t = useThemeLabel();
   const homeLabel = t("home");
@@ -43,15 +48,15 @@ export function NavigationSidebar({ isOpen = true }: NavigationSidebarProps) {
   const forYouLabel = t("forYou");
   const followingLabel = t("following");
 
+  // Navigation items including Home
   const navItems = [
-    { id: "home", label: homeLabel, icon: Home, href: "/" },
+    { id: "home", label: homeLabel, icon: Home, href: getRootUrl() },
     { id: "library", label: libraryLabel, icon: Bookmark, href: "/me/library" },
     { id: "mySites", label: mySitesLabel, icon: LayoutDashboard, href: "/dashboard" },
   ];
 
-
   const filteredNavItems = navItems.filter(item => {
-    if (item.href === "/me/library" || item.href === "/studio/posts" || item.href === "/dashboard") {
+    if (item.href === "/me/library" || item.href === "/dashboard") {
       return !!user;
     }
     return true;
@@ -62,8 +67,15 @@ export function NavigationSidebar({ isOpen = true }: NavigationSidebarProps) {
     { id: "following", label: followingLabel },
   ];
 
-
-  const sourceTitle = isCyberCopy ? "/* SOURCE */" : isSakuraCopy ? "Source" : isRoninCopy ? "Origin" : isTerminalCopy ? ">> sources" : "Source";
+  const sourceTitle = isCyberCopy
+    ? "/* SOURCE */"
+    : isSakuraCopy
+      ? "Source"
+      : isRoninCopy
+        ? "Origin"
+        : isTerminalCopy
+          ? ">> sources"
+          : "Source";
 
   const [followedUsers, setFollowedUsers] = useState<Profile[]>([]);
 
@@ -100,6 +112,7 @@ export function NavigationSidebar({ isOpen = true }: NavigationSidebarProps) {
 
   return (
     <aside
+      key={mounted ? (typeof window !== "undefined" ? window.location.hostname : "ssr") : "mounting"}
       className={cn(
         "flex flex-col fixed left-0 top-0 md:top-16 z-[170] md:z-30 pt-4 md:pt-8 pb-8 justify-between border-r overflow-y-auto no-scrollbar transition-all duration-300 h-screen md:h-[calc(100vh-4rem)] cursor-pointer",
         "bg-bg-sidebar border-border-primary sidebar-nav",
@@ -135,12 +148,22 @@ export function NavigationSidebar({ isOpen = true }: NavigationSidebarProps) {
             {/* SYSTEM_NAV */}
           </div>
           {filteredNavItems.map(item => {
-            const isActive = pathname === item.href;
+            const isPlatformHome = item.id === "home";
+            const isRoot = mounted && isRootSite();
+
+            const isActive = isPlatformHome ? isRoot && (pathname === "/" || pathname === "") : pathname === item.href;
+
             const japaneseLabel = getJapaneseSubLabel(item.id, theme);
+            const isExternal = item.href.startsWith("http");
+
+            const LinkComponent = (isExternal || isPlatformHome ? "a" : Link) as React.ElementType;
+            const extraProps = isExternal || isPlatformHome ? {} : { href: item.href };
+
             return (
-              <Link
+              <LinkComponent
                 key={item.href}
                 href={item.href}
+                {...extraProps}
                 className={cn(
                   "flex items-center gap-4 px-4 py-2 transition-all group relative overflow-hidden cursor-pointer",
                   config.fontFamily === "mono"
@@ -157,7 +180,13 @@ export function NavigationSidebar({ isOpen = true }: NavigationSidebarProps) {
                 title={!isOpen ? item.label : undefined}
               >
                 {isActive && <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-accent" />}
-                <item.icon size={16} className={cn("shrink-0", isActive && "text-accent")} />
+                <item.icon
+                  size={18}
+                  className={cn(
+                    "shrink-0",
+                    isActive ? "text-accent" : "text-foreground-subtle group-hover:text-foreground",
+                  )}
+                />
                 <span
                   className={cn(
                     "relative z-10 transition-opacity duration-300",
@@ -181,7 +210,7 @@ export function NavigationSidebar({ isOpen = true }: NavigationSidebarProps) {
                     </span>
                   )}
                 </span>
-              </Link>
+              </LinkComponent>
             );
           })}
         </div>

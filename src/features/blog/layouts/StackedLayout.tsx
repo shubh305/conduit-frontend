@@ -1,11 +1,12 @@
 "use client";
 
 import { BasePostCard } from "../components/base/BasePostCard";
+import { getPostUrl } from "@/lib/utils";
 import { LayoutProps } from "./types";
 import Link from "next/link";
 import Image from "next/image";
 
-export function StackedLayout({ posts, tenantSlug, themeConfig }: LayoutProps) {
+export function StackedLayout({ posts, tenantSlug, currentTenantSlug, themeConfig }: LayoutProps) {
   return (
     <div className="w-full">
       {/* Mobile View */}
@@ -13,7 +14,7 @@ export function StackedLayout({ posts, tenantSlug, themeConfig }: LayoutProps) {
         {posts.map(post => (
           <Link
             key={post.id}
-            href={`/${tenantSlug}/${post.slug}`}
+            href={getPostUrl({ ...post, postSlug: post.slug, tenantSlug }, currentTenantSlug)}
             className="group flex gap-4 p-4 border-b border-noir-border/30 hover:bg-noir-hover/30 transition-colors"
           >
             {post.featuredImage && (
@@ -51,6 +52,7 @@ export function StackedLayout({ posts, tenantSlug, themeConfig }: LayoutProps) {
             key={post.id}
             post={post}
             tenantSlug={tenantSlug}
+            currentTenantSlug={currentTenantSlug}
             orientation="horizontal"
             className="md:grid-cols-[1fr_400px] border-none"
             themeConfig={themeConfig}

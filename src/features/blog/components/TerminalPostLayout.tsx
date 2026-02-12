@@ -1,14 +1,10 @@
 "use client";
 
+
 import { FeedItem } from "@/features/feed/types";
 import { TiptapContent } from "@/features/blog/types";
-import { generateHTML } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Link from "@tiptap/extension-link";
-import Underline from "@tiptap/extension-underline";
-import Youtube from "@tiptap/extension-youtube";
+import { PostContent } from "@/features/blog/components/PostContent";
 import Image from "next/image";
-import TiptapImage from "@tiptap/extension-image";
 import { useState, useEffect, useRef } from "react";
 import { CommentSection } from "@/features/feed/components/CommentSection";
 import { likePost, unlikePost } from "@/features/feed/api";
@@ -17,7 +13,7 @@ import { toast } from "sonner";
 import { cn, getMediaUrl } from "@/lib/utils";
 import { useTheme, useLabels } from "@/features/theme/ThemeProvider";
 import { useFollowUser } from "@/features/profile/hooks/useFollowUser";
-import { Ruby, RubyText } from "@/features/studio/extensions/Ruby";
+import { useBlogNavigation } from "@/features/blog/hooks/useBlogNavigation";
 
 interface TerminalPostLayoutProps {
   post: FeedItem & { content: TiptapContent; readingTimeMinutes: number };
@@ -27,17 +23,10 @@ interface TerminalPostLayoutProps {
 }
 
 export function TerminalPostLayout({ post, tenant, isPreview: isPreviewProp }: TerminalPostLayoutProps) {
+  const { navigateToBlogHome } = useBlogNavigation(tenant.slug);
   const { focusMode } = useTheme();
   const isPreview = isPreviewProp;
-  const htmlContent = generateHTML(post.content || {}, [
-    StarterKit,
-    TiptapImage,
-    Youtube.configure({ controls: false }),
-    Link,
-    Underline,
-    Ruby,
-    RubyText,
-  ]);
+
   const dateStr = new Date(post.publishedAt).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -249,10 +238,9 @@ export function TerminalPostLayout({ post, tenant, isPreview: isPreviewProp }: T
               </div>
             )}
 
-            <div
-              className="prose prose-invert prose-p:font-mono prose-headings:font-bold prose-headings:text-accent prose-headings:uppercase prose-a:text-accent prose-a:no-underline hover:prose-a:bg-accent hover:prose-a:text-black max-w-none text-foreground leading-loose"
-              dangerouslySetInnerHTML={{ __html: htmlContent }}
-            />
+            <div className="terminal-post-content text-foreground leading-loose">
+              <PostContent content={post.content} />
+            </div>
           </div>
         )}
       </article>
@@ -285,10 +273,7 @@ export function TerminalPostLayout({ post, tenant, isPreview: isPreviewProp }: T
             :c [Comments:{post.commentsCount}]
           </button>
           {!isPreview && (
-            <button
-              onClick={() => window.history.back()}
-              className="hover:bg-black hover:text-accent px-1 transition-colors"
-            >
+            <button onClick={navigateToBlogHome} className="hover:bg-black hover:text-accent px-1 transition-colors">
               :q [Back]
             </button>
           )}

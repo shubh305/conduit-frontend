@@ -1,15 +1,16 @@
 "use client";
 
 import { BasePostCard } from "../components/base/BasePostCard";
+import { getPostUrl } from "@/lib/utils";
 import { LayoutProps } from "./types";
 import Link from "next/link";
 
-export function MinimalLayout({ posts, tenantSlug, themeConfig }: LayoutProps) {
+export function MinimalLayout({ posts, tenantSlug, currentTenantSlug, themeConfig }: LayoutProps) {
   const minimalConfig = {
     ...themeConfig,
     showImage: true,
     showExcerpt: true,
-    cardStyle: "minimal" as const
+    cardStyle: "minimal" as const,
   };
 
   return (
@@ -19,7 +20,7 @@ export function MinimalLayout({ posts, tenantSlug, themeConfig }: LayoutProps) {
         {posts.map((post, index) => (
           <Link
             key={post.id}
-            href={`/${tenantSlug}/${post.slug}`}
+            href={getPostUrl({ ...post, postSlug: post.slug, tenantSlug }, currentTenantSlug)}
             className="group py-6 border-b border-noir-border/20 last:border-b-0"
           >
             <div className="flex items-start justify-between gap-3 mb-2">
@@ -53,6 +54,7 @@ export function MinimalLayout({ posts, tenantSlug, themeConfig }: LayoutProps) {
             key={post.id}
             post={post}
             tenantSlug={tenantSlug}
+            currentTenantSlug={currentTenantSlug}
             orientation="horizontal"
             className="py-8 md:grid-cols-[1fr_220px] gap-8"
             themeConfig={minimalConfig}

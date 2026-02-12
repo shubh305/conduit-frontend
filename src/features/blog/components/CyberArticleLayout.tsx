@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Clock, Calendar } from "lucide-react";
 import { PostContent } from "@/features/blog/components/PostContent";
@@ -10,6 +9,7 @@ import { TiptapContent } from "@/features/blog/types";
 import { useState } from "react";
 import { CommentSection } from "@/features/feed/components/CommentSection";
 import { MoreFromAuthor } from "./MoreFromAuthor";
+import { useBlogNavigation } from "@/features/blog/hooks/useBlogNavigation";
 import { useSearchParams } from "next/navigation";
 import { cn, getMediaUrl } from "@/lib/utils";
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
@@ -25,6 +25,7 @@ export function CyberArticleLayout({ post, tenant, isPreview: isPreviewProp }: A
   const { config } = useTheme();
   const { isCyberCopy, isSakuraCopy, isRoninCopy, isDarkMode } = useThemeHelpers();
   const searchParams = useSearchParams();
+  const { navigateToBlogHome } = useBlogNavigation(tenant.slug);
   const isPreview = isPreviewProp || searchParams.get("preview") === "true";
 
   return (
@@ -63,8 +64,8 @@ export function CyberArticleLayout({ post, tenant, isPreview: isPreviewProp }: A
 
         <div className="relative z-10 max-w-5xl mx-auto w-full">
           {!isPreview && (
-            <Link
-              href={`/${tenant.slug || tenant.id}`}
+            <button
+              onClick={navigateToBlogHome}
               className={cn(
                 "flex items-center gap-2 mb-10 w-fit transition-all hover:text-accent group",
                 isCyberCopy
@@ -80,7 +81,7 @@ export function CyberArticleLayout({ post, tenant, isPreview: isPreviewProp }: A
                   : isCyberCopy
                     ? "BACK_TO_FEED"
                     : "Back to Blog"}
-            </Link>
+            </button>
           )}
 
           {/* Tags */}
@@ -257,6 +258,7 @@ export function CyberArticleLayout({ post, tenant, isPreview: isPreviewProp }: A
             currentPostId={post.postId}
             tenantSlug={tenant.slug || tenant.id}
             tenantId={tenant.id}
+            currentTenantSlug={tenant.slug}
           />
         </div>
       )}

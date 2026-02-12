@@ -11,9 +11,11 @@ import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
 import { cn } from "@/lib/utils";
 import { Ruby, RubyText } from "@/features/studio/extensions/Ruby";
 
+import { DictionaryPopup } from "@/features/studio/components/DictionaryPopup";
+
 export function PostContent({ content }: { content: TiptapContent }) {
   const { config } = useTheme();
-  const { isCyberCopy } = useThemeHelpers();
+  const { isCyberCopy, isTerminalCopy } = useThemeHelpers();
 
   const editor = useEditor({
     extensions: [
@@ -39,8 +41,14 @@ export function PostContent({ content }: { content: TiptapContent }) {
         class: cn(
           "prose prose-invert max-w-none focus:outline-none transition-all duration-500",
           "prose-p:text-foreground/90 prose-headings:text-foreground",
-          isCyberCopy ? "prose-p:font-mono prose-headings:font-display uppercase tracking-tight" : "prose-p:font-sans",
-          config.fontFamily === "serif" ? "prose-p:font-serif prose-p:leading-[1.9]" : "prose-p:leading-relaxed",
+          isCyberCopy
+            ? "prose-p:font-mono prose-headings:font-display uppercase tracking-tight"
+            : isTerminalCopy
+              ? "prose-p:font-mono prose-headings:font-bold prose-headings:uppercase tracking-tight"
+              : "prose-p:font-sans",
+          config.fontFamily === "serif" && !isTerminalCopy
+            ? "prose-p:font-serif prose-p:leading-[1.9]"
+            : "prose-p:leading-relaxed",
         ),
       },
     },
@@ -50,6 +58,7 @@ export function PostContent({ content }: { content: TiptapContent }) {
   return (
     <div className="mt-8 transition-colors">
       <EditorContent editor={editor} />
+      {editor && <DictionaryPopup editor={editor} />}
     </div>
   );
 }

@@ -12,10 +12,18 @@ interface RoninFeedCardProps {
   className?: string;
   onRemove?: () => void;
   index?: number;
+  currentTenantSlug?: string;
 }
 
-export function RoninFeedCard({ item, className, variant = "default", onRemove, index = 0 }: RoninFeedCardProps) {
-  const postUrl = getPostUrl(item);
+export function RoninFeedCard({
+  item,
+  className,
+  variant = "default",
+  onRemove,
+  index = 0,
+  currentTenantSlug,
+}: RoninFeedCardProps) {
+  const postUrl = getPostUrl(item, currentTenantSlug);
   const brushClass = index % 2 === 0 ? "ronin-brush-edge" : "ronin-brush-edge-alt";
   const overlayColor = index % 3 === 0 ? "bg-amber-900/20" : index % 3 === 1 ? "bg-blue-900/20" : "bg-red-900/20";
 
@@ -56,7 +64,6 @@ export function RoninFeedCard({ item, className, variant = "default", onRemove, 
       </div>
     );
   }
-
 
   return (
     <div

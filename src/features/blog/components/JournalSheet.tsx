@@ -11,6 +11,8 @@ import { motion } from "framer-motion"
 import { forwardRef } from "react"
 import { useTheme } from "@/features/theme/ThemeProvider";
 
+import { useBlogNavigation } from "@/features/blog/hooks/useBlogNavigation";
+
 interface JournalSheetProps {
   post: FeedItem & { content: TiptapContent; readingTimeMinutes: number };
   tenantSlug?: string;
@@ -37,6 +39,7 @@ export const JournalSheet = forwardRef<HTMLDivElement, JournalSheetProps>(
     ref,
   ) => {
     const { focusMode } = useTheme();
+    const { navigateToBlogHome } = useBlogNavigation(tenantSlug);
     return (
       <div
         ref={ref}
@@ -72,13 +75,7 @@ export const JournalSheet = forwardRef<HTMLDivElement, JournalSheetProps>(
               {/* Journal Navigation */}
               <div className="mb-8 md:mb-12 flex items-center justify-between">
                 <button
-                  onClick={() => {
-                    if (typeof window !== "undefined" && window.history.length > 2) {
-                      window.history.back();
-                    } else if (tenantSlug) {
-                      window.location.href = `/${tenantSlug}`;
-                    }
-                  }}
+                  onClick={navigateToBlogHome}
                   className="flex items-center gap-2 group text-accent hover:text-journal-ink transition-colors font-serif"
                 >
                   <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />

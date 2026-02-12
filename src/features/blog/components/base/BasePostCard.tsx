@@ -1,4 +1,5 @@
 "use client";
+import { getPostUrl } from "@/lib/utils";
 
 import Link from "next/link";
 import { Post } from "@/features/blog/types";
@@ -11,6 +12,7 @@ import { PostMeta, PostHeroImage, PostTags, PostAuthor, PostCardContent, PostAct
 interface BasePostCardProps {
   post: Post;
   tenantSlug: string;
+  currentTenantSlug?: string;
   orientation?: "vertical" | "horizontal";
   reversed?: boolean;
   className?: string;
@@ -30,19 +32,20 @@ interface BasePostCardProps {
 export function BasePostCard({
   post,
   tenantSlug,
+  currentTenantSlug,
   orientation = "horizontal",
   reversed = false,
   className,
   imageClassName,
   themeConfig,
 }: BasePostCardProps) {
-  const { theme, config } = useTheme()
-  const { isRoninCopy, isCyberCopy, isTerminalCopy, isDarkMode } = useThemeHelpers()
+  const { theme, config } = useTheme();
+  const { isRoninCopy, isCyberCopy, isTerminalCopy, isDarkMode } = useThemeHelpers();
 
-  const isFlat = themeConfig?.cardStyle === "flat"
-  const isMinimal = themeConfig?.cardStyle === "minimal"
-  const postUrl = `/${tenantSlug}/${post.slug}`
-  const themeVariant = theme as ThemeVariant
+  const isFlat = themeConfig?.cardStyle === "flat";
+  const isMinimal = themeConfig?.cardStyle === "minimal";
+  const postUrl = getPostUrl({ ...post, postSlug: post.slug, tenantSlug }, currentTenantSlug);
+  const themeVariant = theme as ThemeVariant;
 
   const data = {
     ...post,
@@ -50,19 +53,17 @@ export function BasePostCard({
     tenantId: post.tenantId,
     tenantSlug: tenantSlug,
     tenantName: post.tenantName || "",
-  }
+  };
 
-
-  const isTechieCopy = theme === "techie"
+  const isTechieCopy = theme === "techie";
   // Deterministic Score Generation for Techie Theme
-  const score = isTechieCopy ? (((parseInt(post.id.substring(0, 8), 16) % 30) + 70) / 10).toFixed(1) : null
+  const score = isTechieCopy ? (((parseInt(post.id.substring(0, 8), 16) % 30) + 70) / 10).toFixed(1) : null;
 
   // =========================================================================
   // CARD LAYOUT (Vertical / Bento / Grid)
   // =========================================================================
   if (orientation === "vertical") {
-
-    const themeRadius = isCyberCopy || isRoninCopy ? "rounded-none" : "rounded-xl"
+    const themeRadius = isCyberCopy || isRoninCopy ? "rounded-none" : "rounded-xl";
 
     let v = isFlat
       ? {
@@ -71,7 +72,7 @@ export function BasePostCard({
           radius: themeRadius,
           hover: isCyberCopy ? "hover:border-accent/50" : "",
         }
-      : cardVariants[themeVariant] || cardVariants.classic
+      : cardVariants[themeVariant] || cardVariants.classic;
 
     if (isTechieCopy && !isFlat) {
       v = {
@@ -79,7 +80,7 @@ export function BasePostCard({
         border: "border-none",
         radius: "rounded-xl",
         hover: "hover:bg-noir-panel/50 hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)]",
-      }
+      };
     }
 
     return (
@@ -178,8 +179,8 @@ export function BasePostCard({
   // =========================================================================
   // ROW LAYOUT (Horizontal)
   // =========================================================================
-  const contentOrder = reversed ? "md:order-last" : ""
-  const imageOrder = reversed ? "md:order-first" : ""
+  const contentOrder = reversed ? "md:order-last" : "";
+  const imageOrder = reversed ? "md:order-first" : "";
 
   return (
     <Link
@@ -281,5 +282,5 @@ export function BasePostCard({
         {isMinimal && <PostActions data={data} className="mt-0 pt-2 border-none" compact={true} />}
       </div>
     </Link>
-  )
+  );
 }

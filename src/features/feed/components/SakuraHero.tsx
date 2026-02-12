@@ -7,11 +7,12 @@ import Image from "next/image";
 
 interface SakuraHeroProps {
   item: FeedItem;
+  currentTenantSlug?: string;
 }
 
-export function SakuraHero({ item }: SakuraHeroProps) {
-  const postUrl = getPostUrl(item);
-  
+export function SakuraHero({ item, currentTenantSlug }: SakuraHeroProps) {
+  const postUrl = getPostUrl(item, currentTenantSlug);
+
   return (
     <div className="relative w-full overflow-hidden bg-white/60 group/hero min-h-[280px] md:min-h-[340px] flex flex-col-reverse md:flex-row md:items-stretch shadow-lg shadow-accent/5 rounded-[1.5rem] border border-accent/10">
       {/* 1. Left Content Section (Determines height on Desktop) */}
