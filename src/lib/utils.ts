@@ -155,3 +155,38 @@ export function formatDate(date: string | Date | undefined | null): string {
     year: "numeric",
   });
 }
+
+export type TiptapNode = {
+  type: string;
+  text?: string;
+  content?: TiptapNode[];
+  [key: string]: unknown;
+};
+
+export function getExcerptFromTiptap(json: { content?: TiptapNode[] } | null | undefined, limit = 160): string {
+  if (!json || !json.content || !Array.isArray(json.content)) {
+    return "";
+  }
+
+  let text = "";
+
+  const extractText = (nodes: TiptapNode[]) => {
+    for (const node of nodes) {
+      if (node.type === "text" && node.text) {
+        text += node.text + " ";
+      } else if (node.content && Array.isArray(node.content)) {
+        extractText(node.content);
+      }
+      if (text.length > limit * 2) break;
+    }
+  };
+
+  extractText(json.content);
+
+  const trimmed = text.trim();
+  if (trimmed.length > limit) {
+    return trimmed.slice(0, limit) + "...";
+  }
+
+  return trimmed;
+}

@@ -1,4 +1,4 @@
-import { getAuthCookie } from "./auth-cookies";
+import { getAuthCookie, setAuthCookie } from "./auth-cookies";
 
 const IS_SERVER = typeof window === "undefined";
 const PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -27,6 +27,20 @@ const DEFAULT_TENANT_ID = process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID;
 
 type UnauthorizedHandler = () => void;
 let onUnauthorizedHandler: UnauthorizedHandler | null = null;
+
+let isRefreshing = false;
+let failedQueue: Array<{ resolve: (token: string) => void; reject: (err: unknown) => void }> = [];
+
+const processQueue = (error: unknown, token: string | null = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token as string);
+    }
+  });
+  failedQueue = [];
+};
 
 export function setUnauthorizedHandler(handler: UnauthorizedHandler) {
   onUnauthorizedHandler = handler;
@@ -59,8 +73,62 @@ export async function fetchApi<T>(path: string, options: FetchOptions = {}): Pro
     ...rest,
   });
 
-  if (res.status === 401 && onUnauthorizedHandler && !path.includes("/auth/login")) {
-    onUnauthorizedHandler();
+  // Handle 401 with Automatic Refresh
+  if (res.status === 401 && !path.includes("/auth/login") && !path.includes("/auth/refresh")) {
+    if (typeof window !== "undefined") {
+      const refreshToken = getAuthCookie("refreshToken") || localStorage.getItem("refreshToken");
+
+      if (refreshToken) {
+        if (isRefreshing) {
+          return new Promise<string>((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
+          })
+            .then(token => {
+              return fetchApi<T>(path, { ...options, token });
+            })
+            .catch(err => {
+              throw err;
+            });
+        }
+
+        isRefreshing = true;
+
+        try {
+          const refreshRes = await fetch(`${API_URL}/auth/refresh`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(DEFAULT_TENANT_ID && { "x-tenant-id": DEFAULT_TENANT_ID }),
+            },
+            body: JSON.stringify({ refreshToken }),
+          });
+
+          if (refreshRes.ok) {
+            const refreshData = await refreshRes.json();
+            const { accessToken: newAccessToken, refreshToken: newRefreshToken } = refreshData;
+
+            setAuthCookie("accessToken", newAccessToken);
+            setAuthCookie("refreshToken", newRefreshToken);
+            localStorage.setItem("accessToken", newAccessToken);
+            localStorage.setItem("refreshToken", newRefreshToken);
+
+            processQueue(null, newAccessToken);
+            isRefreshing = false;
+
+            return fetchApi<T>(path, { ...options, token: newAccessToken });
+          } else {
+            throw new Error("Refresh failed");
+          }
+        } catch (error) {
+          processQueue(error, null);
+          isRefreshing = false;
+        }
+      }
+    }
+
+    if (onUnauthorizedHandler) {
+      onUnauthorizedHandler();
+    }
   }
 
   let data;
