@@ -17,16 +17,24 @@ interface TerminalBlogShellProps {
   trendingPosts?: ConfigPost[];
   showSystemPanels?: boolean;
   childrenClassName?: string;
+  currentTenantSlug?: string;
 }
 
 /**
  * Terminal Blog Shell
  */
-export function TerminalBlogShell({ children, tenant = { name: "Conduit", slug: "conduit" }, tags = [], trendingPosts = [], showSystemPanels = true, childrenClassName }: TerminalBlogShellProps) {
+export function TerminalBlogShell({
+  children,
+  tenant = { name: "Conduit", slug: "conduit" },
+  tags = [],
+  trendingPosts = [],
+  showSystemPanels = true,
+  childrenClassName,
+  currentTenantSlug,
+}: TerminalBlogShellProps) {
   const [isBooting, setIsBooting] = useState(true);
   const [bootLogs, setBootLogs] = useState<string[]>([]);
   const [uptime, setUptime] = useState(0);
-
 
   useEffect(() => {
     const logs = [
@@ -53,7 +61,6 @@ export function TerminalBlogShell({ children, tenant = { name: "Conduit", slug: 
     return () => timeouts.forEach(clearTimeout);
   }, []);
 
-
   useEffect(() => {
     const startTime = Date.now();
     const interval = setInterval(() => {
@@ -62,7 +69,6 @@ export function TerminalBlogShell({ children, tenant = { name: "Conduit", slug: 
     }, 1000);
     return () => clearInterval(interval);
   }, []);
-
 
   const formatUptime = (totalSeconds: number) => {
     const hours = Math.floor(totalSeconds / 3600);
@@ -137,7 +143,12 @@ export function TerminalBlogShell({ children, tenant = { name: "Conduit", slug: 
           {/* Panel 3: Active Processes */}
           <div className="h-full">
             {trendingPosts.length > 0 ? (
-              <ActiveProcessesWidget posts={trendingPosts} tenantSlug={tenant.slug} className="h-full" />
+              <ActiveProcessesWidget
+                posts={trendingPosts}
+                tenantSlug={tenant.slug}
+                currentTenantSlug={currentTenantSlug}
+                className="h-full"
+              />
             ) : (
               <div className="border border-accent p-4 h-full flex items-center justify-center text-accent/30 text-xs italic">
                 top: No active processes

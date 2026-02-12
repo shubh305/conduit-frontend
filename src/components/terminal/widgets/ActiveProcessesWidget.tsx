@@ -1,6 +1,6 @@
 import * as React from "react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn, getPostUrl } from "@/lib/utils";
 import { TERMINAL_HOVER_TEXT_ACCENT } from "@/features/blog/layouts/terminal/styles";
 
 export interface ConfigPost {
@@ -16,6 +16,7 @@ export interface ConfigPost {
 interface ActiveProcessesWidgetProps {
   posts: ConfigPost[];
   tenantSlug: string;
+  currentTenantSlug?: string;
   className?: string;
 }
 
@@ -23,7 +24,7 @@ interface ActiveProcessesWidgetProps {
  * Terminal Widget: Active Processes (top style)
  * Visualizes posts as running processes.
  */
-export function ActiveProcessesWidget({ posts, tenantSlug, className }: ActiveProcessesWidgetProps) {
+export function ActiveProcessesWidget({ posts, tenantSlug, currentTenantSlug, className }: ActiveProcessesWidgetProps) {
   // Take top 5 recent or trending
   const processData = React.useMemo(() => {
     return posts.slice(0, 5).map(post => {
@@ -58,7 +59,7 @@ export function ActiveProcessesWidget({ posts, tenantSlug, className }: ActivePr
             return (
               <Link
                 key={proc.id}
-                href={`/${tenantSlug}/${proc.slug}`}
+                href={getPostUrl({ ...proc, postSlug: proc.slug, tenantSlug }, currentTenantSlug)}
                 className={cn(
                   "grid grid-cols-[1fr_1fr_1fr_1fr_3fr] gap-2 text-foreground-muted group hover:bg-accent/10 transition-colors cursor-pointer",
                 )}
