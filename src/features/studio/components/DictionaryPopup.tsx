@@ -238,6 +238,7 @@ export function DictionaryPopup({ editor }: DictionaryPopupProps) {
 
   const showDefinitions = data && data.meanings.length > 0;
   const showSuggestions =
+    editor.isEditable &&
     data &&
     data.metadata &&
     data.metadata.is_correct === false &&
