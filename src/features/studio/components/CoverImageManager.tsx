@@ -212,8 +212,10 @@ export function CoverImageManager({ value, attribution, onChange, tenantId, vari
           )}
           <div
             className={cn(
-              "flex flex-row flex-wrap items-center animate-in fade-in slide-in-from-top-4 duration-500",
-              variant === "sidebar" ? "justify-center gap-2 py-2" : "justify-start gap-4 py-1",
+              "animate-in fade-in slide-in-from-top-4 duration-500",
+              variant === "sidebar"
+                ? "grid grid-cols-2 gap-2 py-2"
+                : "flex flex-row flex-wrap items-center justify-start gap-4 py-1",
             )}
           >
             <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileChange} accept="image/*" />

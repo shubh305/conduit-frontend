@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw, MoreHorizontal, Trash2, ExternalLink, Pencil, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
-import { cn, formatDate } from "@/lib/utils";
+import { cn, formatDate, getExcerptFromTiptap } from "@/lib/utils";
 import { WIP_LIMITS } from "@/lib/wip-limits";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { restorePost } from "@/features/blog/api";
@@ -208,7 +208,7 @@ export function PostsList({ posts, counts, activeTab, onTabChange, onDelete, onR
                 key={post.id || `post-${index}`}
                 className={cn(
                   getPostItemClasses(theme),
-                  "border-b border-noir-border/30 last:border-none px-4 md:px-4",
+                  "border-b border-noir-border/30 last:border-none px-0 md:px-4",
                 )}
               >
                 <div className="flex-1 pr-4 md:pr-10">
@@ -242,10 +242,15 @@ export function PostsList({ posts, counts, activeTab, onTabChange, onDelete, onR
                             : "",
                       )}
                     >
-                      {post.excerpt ||
-                        (post.content?.content
-                          ? "Draft content available in secure editor environment..."
-                          : "No synchronization preview available for this entry.")}
+                      {post.status === "published"
+                        ? post.excerpt ||
+                          getExcerptFromTiptap(post.content) ||
+                          "No preview available for this published entry."
+                        : post.excerpt ||
+                          getExcerptFromTiptap(post.content) ||
+                          (post.content?.content
+                            ? "Draft content available in secure editor environment..."
+                            : "No synchronization preview available for this entry.")}
                     </p>
 
                     <div className="flex flex-wrap items-center gap-4">

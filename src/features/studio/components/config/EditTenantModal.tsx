@@ -204,7 +204,7 @@ export function EditTenantModal({ isOpen, onClose, onUpdate, tenant }: EditTenan
             Edit Publication
           </h2>
 
-          <div className="flex flex-col md:flex-row gap-12">
+          <div className="flex flex-col-reverse md:flex-row gap-8 md:gap-12">
             <div className="flex-1 space-y-10">
               <div className="group">
                 <label
@@ -298,10 +298,10 @@ export function EditTenantModal({ isOpen, onClose, onUpdate, tenant }: EditTenan
               </div>
             </div>
 
-            <div className="w-full md:w-48 flex flex-col items-center">
+            <div className="w-full md:w-48 flex flex-row md:flex-col items-center justify-start gap-6 md:gap-0">
               <div
                 className={cn(
-                  "w-36 h-36 flex items-center justify-center mb-6 relative overflow-hidden group cursor-pointer transition-all border shadow-2xl",
+                  "w-24 h-24 md:w-36 md:h-36 flex items-center justify-center mb-0 md:mb-6 relative overflow-hidden group cursor-pointer transition-all border shadow-2xl",
                   "bg-noir-panel border-noir-border hover:border-accent",
                   isCyberCopy
                     ? "rounded-none"
@@ -346,7 +346,7 @@ export function EditTenantModal({ isOpen, onClose, onUpdate, tenant }: EditTenan
                   )}
                 </div>
               </div>
-              <div className="text-center space-y-1">
+              <div className="text-left md:text-center space-y-1">
                 <p className="text-foreground font-bold font-mono uppercase text-[10px] tracking-widest">Icon</p>
                 <p className="text-[10px] text-foreground-subtle font-mono uppercase tracking-tighter">
                   Recommended: 512x512px

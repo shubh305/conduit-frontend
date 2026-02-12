@@ -108,33 +108,33 @@ export function UnsplashSelector({ onSelect, tenantId }: UnsplashSelectorProps) 
     >
       <div
         className={cn(
-          "p-10 border-b border-noir-border shrink-0",
+          "px-2 pt-0 pb-4 md:p-10 border-b border-noir-border shrink-0",
           theme === "sakura" ? "bg-white/40" : "bg-noir-bg/50 backdrop-blur-xl",
         )}
       >
-        <form onSubmit={handleSearch} className="flex flex-col items-center gap-8 max-w-2xl mx-auto">
-          <div className="flex gap-3 w-full">
+        <form onSubmit={handleSearch} className="flex flex-col items-center gap-2 md:gap-8 max-w-2xl mx-auto">
+          <div className="flex flex-col md:flex-row gap-2 w-full">
             <div className="relative flex-1 group">
               <Search
-                className="absolute left-5 top-1/2 -translate-y-1/2 text-foreground-subtle group-focus-within:text-accent transition-colors"
-                size={20}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground-subtle group-focus-within:text-accent transition-colors"
+                size={18}
               />
               <Input
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 placeholder="Search high-res assets..."
                 className={cn(
-                  "pl-14 border-noir-border h-14 text-sm transition-all focus:ring-1 focus:ring-accent/30",
+                  "pl-12 border-noir-border h-10 md:h-14 text-sm transition-all focus:ring-1 focus:ring-accent/30",
                   theme === "sakura" ? "bg-white/80" : "bg-noir-bg/50",
                   isCyberCopy ? "rounded-none font-mono uppercase border-accent/20" : "rounded-2xl",
                 )}
               />
             </div>
-            <Button
+            <button
               type="submit"
               disabled={loading || !query}
               className={cn(
-                "h-14 px-10 font-black uppercase text-[10px] tracking-widest transition-all",
+                "h-10 md:h-14 px-6 md:px-10 font-black uppercase text-[10px] tracking-widest transition-all shrink-0",
                 isCyberCopy
                   ? "bg-accent text-noir-bg rounded-none hover:skew-x-[-10deg]"
                   : cn(
@@ -144,19 +144,19 @@ export function UnsplashSelector({ onSelect, tenantId }: UnsplashSelectorProps) 
               )}
             >
               {loading ? <Loader2 className="animate-spin" size={20} /> : "Search"}
-            </Button>
+            </button>
           </div>
         </form>
       </div>
 
       <div
         className={cn(
-          "flex-1 overflow-y-auto p-8 no-scrollbar scroll-smooth",
+          "flex-1 overflow-y-auto p-2 md:p-8 no-scrollbar scroll-smooth",
           theme === "sakura" && "bg-[var(--journal-paper)]",
         )}
       >
         {photos.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
             {photos.map(photo => (
               <div
                 key={photo.id}
@@ -226,7 +226,7 @@ export function UnsplashSelector({ onSelect, tenantId }: UnsplashSelectorProps) 
         )}
       </div>
 
-      <div className="p-4 border-t border-noir-border text-center text-[10px] text-foreground font-black uppercase tracking-widest bg-noir-bg">
+      <div className="p-3 border-t border-noir-border text-center text-[10px] text-foreground font-black uppercase tracking-widest bg-noir-bg">
         Photos provided by{" "}
         <a
           href="https://unsplash.com"

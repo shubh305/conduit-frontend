@@ -201,7 +201,10 @@ export function StudioSidebar({ isOpen = true, onToggle }: StudioSidebarProps) {
             const itemPathname = itemUrl.pathname;
             const itemTab = itemUrl.searchParams.get("tab");
 
-            const isActive = pathname === itemPathname && (!itemTab || searchParams.get("tab") === itemTab);
+            const isConfigPage = itemPathname.endsWith("/config");
+            const isActive =
+              (isConfigPage ? pathname === itemPathname : pathname.startsWith(itemPathname)) &&
+              (!itemTab || searchParams.get("tab") === itemTab);
 
             const displayLabel = getLabel(item.labelKey);
             const formattedLabel =

@@ -33,7 +33,7 @@ export function AppearanceConfig({ tenants }: AppearanceConfigProps) {
         <div className={getConfigSectionClasses(theme, openSection === "theme")}>
           <button
             onClick={() => toggleSection("theme")}
-            className="w-full flex items-center justify-between p-8 outline-none"
+            className="w-full flex items-center justify-between p-4 md:p-8 outline-none"
           >
             <div className="flex items-center gap-5">
               <div className={getConfigIconClasses(theme, openSection === "theme")}>
@@ -58,13 +58,13 @@ export function AppearanceConfig({ tenants }: AppearanceConfigProps) {
           <div
             className={cn(
               "overflow-hidden transition-all duration-500 ease-in-out",
-              openSection === "theme" ? "max-h-[2000px] opacity-100 pb-12 px-8" : "max-h-0 opacity-0",
+              openSection === "theme" ? "max-h-[2000px] opacity-100 pb-6 px-4 md:pb-12 md:px-8" : "max-h-0 opacity-0",
             )}
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {THEMES.map(themeId => {
-                const themeConfig = THEME_REGISTRY[themeId]
-                const isSelected = theme === themeId
+                const themeConfig = THEME_REGISTRY[themeId];
+                const isSelected = theme === themeId;
                 return (
                   <button
                     key={themeId}
@@ -98,7 +98,7 @@ export function AppearanceConfig({ tenants }: AppearanceConfigProps) {
                       </div>
                     )}
                   </button>
-                )
+                );
               })}
             </div>
           </div>
@@ -108,7 +108,7 @@ export function AppearanceConfig({ tenants }: AppearanceConfigProps) {
         <div className={getConfigSectionClasses(theme, openSection === "layout")}>
           <button
             onClick={() => toggleSection("layout")}
-            className="w-full flex items-center justify-between p-8 outline-none"
+            className="w-full flex items-center justify-between p-4 md:p-8 outline-none"
           >
             <div className="flex items-center gap-5">
               <div className={getConfigIconClasses(theme, openSection === "layout")}>
@@ -131,7 +131,7 @@ export function AppearanceConfig({ tenants }: AppearanceConfigProps) {
           <div
             className={cn(
               "overflow-hidden transition-all duration-500 ease-in-out",
-              openSection === "layout" ? "max-h-[2000px] opacity-100 pb-12 px-8" : "max-h-0 opacity-0",
+              openSection === "layout" ? "max-h-[2000px] opacity-100 pb-6 px-4 md:pb-12 md:px-8" : "max-h-0 opacity-0",
             )}
           >
             {tenants && tenants.length > 0 ? (
@@ -150,5 +150,5 @@ export function AppearanceConfig({ tenants }: AppearanceConfigProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

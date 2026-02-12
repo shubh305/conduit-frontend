@@ -145,7 +145,7 @@ export function SettingsSidebar({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 pb-[120px] space-y-8 no-scrollbar">
+        <div className="flex-1 overflow-y-auto px-2 md:px-6 py-6 pb-[120px] space-y-8 no-scrollbar">
           <div className="space-y-3">
             <label className={getSettingsLabelClasses(theme)}>
               {isSakuraCopy
