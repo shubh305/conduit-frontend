@@ -248,7 +248,17 @@
 [data-theme='ronin'] article,
 [data-theme='ronin'] .feed-container,
 [data-theme='ronin'] .profile-container,
-[data-theme='ronin'] .settings-container,
+[data-theme='ronin'] .settings-container {
+  background-color: rgba(26, 24, 22, 0.85) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(61, 56, 53, 0.6) !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(232, 228, 225, 0.03) !important;
+  border-left: 2px solid rgba(196, 30, 58, 0.4) !important;
+}
+
 [data-theme='ronin'] .mysites-container,
 [data-theme='ronin'] .editor-container,
 [data-theme='ronin'] .bg-noir-panel {
@@ -260,9 +270,6 @@
     0 8px 32px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(232, 228, 225, 0.03) !important;
   border-left: 2px solid rgba(196, 30, 58, 0.4) !important;
-  padding: 2.5rem !important;
-  margin-top: 2rem;
-  margin-bottom: 2rem;
 }
 
 [data-theme='ronin'] .sidebar-widget,

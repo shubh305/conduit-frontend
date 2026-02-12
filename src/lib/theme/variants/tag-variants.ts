@@ -25,7 +25,7 @@ export function getTagClasses(theme: ThemeVariant): string {
  * Returns theme-aware classes for the tag input field.
  */
 export function getTagInputClasses(theme: ThemeVariant): string {
-  const base = "w-full bg-transparent px-0 py-2 text-sm focus:outline-none focus:ring-0 transition-all border-b";
+  const base = "w-full bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-0 transition-all border";
   
   const styles: Record<string, string> = {
     sakura: "border-accent/20 focus:border-accent text-foreground font-serif italic",

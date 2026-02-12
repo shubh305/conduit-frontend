@@ -38,6 +38,8 @@ export function getSidebarClasses(theme: ThemeVariant): string {
       return cn(base, "bg-[var(--journal-paper)] border-accent/5");
     case "ronin":
       return cn(base, "bg-[var(--bg-sidebar)] border-r border-[#3D3835]");
+    case "sakura":
+      return cn(base, "bg-[var(--bg-sidebar)] border-r border-accent/20");
     default:
       return cn(base, "bg-noir-panel border-noir-border");
   }
@@ -75,7 +77,7 @@ export function getSidebarItemClasses(theme: ThemeVariant, isActive: boolean): s
   return cn(
     base,
     "rounded-lg",
-    isActive ? "bg-black/5 text-foreground font-medium" : "text-foreground/70 hover:bg-black/5 hover:text-foreground",
+    isActive ? "bg-white/5 text-foreground font-medium" : "text-foreground/70 hover:bg-white/5 hover:text-foreground",
   );
 }
 

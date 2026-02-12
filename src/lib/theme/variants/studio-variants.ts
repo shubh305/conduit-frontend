@@ -132,7 +132,7 @@ export function getThemeCardClasses(theme: ThemeVariant, isSelected: boolean): s
 }
 
 export function getConfigItemClasses(theme: ThemeVariant): string {
-  const base = "flex items-center justify-between p-5 border transition-all"
+  const base = "flex items-center justify-between p-3 md:p-5 border transition-all";
   const styles = {
     cyber: "border-noir-border bg-noir-bg/20 hover:bg-noir-panel/40 rounded-none",
     techie: "border-noir-border bg-noir-panel/40 hover:bg-noir-panel/60 rounded-none",

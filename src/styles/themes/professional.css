@@ -287,15 +287,18 @@
 
 [data-theme='professional'] .profile-container,
 [data-theme='professional'] .settings-container,
-[data-theme='professional'] .mysites-container,
 [data-theme='professional'] .feed-container {
   background-color: var(--bg-panel) !important;
   border: 1px solid var(--border-primary) !important;
   border-radius: var(--theme-radius-lg) !important;
   box-shadow: var(--shadow-elevated) !important;
-  padding: 2.5rem;
-  margin-top: 2rem;
-  margin-bottom: 2rem;
+}
+
+[data-theme='professional'] .mysites-container {
+  background-color: var(--bg-panel);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--theme-radius-lg);
+  box-shadow: var(--shadow-elevated);
 }
 
 [data-theme='professional'] .settings-layout {

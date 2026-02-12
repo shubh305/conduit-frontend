@@ -244,15 +244,29 @@
 
 [data-theme='octane'] .profile-container,
 [data-theme='octane'] .settings-container,
-[data-theme='octane'] .mysites-container,
 [data-theme='octane'] .feed-container {
   background-color: var(--bg-panel) !important;
   border: 1px solid var(--border-primary) !important;
   border-radius: var(--theme-radius-md) !important;
   box-shadow: var(--shadow-card) !important;
-  padding: 2rem;
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
+}
+
+[data-theme='octane'] .mysites-container {
+  background-color: var(--bg-panel);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--theme-radius-md);
+  box-shadow: var(--shadow-card);
+  padding-bottom: 1rem;
+}
+
+@media (max-width: 767px) {
+  [data-theme='octane'] .profile-container,
+  [data-theme='octane'] .settings-container,
+  [data-theme='octane'] .feed-container {
+    padding: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
 }
 
 [data-theme='octane'] header {
