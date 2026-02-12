@@ -23,7 +23,7 @@ interface Publication {
   description: string;
 }
 
-export function SearchPageContainer() {
+export function SearchPageContainer({ initialTenantSlug }: { initialTenantSlug?: string }) {
   const { config } = useTheme();
   const { isCyberCopy, isSakuraCopy, isRoninCopy, isJournalCopy, isTerminalCopy } = useThemeHelpers();
   const searchParams = useSearchParams();
@@ -75,7 +75,7 @@ export function SearchPageContainer() {
           </div>
         </div>
 
-        <SearchResults query={query} tab={activeTab} />
+        <SearchResults query={query} tab={activeTab} currentTenantSlug={initialTenantSlug} />
       </div>
     );
   }
@@ -142,13 +142,13 @@ export function SearchPageContainer() {
 
       {/* Results Container */}
       <div className="max-w-4xl mx-auto px-6 md:px-0 py-16">
-        <SearchResults query={query} tab={activeTab} />
+        <SearchResults query={query} tab={activeTab} currentTenantSlug={initialTenantSlug} />
       </div>
     </div>
   );
 }
 
-function SearchResults({ query, tab }: { query: string; tab: Tab }) {
+function SearchResults({ query, tab, currentTenantSlug }: { query: string; tab: Tab; currentTenantSlug?: string }) {
   const { config } = useTheme();
   const { isCyberCopy, isSakuraCopy, isDarkMode, isTerminalCopy } = useThemeHelpers();
   const { isUserFollowed, toggleUser } = useLibrary();
@@ -179,7 +179,12 @@ function SearchResults({ query, tab }: { query: string; tab: Tab }) {
   if (!query)
     return (
       <div className={cn("text-center py-20", isTerminalCopy ? "text-accent/50 text-sm" : "")}>
-        <p className={cn("text-foreground-subtle font-mono text-xs uppercase tracking-widest animate-pulse", isTerminalCopy ? "text-accent/50" : "")}>
+        <p
+          className={cn(
+            "text-foreground-subtle font-mono text-xs uppercase tracking-widest animate-pulse",
+            isTerminalCopy ? "text-accent/50" : "",
+          )}
+        >
           {t("waitingForSignal")}
         </p>
       </div>
@@ -187,7 +192,7 @@ function SearchResults({ query, tab }: { query: string; tab: Tab }) {
 
   const publications: Publication[] = [];
 
-  const getPostLink = (post: FeedItem) => getPostUrl(post);
+  const getPostLink = (post: FeedItem) => getPostUrl(post, currentTenantSlug);
 
   if (isTerminalCopy) {
     return (
@@ -215,9 +220,7 @@ function SearchResults({ query, tab }: { query: string; tab: Tab }) {
 
         {!isLoading && tab === "people" && (
           <>
-            {people.length === 0 && (
-              <div className="text-accent/50">{t("noNodesFound")}</div>
-            )}
+            {people.length === 0 && <div className="text-accent/50">{t("noNodesFound")}</div>}
             {people.map(person => (
               <div key={person.id} className="group hover:bg-accent/10 p-1 -mx-1 flex justify-between items-center">
                 <div className="flex gap-2 text-foreground-muted group-hover:text-white">
@@ -239,9 +242,7 @@ function SearchResults({ query, tab }: { query: string; tab: Tab }) {
           </>
         )}
 
-        {!isLoading && tab === "publications" && (
-          <div className="text-accent/50">{t("noFrequenciesFound")}</div>
-        )}
+        {!isLoading && tab === "publications" && <div className="text-accent/50">{t("noFrequenciesFound")}</div>}
       </div>
     );
   }
@@ -251,13 +252,19 @@ function SearchResults({ query, tab }: { query: string; tab: Tab }) {
       {isLoading && (
         <div className="flex flex-col items-center gap-4 py-20">
           <div className="w-12 h-12 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
-          <div className="text-foreground-subtle font-mono text-[10px] uppercase tracking-[0.3em]">{t("searchingDatabase")}</div>
+          <div className="text-foreground-subtle font-mono text-[10px] uppercase tracking-[0.3em]">
+            {t("searchingDatabase")}
+          </div>
         </div>
       )}
 
       {!isLoading && tab === "posts" && (
         <div className="grid gap-16">
-          {posts.length === 0 && <div className="text-foreground-subtle text-center py-20 border border-dashed border-noir-border rounded-xl">{t("noStoriesFound")}</div>}
+          {posts.length === 0 && (
+            <div className="text-foreground-subtle text-center py-20 border border-dashed border-noir-border rounded-xl">
+              {t("noStoriesFound")}
+            </div>
+          )}
 
           {posts.map(post => {
             return (
@@ -367,11 +374,12 @@ function SearchResults({ query, tab }: { query: string; tab: Tab }) {
         </div>
       )}
 
-
       {/* PEOPLE TAB */}
       {!isLoading && tab === "people" && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {people.length === 0 && <div className="col-span-full text-foreground-subtle text-center py-20 italic">{t("noNodesFound")}</div>}
+          {people.length === 0 && (
+            <div className="col-span-full text-foreground-subtle text-center py-20 italic">{t("noNodesFound")}</div>
+          )}
           {people.map(person => {
             const isFollowed = isUserFollowed(person.id);
             return (
@@ -397,8 +405,17 @@ function SearchResults({ query, tab }: { query: string; tab: Tab }) {
                     )}
                   </div>
                   <div>
-                    <div className={cn("font-bold text-base transition-colors group-hover:text-accent", isCyberCopy ? "font-mono uppercase" : "font-sans")}>{person.username}</div>
-                    <div className="text-[10px] text-foreground-subtle font-mono uppercase tracking-widest line-clamp-1">{person.bio || "No bio signal."}</div>
+                    <div
+                      className={cn(
+                        "font-bold text-base transition-colors group-hover:text-accent",
+                        isCyberCopy ? "font-mono uppercase" : "font-sans",
+                      )}
+                    >
+                      {person.username}
+                    </div>
+                    <div className="text-[10px] text-foreground-subtle font-mono uppercase tracking-widest line-clamp-1">
+                      {person.bio || "No bio signal."}
+                    </div>
                   </div>
                 </div>
                 <Button
@@ -406,7 +423,9 @@ function SearchResults({ query, tab }: { query: string; tab: Tab }) {
                   size="sm"
                   className={cn(
                     "h-8 text-[10px] px-6 uppercase tracking-widest transition-all",
-                    isCyberCopy ? "rounded-none border-accent/40 text-accent font-mono" : "rounded-full border-noir-border",
+                    isCyberCopy
+                      ? "rounded-none border-accent/40 text-accent font-mono"
+                      : "rounded-full border-noir-border",
                     isFollowed && "bg-accent text-noir-bg border-accent",
                   )}
                   onClick={() => toggleUser(person.id)}
@@ -419,10 +438,13 @@ function SearchResults({ query, tab }: { query: string; tab: Tab }) {
         </div>
       )}
 
-
       {/* PUBLICATIONS TAB */}
       {!isLoading && tab === "publications" && (
-        <div className="grid gap-6">{publications.length === 0 && <div className="text-foreground-subtle text-center py-20 italic">{t("noFrequenciesFound")}</div>}</div>
+        <div className="grid gap-6">
+          {publications.length === 0 && (
+            <div className="text-foreground-subtle text-center py-20 italic">{t("noFrequenciesFound")}</div>
+          )}
+        </div>
       )}
     </div>
   );

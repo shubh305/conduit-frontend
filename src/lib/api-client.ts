@@ -1,3 +1,5 @@
+import { getAuthCookie } from "./auth-cookies";
+
 const IS_SERVER = typeof window === "undefined";
 const PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL;
 const INTERNAL_API_URL = process.env.CONDUIT_INTERNAL_API_URL;
@@ -43,7 +45,9 @@ export async function fetchApi<T>(path: string, options: FetchOptions = {}): Pro
     requestHeaders["x-tenant-id"] = effectiveTenantId;
   }
 
-  const authToken = token || (typeof window !== "undefined" ? localStorage.getItem("accessToken") : null);
+  const authToken =
+    token ||
+    (typeof window !== "undefined" ? getAuthCookie("accessToken") || localStorage.getItem("accessToken") : null);
   if (authToken) {
     requestHeaders["Authorization"] = `Bearer ${authToken}`;
   }
