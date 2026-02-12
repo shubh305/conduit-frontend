@@ -100,7 +100,7 @@ export function TechieFeedCard({
   return (
     <div
       className={cn(
-        "group relative flex flex-col bg-noir-panel/30 hover:bg-noir-panel/50 transition-all duration-500 h-[420px] md:h-[460px] shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)] overflow-hidden rounded-xl",
+        "group relative flex flex-col bg-noir-panel/30 hover:bg-noir-panel/50 transition-all duration-500 h-auto min-h-[380px] md:h-[400px] shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.4)] overflow-hidden rounded-xl",
         className,
       )}
     >

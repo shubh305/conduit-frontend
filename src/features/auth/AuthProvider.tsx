@@ -7,7 +7,7 @@ import { setUnauthorizedHandler } from "@/lib/api-client";
 import { getMyTenants } from "@/features/blog/api";
 import { User, AuthState, LoginDto, RegisterDto } from "./types";
 import { toast } from "sonner";
-import { getRootDomain } from "@/lib/utils";
+import { getRootDomain, getRootUrl } from "@/lib/utils";
 
 import { setAuthCookie, getAuthCookie, removeAuthCookie } from "@/lib/auth-cookies";
 
@@ -201,8 +201,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     toast.success("Logged out.");
 
-    const rootUrl = `${window.location.protocol}//${root}/login`;
-    window.location.href = `${rootUrl}?action=logout`;
+    const rootUrl = getRootUrl();
+    window.location.href = `${rootUrl}login?action=logout`;
   }, []);
 
   const refreshUser = useCallback(async () => {

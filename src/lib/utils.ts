@@ -51,9 +51,17 @@ export function isRootSite() {
 }
 
 export function getRootUrl() {
-  if (typeof window === "undefined") return `https://${ROOT_DOMAIN}`;
+  if (typeof window === "undefined") {
+    if (ROOT_DOMAIN === "octanebrew.dev") return `https://conduit.${ROOT_DOMAIN}/`;
+    return `https://${ROOT_DOMAIN}/`;
+  }
   const protocol = window.location.protocol;
   const root = getRootDomain();
+
+  if (root === "octanebrew.dev") {
+    return `${protocol}//conduit.${root}/`;
+  }
+
   return `${protocol}//${root}/`;
 }
 

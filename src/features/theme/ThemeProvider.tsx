@@ -4,6 +4,8 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { ThemeId, ThemeConfig } from "./types"
 import { StudioLabelKey, getStudioLabel } from "./studio-labels"
 import { LabelKey, getLabel } from "@/lib/theme/labels";
+import Cookies from "js-cookie";
+import { COOKIE_OPTIONS } from "@/lib/auth-cookies";
 
 export type { ThemeId, ThemeConfig } from "./types"
 
@@ -221,10 +223,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [themeHubVisible, setThemeHubVisibleState] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("conduit-theme");
+    const savedCookie = Cookies.get("conduit-theme");
+    const savedLocal = localStorage.getItem("conduit-theme");
+    const saved = savedCookie || savedLocal;
+
     if (saved && isThemeId(saved)) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setThemeState(saved);
+      setThemeState(saved as ThemeId);
     }
     setMounted(true);
   }, []);
@@ -232,6 +237,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!mounted) return;
     document.documentElement.setAttribute("data-theme", theme);
+    Cookies.set("conduit-theme", theme, COOKIE_OPTIONS);
     localStorage.setItem("conduit-theme", theme);
   }, [theme, mounted]);
 

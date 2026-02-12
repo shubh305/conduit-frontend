@@ -10,7 +10,7 @@ import { Profile } from "@/features/profile/types";
 import { Tenant } from "@/features/blog/types";
 import { FeedItem } from "@/features/feed/types";
 import { useAuth } from "@/features/auth/AuthProvider";
-import { getMediaUrl, cn } from "@/lib/utils";
+import { getMediaUrl, cn, getBlogHomeUrl } from "@/lib/utils";
 import { toast } from "sonner";
 import { Calendar, Globe, Terminal, Settings, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -236,7 +236,7 @@ export function UserProfile() {
                     </p>
                   </div>
                 </div>
-                <Link href={`/${t.slug}`}>
+                <a href={getBlogHomeUrl(t.slug)}>
                   <Button
                     variant="outline"
                     size="sm"
@@ -244,7 +244,7 @@ export function UserProfile() {
                   >
                     <ExternalLink size={14} /> {visitLabel}
                   </Button>
-                </Link>
+                </a>
               </div>
             ))}
             {tenants.length === 0 && (
