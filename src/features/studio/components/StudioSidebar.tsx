@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { FileText, PenTool, User, LogOut, Palette, ChevronDown, Globe, Bell } from "lucide-react";
+import { FileText, PenTool, User, LogOut, Palette, ChevronDown, Globe, Bell, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme, useStudioLabels, useThemeHelpers } from "@/features/theme/ThemeProvider"
 import { getSidebarClasses, getSidebarItemClasses, getTenantSwitcherClasses } from "@/lib/theme-variants"
@@ -25,9 +25,10 @@ const navItemsConfig: { icon: React.ElementType; labelKey: StudioLabelKey; href:
 
 interface StudioSidebarProps {
   isOpen?: boolean;
+  onToggle?: () => void;
 }
 
-export function StudioSidebar({ isOpen = true }: StudioSidebarProps) {
+export function StudioSidebar({ isOpen = true, onToggle }: StudioSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -58,7 +59,19 @@ export function StudioSidebar({ isOpen = true }: StudioSidebarProps) {
         "md:flex",
       )}
     >
-      <div className={cn("p-8 border-b", isTechieCopy ? "border-[var(--bg-panel)]" : "border-noir-border")}>
+      <div className={cn("p-8 border-b relative", isTechieCopy ? "border-[var(--bg-panel)]" : "border-noir-border")}>
+        {/* Desktop Toggle Button */}
+        <button
+          onClick={onToggle}
+          className={cn(
+            "absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-md transition-all hover:bg-noir-hover text-foreground-muted hover:text-foreground hidden md:block cursor-pointer",
+            !isOpen && "right-1/2 translate-x-1/2",
+          )}
+          style={{ borderRadius: "var(--theme-radius-md)" }}
+        >
+          <Menu size={16} className={cn("transition-transform duration-300", !isOpen && "rotate-180")} />
+        </button>
+
         <Link
           href="/"
           className={cn(

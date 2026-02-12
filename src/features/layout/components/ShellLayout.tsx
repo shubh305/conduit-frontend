@@ -1,24 +1,24 @@
-"use client"
+"use client";
 
 import { Suspense, useState, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
-import Link from "next/link"
+import Link from "next/link";
 import { Home, Search, Bookmark, LayoutDashboard } from "lucide-react";
-import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider"
-import { NavigationSidebar } from "./NavigationSidebar"
-import { AuxiliarySidebar } from "./AuxiliarySidebar"
-import { StudioSidebar } from "@/features/studio/components/StudioSidebar"
+import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
+import { NavigationSidebar } from "./NavigationSidebar";
+import { AuxiliarySidebar } from "./AuxiliarySidebar";
+import { StudioSidebar } from "@/features/studio/components/StudioSidebar";
 import { cn } from "@/lib/utils";
-import { TopNavigation } from "./TopNavigation"
-import { ThemeToggle } from "@/components/shared/ThemeToggle"
+import { TopNavigation } from "./TopNavigation";
+import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { WIP_LIMITS } from "@/lib/wip-limits";
 import { UserNavWidget } from "./UserNavWidget";
 import { useThemeLabel } from "@/components/theme/ThemeLabel";
 import { useAuth } from "@/features/auth/AuthProvider";
 
 interface ShellLayoutProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export function ShellLayout({ children }: ShellLayoutProps) {
@@ -79,7 +79,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
     });
 
     return () => mql.removeEventListener("change", onChange);
-  }, []);
+  }, [setIsSidebarOpen]);
 
   useEffect(() => {
     const checkDesktop = () => {
@@ -107,7 +107,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
     };
     window.addEventListener("close-sidebar", handleClose);
     return () => window.removeEventListener("close-sidebar", handleClose);
-  }, []);
+  }, [setIsSidebarOpen, setIsRightSidebarOpen]);
 
   const isFullScreenRoute = ["/login", "/signup", "/forgot-password"].some(route => pathname.startsWith(route));
   const isPreview = searchParams.get("preview") === "true";
@@ -161,8 +161,11 @@ export function ShellLayout({ children }: ShellLayoutProps) {
     !["archives", "about", "tag"].includes(segments[1]);
   const isJournalImmersion = isJournalCopy && isPostView;
 
+  const layoutKey = mounted ? window.location.hostname : "ssr";
+
   return (
     <div
+      key={layoutKey}
       className={cn(
         "min-h-screen transition-all duration-1000 ease-in-out text-foreground max-w-[100vw] overflow-x-hidden overscroll-behavior-none",
         isEditorRoute && "h-[100dvh] overflow-hidden overscroll-none",
@@ -222,16 +225,18 @@ export function ShellLayout({ children }: ShellLayoutProps) {
       {/* Unified Sidebars */}
       {/* Unified Sidebars - Desktop Only */}
       <Suspense fallback={<div className="w-20 lg:w-64 hidden md:block bg-noir-bg border-r border-noir-border" />}>
-        {!isStudioRoute && !isProfilePage && !focusMode && (
+        {user && !isStudioRoute && !isProfilePage && !focusMode && (
           <div className="hidden md:block">
             <NavigationSidebar isOpen={isSidebarOpen} />
           </div>
         )}
-        {isStudioRoute && !focusMode && <StudioSidebar isOpen={isSidebarOpen} />}
+        {isStudioRoute && !focusMode && (
+          <StudioSidebar isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
+        )}
       </Suspense>
 
       <Suspense fallback={null}>
-        {(pathname === "/" || pathname.startsWith("/search")) && (
+        {user && (pathname === "/" || pathname.startsWith("/search")) && (
           <AuxiliarySidebar isOpen={isRightSidebarOpen} onClose={() => setIsRightSidebarOpen(false)} />
         )}
       </Suspense>
@@ -290,7 +295,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
         )}
       >
         {/* Left Sidebar Spacer - dynamically sized */}
-        {!isStudioRoute && !isProfilePage && (
+        {user && !isStudioRoute && !isProfilePage && (
           <div
             className={cn("hidden md:block shrink-0 transition-all duration-300", isSidebarOpen ? "w-64" : "w-20")}
           />
@@ -314,11 +319,13 @@ export function ShellLayout({ children }: ShellLayoutProps) {
         </main>
 
         {/* Right Sidebar Spacer - matched with fixed sidebar width */}
-        {(pathname === "/" || pathname.startsWith("/search")) && <div className="hidden xl:block w-80 shrink-0" />}
+        {user && (pathname === "/" || pathname.startsWith("/search")) && (
+          <div className="hidden xl:block w-80 shrink-0" />
+        )}
       </div>
 
       {/* Mobile Nav */}
-      {!pathname.startsWith("/studio/editor") && (
+      {user && !pathname.startsWith("/studio/editor") && (
         <div
           className={cn(
             "md:hidden fixed bottom-0 left-0 right-0 border-t px-6 py-3 flex justify-between items-center z-[180]",
