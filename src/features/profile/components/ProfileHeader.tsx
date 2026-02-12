@@ -129,8 +129,6 @@ export function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
     );
   };
 
-
-
   // ---------------------------------------------------------
   // TERMINAL Layout
   // ---------------------------------------------------------
@@ -269,8 +267,8 @@ export function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
           "border-noir-border bg-noir-bg shadow-2xl",
           isSakuraCopy ? "rounded-3xl hover:shadow-accent/5" : "backdrop-blur-sm",
           isOctaneCopy && "border-l-4 border-l-accent-warm octane-texture",
-          isJournalCopy ? "rounded-2xl bg-noir-panel border-accent/20 shadow-lg p-3 md:p-6 mb-4" : "p-3 md:p-6 mb-8",
-          isTechieCopy && "border-white/5 bg-[var(--bg-primary)] p-0 md:p-1",
+          isJournalCopy ? "rounded-2xl bg-noir-panel border-accent/20 shadow-lg p-3 md:p-10 mb-4" : "p-2 md:p-10 mb-8",
+          isTechieCopy && "border-white/5 bg-[var(--bg-primary)] p-4 md:p-6 mb-8 rounded-lg shadow-2xl",
         )}
       >
         {/* Decorative Elements */}
@@ -298,8 +296,9 @@ export function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
 
         <div
           className={cn(
-            "flex flex-col md:flex-row items-stretch relative z-10",
-            isJournalCopy ? "gap-6" : isTechieCopy ? "gap-0" : "gap-10",
+            "flex flex-col md:flex-row relative z-10",
+            isTechieCopy ? "items-center md:items-start gap-6" : "items-stretch gap-10",
+            isJournalCopy && "gap-6",
           )}
         >
           {/* Avatar Area */}
@@ -371,7 +370,12 @@ export function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
           </div>
 
           {/* Info Area */}
-          <div className={cn("flex-1 space-y-6 w-full pt-2", isTechieCopy && "p-8 bg-[var(--bg-primary)]")}>
+          <div
+            className={cn(
+              "flex-1 space-y-6 w-full pt-2",
+              isTechieCopy && "p-8 bg-transparent text-center md:text-left",
+            )}
+          >
             <div className="flex items-start justify-between flex-wrap gap-4">
               <div>
                 <h1
@@ -466,50 +470,89 @@ export function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
               </div>
             )}
 
-            {/* Bio */}
-            <div
-              className={cn(
-                "max-h-40 overflow-y-auto pr-4 no-scrollbar border p-5 transition-all text-sm leading-relaxed",
-                isCyberCopy || isTechieCopy
-                  ? "border-noir-border bg-black/20 font-mono text-foreground-subtle"
-                  : isRoninCopy
-                    ? "border-l-2 border-accent/30 bg-transparent pl-4 italic text-foreground-muted border-t-0 border-r-0 border-b-0 p-0"
-                    : isJournalCopy
-                      ? "border-accent/10 bg-accent/5 rounded-xl font-serif text-foreground-muted shadow-inner italic"
-                      : "border-accent/10 bg-accent/5 rounded-2xl font-sans text-foreground-muted shadow-inner",
-                isTechieCopy &&
-                  "bg-[var(--bg-panel)]/40 border-white/5 rounded-lg text-[13px] text-[var(--foreground-muted)]",
-              )}
-            >
-              {isTechieCopy && (
-                <div className="text-[10px] text-[var(--accent)] font-bold mb-2 tracking-widest uppercase opacity-70">
-                  Module::Description
+            {/* Main Content Area : Standard Layout */}
+            {!isTechieCopy && (
+              <>
+                {/* Bio */}
+                <div
+                  className={cn(
+                    "max-h-40 overflow-y-auto pr-4 no-scrollbar border p-5 transition-all text-sm leading-relaxed",
+                    isCyberCopy || isTechieCopy
+                      ? "border-noir-border bg-black/20 font-mono text-foreground-subtle"
+                      : isRoninCopy
+                        ? "border-l-2 border-accent/30 bg-transparent pl-4 italic text-foreground-muted border-t-0 border-r-0 border-b-0 p-0"
+                        : isJournalCopy
+                          ? "border-accent/10 bg-accent/5 rounded-xl font-serif text-foreground-muted shadow-inner italic"
+                          : "border-accent/10 bg-accent/5 rounded-2xl font-sans text-foreground-muted shadow-inner",
+                    isTechieCopy &&
+                      "bg-[var(--bg-panel)]/40 border-white/5 rounded-lg text-[13px] text-[var(--foreground-muted)]",
+                  )}
+                >
+                  {isTechieCopy && (
+                    <div className="text-[10px] text-[var(--accent)] font-bold mb-2 tracking-widest uppercase opacity-70">
+                      Module::Description
+                    </div>
+                  )}
+                  {bio}
                 </div>
-              )}
+
+                <div className="flex flex-wrap items-center gap-8 pt-2">
+                  <div className="flex items-center gap-2 text-[10px] font-mono text-foreground-subtle uppercase tracking-widest">
+                    <span className={cn("text-foreground font-bold", isTechieCopy && "text-[var(--accent)]")}>
+                      {followingCount}
+                    </span>{" "}
+                    {getLabel("followingLabel", theme)}
+                  </div>
+                  <div className="flex items-center gap-2 text-[10px] font-mono text-foreground-subtle uppercase tracking-widest">
+                    <span className={cn("text-foreground font-bold", isTechieCopy && "text-[var(--accent)]")}>
+                      {displayFollowersCount}
+                    </span>{" "}
+                    {getLabel("followersLabel", theme)}
+                  </div>
+                  {location && (
+                    <div className="flex items-center gap-2 text-[10px] font-mono text-foreground-subtle uppercase tracking-widest">
+                      <MapPin size={10} className={cn("text-accent", isTechieCopy && "text-[var(--accent)]")} />{" "}
+                      {location}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Expanded Layout (Techie) */}
+        {isTechieCopy && (
+          <>
+            <div className="w-full bg-[var(--bg-panel)]/40 border border-white/5 rounded-lg p-4 md:p-6 text-sm text-[var(--foreground-muted)] font-mono leading-relaxed relative group mt-6">
+              <div className="text-[10px] text-[var(--accent)] font-bold mb-2 tracking-widest uppercase opacity-70 flex items-center gap-2">
+                <span className="w-1.5 h-1.5 bg-[var(--accent)] rounded-full animate-pulse" />
+                Module::Description
+              </div>
               {bio}
             </div>
 
-            <div className="flex flex-wrap items-center gap-8 pt-2">
-              <div className="flex items-center gap-2 text-[10px] font-mono text-foreground-subtle uppercase tracking-widest">
-                <span className={cn("text-foreground font-bold", isTechieCopy && "text-[var(--accent)]")}>
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-8 border-t border-white/5 pt-4">
+              <div className="flex items-center gap-2 text-[10px] font-mono text-foreground-subtle uppercase tracking-widest group cursor-default">
+                <span className="text-[var(--accent)] font-bold text-sm group-hover:scale-110 transition-transform block">
                   {followingCount}
-                </span>{" "}
+                </span>
                 {getLabel("followingLabel", theme)}
               </div>
-              <div className="flex items-center gap-2 text-[10px] font-mono text-foreground-subtle uppercase tracking-widest">
-                <span className={cn("text-foreground font-bold", isTechieCopy && "text-[var(--accent)]")}>
+              <div className="flex items-center gap-2 text-[10px] font-mono text-foreground-subtle uppercase tracking-widest group cursor-default">
+                <span className="text-[var(--accent)] font-bold text-sm group-hover:scale-110 transition-transform block">
                   {displayFollowersCount}
-                </span>{" "}
+                </span>
                 {getLabel("followersLabel", theme)}
               </div>
               {location && (
-                <div className="flex items-center gap-2 text-[10px] font-mono text-foreground-subtle uppercase tracking-widest">
-                  <MapPin size={10} className={cn("text-accent", isTechieCopy && "text-[var(--accent)]")} /> {location}
+                <div className="flex items-center gap-2 text-[10px] font-mono text-foreground-subtle uppercase tracking-widest ml-auto">
+                  <MapPin size={10} className="text-[var(--accent)]" /> {location}
                 </div>
               )}
             </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
     );
   }
