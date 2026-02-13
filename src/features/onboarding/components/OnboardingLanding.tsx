@@ -23,14 +23,30 @@ export interface UserBlog {
 
 export function OnboardingLanding() {
   const { theme, config } = useTheme();
-  const { isCyberCopy, isTerminalCopy, isSakuraCopy, isJournalCopy, isDarkMode, isTechieCopy, isOctaneCopy } =
-    useThemeHelpers();
+  const {
+    isCyberCopy,
+    isTerminalCopy,
+    isSakuraCopy,
+    isJournalCopy,
+    isDarkMode,
+    isTechieCopy,
+    isOctaneCopy,
+    isProfessionalCopy,
+  } = useThemeHelpers();
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isBlogsOpen, setIsBlogsOpen] = useState(true);
   const [blogs, setBlogs] = useState<UserBlog[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [currentTime, setCurrentTime] = useState<string>("");
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date().toLocaleTimeString());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const dashboardTitle = getLabel("dashboardTitle", theme as ThemeVariant);
   const t = useThemeLabel();
@@ -130,7 +146,7 @@ export function OnboardingLanding() {
               <span>TEMP: 34°C</span>
             </div>
             <div className="flex gap-4">
-              <span>SYS_TIME: {new Date().toLocaleTimeString()}</span>
+              <span>SYS_TIME: {currentTime}</span>
               <span className="animate-pulse text-accent">● ALIVE</span>
             </div>
           </div>
@@ -148,7 +164,8 @@ export function OnboardingLanding() {
           <div className="space-y-2 md:space-y-6">
             <h1
               className={cn(
-                "text-4xl md:text-6xl lg:text-8xl font-black leading-[0.9] tracking-tighter",
+                "font-black leading-[0.9] tracking-tighter",
+                isTechieCopy ? "text-4xl md:text-5xl lg:text-7xl" : "text-4xl md:text-6xl lg:text-8xl",
                 getHeadingClasses(theme as ThemeVariant),
               )}
             >
@@ -184,6 +201,8 @@ export function OnboardingLanding() {
               isTerminalCopy && "rounded-full border-accent bg-black pr-8 hover:bg-accent hover:text-black",
               isJournalCopy &&
                 "rounded-xl border-accent/20 bg-journal-paper pr-8 shadow-sm hover:shadow-md hover:border-accent/40",
+              isProfessionalCopy &&
+                "rounded-lg bg-white border-noir-border pr-8 shadow-sm hover:shadow-md hover:border-accent",
             )}
           >
             <div
@@ -210,9 +229,9 @@ export function OnboardingLanding() {
         </header>
 
         {/* Your Blogs Section */}
-        <section className="px-2 md:px-6 py-4">
+        <section className="px-4 md:px-10 lg:px-12 py-1 md:py-8">
           <div
-            className="flex items-center justify-between cursor-pointer select-none group mb-4 md:mb-8"
+            className="flex items-center justify-between cursor-pointer select-none group mb-4 md:mb-8 px-4 md:px-6"
             onClick={() => setIsBlogsOpen(!isBlogsOpen)}
           >
             <h2
@@ -256,7 +275,7 @@ export function OnboardingLanding() {
                 transition={{ duration: 0.3, ease: "easeInOut" }}
                 className="overflow-hidden"
               >
-                <div className="grid gap-4 pt-1 px-2">
+                <div className="grid gap-4 pt-1">
                   {blogs.length === 0 ? (
                     <EmptyBlogsState
                       isCyberCopy={isCyberCopy}

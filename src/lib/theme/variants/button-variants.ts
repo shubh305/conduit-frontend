@@ -55,9 +55,10 @@ export const buttonVariants: Record<ThemeVariant, ButtonVariantStyles> = {
       "bg-transparent text-foreground border border-black/10 rounded-lg hover:bg-black/5 font-sans font-medium tracking-tight",
   },
   professional: {
-    primary: "bg-blue-600 text-white rounded-md hover:bg-blue-700 font-sans font-medium tracking-tight",
+    primary:
+      "bg-accent text-white rounded-md hover:bg-accent-secondary font-sans font-medium tracking-tight shadow-sm transition-all",
     ghost:
-      "bg-transparent text-blue-600 border border-blue-600/20 rounded-md hover:bg-blue-50 font-sans font-medium tracking-tight",
+      "bg-transparent text-accent border border-accent/20 rounded-md hover:bg-accent/5 font-sans font-medium tracking-tight",
   },
 };
 

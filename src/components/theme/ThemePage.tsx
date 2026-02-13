@@ -14,11 +14,8 @@ interface ThemePageProps {
 }
 
 export function ThemePage({ children, className }: ThemePageProps) {
-  const { theme } = useTheme();
+  const { theme, mounted } = useTheme();
+  const activeTheme = mounted ? theme : "classic";
 
-  return (
-    <div className={cn(getPageClasses(theme), className)}>
-      {children}
-    </div>
-  );
+  return <div className={cn(getPageClasses(activeTheme), className)}>{children}</div>;
 }
