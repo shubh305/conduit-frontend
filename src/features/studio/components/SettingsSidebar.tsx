@@ -3,7 +3,7 @@
 import { X, Pencil, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TagInput } from "@/components/ui/tag-input";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
 import { CoverImageManager } from "./CoverImageManager";
@@ -91,17 +91,29 @@ export function SettingsSidebar({
     setIsEditingSlug(false)
   }
 
-  const regenerateSlug = () => {
-    if (!postTitle) return
+  const regenerateSlug = useCallback(() => {
+    if (!postTitle) return;
     const newSlug = postTitle
       .toLowerCase()
       .trim()
       .replace(/[^\w\s-]/g, "")
       .replace(/[\s_-]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-    setLocalSlug(newSlug)
-    onUpdate({ slug: newSlug })
-  }
+      .replace(/^-+|-+$/g, "");
+    if (newSlug !== localSlug) {
+      setLocalSlug(newSlug);
+      onUpdate({ slug: newSlug });
+    }
+  }, [postTitle, localSlug, onUpdate]);
+
+  useEffect(() => {
+    if (!postTitle || !slug || isEditingSlug) return;
+
+    const isRealTitle = postTitle.trim().toLowerCase() !== "untitled" && postTitle.trim().length > 0;
+
+    if (isRealTitle) {
+      regenerateSlug();
+    }
+  }, [postTitle, slug, regenerateSlug, isEditingSlug]);
 
   return (
     <>
