@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { useLibrary } from "@/features/library/context/LibraryContext";
 import { SearchInput } from "./SearchInput";
 import { useThemeLabel } from "@/components/theme";
+import { semanticSearch } from "@/features/search/api";
+import { toast } from "sonner";
 
 type Tab = "posts" | "publications" | "people";
 
@@ -24,15 +26,34 @@ interface Publication {
 }
 
 export function SearchPageContainer({ initialTenantSlug }: { initialTenantSlug?: string }) {
-  const { config } = useTheme();
+  const { config, mounted } = useTheme();
   const { isCyberCopy, isSakuraCopy, isRoninCopy, isJournalCopy, isTerminalCopy } = useThemeHelpers();
   const searchParams = useSearchParams();
 
   const query = searchParams.get("q") || "";
+  const isSemantic = searchParams.get("semantic") === "true";
   const [activeTab, setActiveTab] = useState<Tab>("posts");
   const tabs: Tab[] = ["posts", "publications", "people"];
 
   const t = useThemeLabel();
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-noir-bg pt-24 px-6 md:px-0">
+        <div className="max-w-4xl mx-auto animate-pulse">
+          <div className="h-20 w-3/4 bg-foreground/5 rounded-2xl mb-12" />
+          <div className="h-10 w-full bg-foreground/5 rounded-full" />
+        </div>
+      </div>
+    );
+  }
+
+  const handleAiToggle = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (isSemantic) params.delete("semantic");
+    else params.set("semantic", "true");
+    window.location.href = `/search?${params.toString()}`;
+  };
 
   const tabLabels: Record<Tab, string> = {
     posts: t("postsTab"),
@@ -46,7 +67,13 @@ export function SearchPageContainer({ initialTenantSlug }: { initialTenantSlug?:
       <div className="min-h-screen bg-noir-bg text-accent font-mono p-4 pt-24 max-w-6xl mx-auto">
         <div className="md:hidden mb-12">
           <div className="text-[10px] text-accent/50 uppercase tracking-[0.3em] mb-4">{t("newSearch")}</div>
-          <SearchInput placeholder="root@conduit:~$ grep -r ..." autoFocus className="w-full" />
+          <SearchInput
+            placeholder="root@conduit:~$ grep -r ..."
+            autoFocus
+            className="w-full"
+            isAiActive={isSemantic}
+            onAiToggle={handleAiToggle}
+          />
         </div>
 
         <div className="border-b border-accent pb-4 mb-4">
@@ -55,27 +82,32 @@ export function SearchPageContainer({ initialTenantSlug }: { initialTenantSlug?:
             <span>grep -r</span>
             <span className="text-white">&quot;{query}&quot;</span>
             <span>.</span>
-            <span className="text-foreground-muted">--type={activeTab}</span>
-            <span className="animate-pulse w-2 h-5 bg-accent inline-block align-middle" />
+            <span className="text-accent/60">--type={activeTab}</span>
+            {isSemantic && <span className="text-accent font-bold ml-2">--semantic</span>}
+            <span className="animate-pulse w-2 h-5 bg-accent inline-block align-middle ml-1" />
           </div>
 
-          <div className="flex gap-4 mt-4 text-sm">
-            {tabs.map(tab => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={cn(
-                  "hover:bg-accent hover:text-black px-2 transition-colors",
-                  activeTab === tab ? "bg-accent text-black font-bold" : "text-accent",
-                )}
-              >
-                [ --{tab} ]
-              </button>
-            ))}
+          <div className="flex justify-between items-end mt-4">
+            <div className="flex gap-4 text-sm">
+              {tabs.map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={cn(
+                    "hover:bg-accent hover:text-black px-2 transition-colors",
+                    activeTab === tab ? "bg-accent text-black font-bold" : "text-accent",
+                  )}
+                >
+                  [ --{tab} ]
+                </button>
+              ))}
+            </div>
+
+            {/* Terminal AI Toggle - Moved to SearchInput */}
           </div>
         </div>
 
-        <SearchResults query={query} tab={activeTab} currentTenantSlug={initialTenantSlug} />
+        <SearchResults query={query} tab={activeTab} currentTenantSlug={initialTenantSlug} isSemantic={isSemantic} />
       </div>
     );
   }
@@ -90,12 +122,17 @@ export function SearchPageContainer({ initialTenantSlug }: { initialTenantSlug?:
       {/* Header Area */}
       <div className="pt-8 md:pt-24 pb-8 px-6 md:px-0 border-b border-noir-border">
         <div className="max-w-4xl mx-auto">
-          {/* Mobile Specific Search Input */}
           <div className="md:hidden mb-12">
             <div className="text-[10px] font-mono text-foreground-subtle uppercase tracking-[0.3em] mb-4">
               {t("newSearch")}
             </div>
-            <SearchInput placeholder={t("search")} autoFocus className="w-full" />
+            <SearchInput
+              placeholder={t("search")}
+              autoFocus
+              className="w-full"
+              isAiActive={isSemantic}
+              onAiToggle={handleAiToggle}
+            />
           </div>
 
           <div className="flex flex-col gap-4 mb-12">
@@ -142,13 +179,23 @@ export function SearchPageContainer({ initialTenantSlug }: { initialTenantSlug?:
 
       {/* Results Container */}
       <div className="max-w-4xl mx-auto px-6 md:px-0 py-16">
-        <SearchResults query={query} tab={activeTab} currentTenantSlug={initialTenantSlug} />
+        <SearchResults query={query} tab={activeTab} currentTenantSlug={initialTenantSlug} isSemantic={isSemantic} />
       </div>
     </div>
   );
 }
 
-function SearchResults({ query, tab, currentTenantSlug }: { query: string; tab: Tab; currentTenantSlug?: string }) {
+function SearchResults({
+  query,
+  tab,
+  currentTenantSlug,
+  isSemantic,
+}: {
+  query: string;
+  tab: Tab;
+  currentTenantSlug?: string;
+  isSemantic: boolean;
+}) {
   const { config } = useTheme();
   const { isCyberCopy, isSakuraCopy, isDarkMode, isTerminalCopy } = useThemeHelpers();
   const { isUserFollowed, toggleUser } = useLibrary();
@@ -163,18 +210,24 @@ function SearchResults({ query, tab, currentTenantSlug }: { query: string; tab: 
       if (!query) return;
       setIsLoading(true);
       try {
-        const response = await globalSearch(query);
-        const { results } = response;
-        setPosts(results.posts || []);
-        setPeople(results.users || []);
+        if (isSemantic && tab === "posts") {
+          const response = await semanticSearch(query);
+          setPosts(response.results);
+        } else {
+          const response = await globalSearch(query);
+          const { results } = response;
+          setPosts(results.posts || []);
+          setPeople(results.users || []);
+        }
       } catch (e) {
         console.error(e);
+        toast.error("Search failed");
       } finally {
         setIsLoading(false);
       }
     }
     fetchData();
-  }, [query]);
+  }, [query, isSemantic, tab]);
 
   if (!query)
     return (
@@ -194,66 +247,86 @@ function SearchResults({ query, tab, currentTenantSlug }: { query: string; tab: 
 
   const getPostLink = (post: FeedItem) => getPostUrl(post, currentTenantSlug);
 
+  // --- TERMINAL VIEW ---
   if (isTerminalCopy) {
     return (
-      <div className="space-y-2 font-mono text-xs md:text-sm">
-        {isLoading && <div className="text-accent animate-pulse">{t("searchingDatabase")}</div>}
+      <div className="space-y-6 pt-4">
+        {isLoading && <div className="text-accent/50 animate-pulse text-sm">* Searching database... [LOADING]</div>}
 
         {!isLoading && tab === "posts" && (
-          <>
-            {posts.length === 0 && <div className="text-accent/50">{t("noStoriesFound")}</div>}
+          <div className="space-y-2">
+            {posts.length === 0 && (
+              <div className="text-accent/30 text-xs italic">* No stories found for the given pattern.</div>
+            )}
             {posts.map(post => (
-              <div key={post.postId} className="group hover:bg-accent/10 p-1 -mx-1">
-                <Link href={getPostLink(post)} className="flex gap-2">
-                  <span className="text-purple-400 shrink-0">
-                    ./{post.tenantSlug || "posts"}/{post.postSlug}.md
-                  </span>
-                  <span className="text-accent">:</span>
-                  <span className="text-foreground-muted line-clamp-1 group-hover:text-white transition-colors">
-                    {post.title} -- <span className="italic opacity-50">{post.excerpt?.substring(0, 50)}...</span>
-                  </span>
+              <div
+                key={post.postId}
+                className="font-mono text-[10px] md:text-sm flex gap-2 items-baseline group overflow-hidden py-0.5"
+              >
+                <span className="text-accent/30 lowercase shrink-0">./</span>
+                <Link
+                  href={getPostLink(post)}
+                  className="text-accent hover:bg-accent hover:text-black px-1 transition-all shrink-0"
+                >
+                  {post.tenantSlug ? `${post.tenantSlug}/` : ""}
+                  {post.postSlug}.md
                 </Link>
+                <span className="text-white shrink-0">:</span>
+                <span className="text-foreground-muted truncate group-hover:text-foreground-subtle transition-all">
+                  {post.excerpt || post.title} -- ...
+                </span>
               </div>
             ))}
-          </>
+          </div>
         )}
 
         {!isLoading && tab === "people" && (
-          <>
-            {people.length === 0 && <div className="text-accent/50">{t("noNodesFound")}</div>}
+          <div className="space-y-2">
+            {people.length === 0 && (
+              <div className="text-accent/30 text-xs italic">* No entities found matching the query.</div>
+            )}
             {people.map(person => (
-              <div key={person.id} className="group hover:bg-accent/10 p-1 -mx-1 flex justify-between items-center">
-                <div className="flex gap-2 text-foreground-muted group-hover:text-white">
-                  <span className="text-yellow-500">{person.username}</span>
-                  <span>
-                    :x:100{person.id.substring(0, 1)}:100{person.id.substring(0, 1)}:
-                  </span>
-                  <span>{person.bio || "User"}</span>
-                  <span>:/home/{person.username}:/bin/bash</span>
-                </div>
-                <button
-                  onClick={() => toggleUser(person.id)}
-                  className="text-accent hover:underline hidden group-hover:inline-block"
+              <div
+                key={person.id}
+                className="font-mono text-[10px] md:text-sm flex gap-2 items-baseline group overflow-hidden py-0.5"
+              >
+                <span className="text-accent/30 shrink-0">[user]</span>
+                <Link
+                  href={`/u/${person.username}`}
+                  className="text-accent hover:bg-accent hover:text-black px-1 transition-all shrink-0"
                 >
-                  [{isUserFollowed(person.id) ? "UNLINK" : "LINK"}]
-                </button>
+                  @{person.username}
+                </Link>
+                <span className="text-white shrink-0">:</span>
+                <span className="text-foreground-muted truncate group-hover:text-foreground-subtle transition-all">
+                  {person.bio || "No bio signal recorded."}
+                </span>
               </div>
             ))}
-          </>
+          </div>
         )}
 
-        {!isLoading && tab === "publications" && <div className="text-accent/50">{t("noFrequenciesFound")}</div>}
+        {!isLoading && tab === "publications" && (
+          <div className="text-accent/30 text-xs italic">
+            * Transmission lookup not attached to this terminal session.
+          </div>
+        )}
       </div>
     );
   }
 
   return (
-    <div className="space-y-16">
+    <div className="space-y-12">
       {isLoading && (
         <div className="flex flex-col items-center gap-4 py-20">
-          <div className="w-12 h-12 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
+          <div
+            className={cn(
+              "w-12 h-12 border-4 border-t-accent rounded-full animate-spin",
+              isSemantic ? "border-accent/40 shadow-[0_0_15px_rgba(var(--accent-rgb),0.3)]" : "border-accent/20",
+            )}
+          />
           <div className="text-foreground-subtle font-mono text-[10px] uppercase tracking-[0.3em]">
-            {t("searchingDatabase")}
+            {isSemantic ? "Synthesizing Neural Results..." : t("searchingDatabase")}
           </div>
         </div>
       )}
@@ -313,7 +386,7 @@ function SearchResults({ query, tab, currentTenantSlug }: { query: string; tab: 
                       className={cn(
                         "text-2xl font-bold leading-tight group-hover:text-accent transition-colors",
                         isCyberCopy
-                          ? "font-mono uppercase tracking-tighter"
+                          ? "font-mono uppercase tracking-tighter text-balance"
                           : config.fontFamily === "serif"
                             ? "font-serif italic"
                             : "font-sans",
@@ -343,6 +416,14 @@ function SearchResults({ query, tab, currentTenantSlug }: { query: string; tab: 
                     >
                       {post.tags?.[0] || "Story"}
                     </span>
+                    {post.tenantSlug && (
+                      <>
+                        <span className="text-noir-border text-[10px]">/</span>
+                        <span className="text-[9px] font-bold uppercase text-foreground-subtle tracking-tighter">
+                          {post.tenantName}
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
 

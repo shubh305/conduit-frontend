@@ -10,10 +10,18 @@ export interface Tenant {
   customDomain?: string;
 }
 
+export type TiptapNode = {
+  type: string;
+  attrs?: Record<string, unknown>;
+  content?: TiptapNode[];
+  marks?: { type: string; attrs?: Record<string, unknown> }[];
+  text?: string;
+  [key: string]: unknown;
+};
+
 export type TiptapContent = {
   type: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  content: any[];
+  content: TiptapNode[];
 };
 
 export type PostStatus = "draft" | "published" | "archived" | "scheduled" | "deleted" | "unlisted";
@@ -28,6 +36,7 @@ export interface Post {
   createdAt: string;
   updatedAt: string;
   excerpt: string;
+  summary?: string;
   featuredImage?: string;
   featuredImageAttribution?: {
     name: string;

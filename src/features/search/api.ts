@@ -49,3 +49,18 @@ export function getSuggestions(query: string) {
 export function getTags() {
     return fetchApi<{ tags: string[] }>("/tags");
 }
+
+
+export interface SemanticSearchResponse {
+  results: (FeedItem & { isSemantic: boolean; score: number })[];
+}
+
+export async function semanticSearch(query: string, limit: number = 20): Promise<SemanticSearchResponse> {
+  const params = new URLSearchParams();
+  params.set("q", query);
+  params.set("limit", limit.toString());
+
+  const response = await fetchApi<SemanticSearchResponse>(`/search/semantic?${params.toString()}`);
+
+  return response;
+}

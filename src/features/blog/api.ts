@@ -69,7 +69,6 @@ export function getPosts(
     `/posts?${searchParams.toString()}`,
     {
       tenantId,
-      headers: { "x-tenant-id": tenantId },
       cache: "no-store",
     },
   ).then(res => ({
@@ -77,6 +76,14 @@ export function getPosts(
     data: res.data ? res.data.map(p => mapPost(p) as Post).filter(Boolean) : [],
   }));
 }
+
+export function getPostCounts(tenantId: string) {
+  return fetchApi<Record<string, number>>("/posts/counts", {
+    tenantId,
+    cache: "no-store",
+  });
+}
+
 
 
 export function getPost(slug: string, tenantId?: string) {

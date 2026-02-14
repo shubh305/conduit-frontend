@@ -20,6 +20,7 @@ export interface FeedItem {
   isLiked?: boolean;
   isFollowing?: boolean;
   readingTimeMinutes?: number;
+  summary?: string;
 }
 
 export interface FeedResponse {

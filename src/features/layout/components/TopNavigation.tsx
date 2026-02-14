@@ -3,7 +3,7 @@
 import NextImage from "next/image";
 import { Bell, Edit3, Menu, Compass } from "lucide-react";
 import { WIP_LIMITS } from "@/lib/wip-limits";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
 import { cn, getRootUrl } from "@/lib/utils";
 import { UserNavWidget } from "./UserNavWidget";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { SearchInput } from "@/features/search/components/SearchInput";
 import { useAuth } from "@/features/auth/AuthProvider";
+import { useState, useEffect } from "react";
 
 interface TopNavigationProps {
   onToggleSidebar?: () => void;
@@ -22,7 +23,19 @@ export function TopNavigation({ onToggleSidebar, onToggleRightSidebar }: TopNavi
   const { isCyberCopy, isSakuraCopy, isRoninCopy, isOctaneCopy, isJournalCopy, isTechieCopy } = useThemeHelpers();
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
+
+  // Local state for AI mode to allow toggling from anywhere
+  const [isAiActive, setIsAiActive] = useState(false);
+
+  // Sync with URL on search page
+  useEffect(() => {
+    const fromUrl = searchParams.get("semantic") === "true";
+    if (pathname === "/search") {
+      setIsAiActive(fromUrl);
+    }
+  }, [searchParams, pathname]);
 
   const isStudioRoute = pathname.startsWith("/studio");
   const showRightSidebarToggle = pathname === "/" || pathname.startsWith("/search");
@@ -34,6 +47,22 @@ export function TopNavigation({ onToggleSidebar, onToggleRightSidebar }: TopNavi
     if (isOctaneCopy) return "Initialize";
     if (isJournalCopy) return "New Entry";
     return "New Post";
+  };
+
+  const onAiToggle = () => {
+    const next = !isAiActive;
+    setIsAiActive(next);
+
+    // If we're already on the search page, navigate to update the results
+    if (pathname === "/search") {
+      const newParams = new URLSearchParams(searchParams.toString());
+      if (next) {
+        newParams.set("semantic", "true");
+      } else {
+        newParams.delete("semantic");
+      }
+      router.push(`${pathname}?${newParams.toString()}`);
+    }
   };
 
   const getNetworkStatus = () => {
@@ -112,6 +141,8 @@ export function TopNavigation({ onToggleSidebar, onToggleRightSidebar }: TopNavi
         <SearchInput
           placeholder={isSakuraCopy ? "検索..." : isRoninCopy ? "Seek..." : isJournalCopy ? "Search..." : "Search..."}
           className={cn("w-full bg-transparent px-2", isRoninCopy ? "rounded-sm px-0" : "rounded-full")}
+          isAiActive={isAiActive}
+          onAiToggle={onAiToggle}
         />
       </div>
 

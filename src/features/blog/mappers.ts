@@ -41,5 +41,6 @@ export function mapPostToFeedItem(post: Post, tenant: Tenant): FeedItemExtended 
     status: post.status as "draft" | "published" | "archived",
     isLiked: p.isLiked || false,
     isFollowing: p.isFollowing || false,
+    summary: post.summary,
   };
 }
