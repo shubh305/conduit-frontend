@@ -6,6 +6,7 @@ import { Loader2, Book, Layers, Volume2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
 import { fetchApi } from "@/lib/api-client";
+import { createPortal } from "react-dom";
 import {
   getPopoverClasses,
   getPopoverLabelClasses,
@@ -43,7 +44,12 @@ export function DictionaryPopup({ editor }: DictionaryPopupProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [position, setPosition] = useState<{ top: number; left: number; placement: 'top' | 'bottom' } | null>(null);
+  const [mounted, setMounted] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const playAudio = useCallback((url: string) => {
     const audio = new Audio(url);
@@ -104,7 +110,7 @@ export function DictionaryPopup({ editor }: DictionaryPopupProps) {
     let placement: "top" | "bottom" = "top";
     const toolbar = document.querySelector(".editor-toolbar");
     const toolbarRect = toolbar?.getBoundingClientRect();
-    const safeTopLimit = toolbarRect ? toolbarRect.bottom + 10 : 100;
+    const safeTopLimit = toolbarRect ? toolbarRect.bottom + 10 : 80;
 
     const isMobile = window.innerWidth < 640;
     const popupWidth = isMobile ? window.innerWidth - 32 : 320;
@@ -231,7 +237,7 @@ export function DictionaryPopup({ editor }: DictionaryPopupProps) {
     };
   }, [editor, word, fetchDictionaryData, updatePosition]);
 
-  if (!word || !position) return null;
+  if (!word || !position || !mounted) return null;
 
   const audioUrl = data?.phonetics.find(p => p.audio)?.audio;
   const phoneticText = data?.phonetic || data?.phonetics.find(p => p.text)?.text;
@@ -245,12 +251,12 @@ export function DictionaryPopup({ editor }: DictionaryPopupProps) {
     data.metadata.suggestions &&
     data.metadata.suggestions.length > 0;
 
-  return (
+  return createPortal(
     <div
       ref={popupRef}
       onMouseDown={e => e.preventDefault()}
       className={cn(
-        "dictionary-popup fixed z-[45] -translate-x-1/2 mb-2 pointer-events-auto",
+        "dictionary-popup fixed z-[9999] -translate-x-1/2 mb-2 pointer-events-auto",
         "w-[calc(100vw-32px)] sm:w-[320px] p-4 shadow-2xl border animate-in fade-in zoom-in-95",
         getPopoverClasses(theme),
         "!bg-opacity-100 !backdrop-blur-none",
@@ -314,7 +320,7 @@ export function DictionaryPopup({ editor }: DictionaryPopupProps) {
         <div className="space-y-4 max-h-[260px] overflow-y-auto no-scrollbar pr-1">
           {data!.meanings.map((meaning, idx) => (
             <div key={idx} className="space-y-2">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <span className="text-[10px] uppercase font-mono bg-muted px-1.5 py-0.5 text-muted-foreground font-bold tracking-wider rounded-sm">
                   {meaning.partOfSpeech}
                 </span>
@@ -394,6 +400,7 @@ export function DictionaryPopup({ editor }: DictionaryPopupProps) {
         </span>
         <Layers size={12} className="text-muted-foreground shrink-0" />
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
