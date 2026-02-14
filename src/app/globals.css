@@ -1,5 +1,8 @@
-@import "tailwindcss";
+@import "tailwindcss/preflight";
+@import "tailwindcss/utilities";
+@import "tailwindcss/theme";
 
+/* Theme Variables and tokens */
 @theme {
   --color-noir-bg: var(--bg-primary);
   --color-noir-panel: var(--bg-panel);
@@ -25,10 +28,7 @@
   --breakpoint-xs: 480px;
 }
 
-/* 
- * Modular theme imports
- */
-
+/* Theme Imports */
 @import "../styles/themes/base.css";
 @import "../styles/themes/cyber.css";
 @import "../styles/themes/classic.css";

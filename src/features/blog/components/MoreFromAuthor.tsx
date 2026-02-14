@@ -33,7 +33,7 @@ export function MoreFromAuthor({
   compact = false,
 }: MoreFromAuthorProps) {
   const { config } = useTheme();
-  const { isCyberCopy, isSakuraCopy, isDarkMode } = useThemeHelpers();
+  const { isCyberCopy, isSakuraCopy, isJournalCopy, isDarkMode } = useThemeHelpers();
   const t = useThemeLabel();
   const { posts, isLoading } = useMoreFromAuthor(tenantId, currentPostId);
 
@@ -56,15 +56,27 @@ export function MoreFromAuthor({
                 compact ? "text-lg" : "text-2xl",
                 isCyberCopy
                   ? "text-accent font-display italic"
-                  : config.fontFamily === "serif"
-                    ? "font-serif italic"
-                    : "font-sans",
+                  : isJournalCopy
+                    ? "font-serif italic text-3xl font-normal tracking-normal normal-case"
+                    : config.fontFamily === "serif"
+                      ? "font-serif italic"
+                      : "font-sans",
               )}
             >
-              {isSakuraCopy ? `${authorName} の他の記事` : `More from ${authorName}`}
+              {isSakuraCopy
+                ? `${authorName} の他の記事`
+                : isJournalCopy
+                  ? `More from ${authorName}`
+                  : `More from ${authorName}`}
             </h3>
             <div className="font-mono text-[10px] text-foreground-subtle uppercase tracking-[0.4em] hidden sm:block opacity-40">
-              {isSakuraCopy ? "推薦記録" : isCyberCopy ? "DATA_RECALL_V09" : "Recommendations"}
+              {isSakuraCopy
+                ? "推薦記録"
+                : isCyberCopy
+                  ? "DATA_RECALL_V09"
+                  : isJournalCopy
+                    ? "From the Archives"
+                    : "Recommendations"}
             </div>
           </div>
         )}
@@ -79,11 +91,22 @@ export function MoreFromAuthor({
             });
 
             return (
-              <Link key={post.id} href={href} className="group block h-full">
+              <Link
+                key={post.id}
+                href={href}
+                className={cn(
+                  "group block h-full",
+                  isJournalCopy && "hover:-translate-y-1 transition-transform duration-500",
+                )}
+              >
                 <article
                   className={cn(
-                    "flex flex-col h-full bg-noir-panel/30 border border-noir-border hover:border-accent transition-all shadow-lg hover:shadow-accent/5 overflow-hidden",
+                    "flex flex-col h-full transition-all shadow-lg overflow-hidden",
+                    isJournalCopy
+                      ? "bg-white/60 border border-black/5 hover:border-accent/40 hover:shadow-xl hover:bg-white/80"
+                      : "bg-noir-panel/30 border border-noir-border hover:border-accent hover:shadow-accent/5",
                     compact ? "p-0 rounded-lg" : "p-1 rounded-xl",
+                    isJournalCopy && "rounded-sm",
                   )}
                 >
                   {/* Image */}
@@ -92,7 +115,13 @@ export function MoreFromAuthor({
                       className={cn(
                         "relative bg-noir-bg transition-all duration-700 shrink-0 overflow-hidden",
                         compact ? "aspect-[30/12]" : "aspect-[21/9] sm:aspect-[16/10]",
-                        isCyberCopy ? "rounded-none" : compact ? "rounded-t-lg" : "rounded-xl",
+                        isCyberCopy
+                          ? "rounded-none"
+                          : isJournalCopy
+                            ? "rounded-sm border-b border-black/5"
+                            : compact
+                              ? "rounded-t-lg"
+                              : "rounded-xl",
                       )}
                     >
                       <Image
@@ -103,9 +132,12 @@ export function MoreFromAuthor({
                           "object-cover transition-all duration-700 group-hover:scale-110",
                           isDarkMode
                             ? "opacity-70 group-hover:opacity-100 grayscale-[50%] group-hover:grayscale-0"
-                            : "opacity-90 group-hover:opacity-100",
+                            : isJournalCopy
+                              ? "opacity-90 group-hover:opacity-100 sepia-[0.3]"
+                              : "opacity-90 group-hover:opacity-100",
                         )}
                       />
+                      {isJournalCopy && <div className="absolute inset-0 bg-journal-paper/10 mix-blend-multiply" />}
                     </div>
                   )}
 
@@ -116,6 +148,7 @@ export function MoreFromAuthor({
                         className={cn(
                           "w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center text-[8px] sm:text-[9px] font-bold border border-noir-border bg-noir-bg shadow-sm",
                           isCyberCopy ? "rounded-none" : "rounded-full",
+                          isJournalCopy && "bg-white border-black/10 text-black font-serif",
                         )}
                       >
                         {post.authorName.charAt(0)}
@@ -123,7 +156,7 @@ export function MoreFromAuthor({
                       <span
                         className={cn(
                           "text-[8px] sm:text-[10px] font-bold uppercase tracking-widest text-foreground-subtle group-hover:text-accent transition-colors",
-                          isCyberCopy ? "font-mono" : "font-sans",
+                          isCyberCopy ? "font-mono" : isJournalCopy ? "font-serif text-black/60" : "font-sans",
                         )}
                       >
                         {post.authorName}
@@ -138,9 +171,11 @@ export function MoreFromAuthor({
                           : "text-xs sm:text-lg mb-2 sm:mb-3 line-clamp-2",
                         isCyberCopy
                           ? "font-mono uppercase tracking-tighter"
-                          : config.fontFamily === "serif"
-                            ? "font-serif italic"
-                            : "font-sans",
+                          : isJournalCopy
+                            ? "font-serif text-black/90 font-medium"
+                            : config.fontFamily === "serif"
+                              ? "font-serif italic"
+                              : "font-sans",
                       )}
                     >
                       {post.title}

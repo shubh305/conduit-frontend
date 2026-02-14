@@ -1,10 +1,10 @@
 "use client";
 
 import { PostsList, type Tab } from "@/features/studio/components/PostsList";
-import { getPosts, deletePost } from "@/features/blog/api";
+import { getPosts, deletePost, getPostCounts } from "@/features/blog/api";
 import { useAuth } from "@/features/auth/AuthProvider";
 import Link from "next/link";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Post, PostStatus } from "@/features/blog/types";
 import { useTheme, useStudioLabels } from "@/features/theme/ThemeProvider"
 import { cn } from "@/lib/utils";
@@ -15,12 +15,12 @@ import { getSubtitleClasses, ThemeVariant } from "@/lib/theme-variants"
 import { useSearchParams } from "next/navigation";
 
 export default function PostsPage() {
-  const { user } = useAuth()
+  const { user } = useAuth();
   const searchParams = useSearchParams();
   const currentTenantId = searchParams.get("tenantId") || user?.tenants?.[0]?.id;
-  const { theme } = useTheme()
+  const { theme } = useTheme();
   const { getLabel } = useStudioLabels();
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [activeTab, setActiveTab] = useState<Tab>("published");
   const [cachedPosts, setCachedPosts] = useState<Record<Tab, Post[]>>({
@@ -32,12 +32,34 @@ export default function PostsPage() {
   });
   const [fetchedTabs, setFetchedTabs] = useState<Set<Tab>>(new Set());
 
-  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
-  const [isDeleting, setIsDeleting] = useState(false)
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const title = getLabel("posts")
-  const subtitle = getLabel("publications_desc")
-  const loadingText = getLabel("loading")
+  const isFetchingCounts = useRef(false);
+  const isFetchingPosts = useRef<Record<string, boolean>>({});
+  const lastTenantId = useRef<string | null>(currentTenantId);
+  const lastFetchedTenantId = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (currentTenantId !== lastTenantId.current) {
+      setCounts({});
+      setCachedPosts({
+        published: [],
+        drafts: [],
+        scheduled: [],
+        unlisted: [],
+        deleted: [],
+      });
+      setFetchedTabs(new Set());
+      isFetchingPosts.current = {};
+      isFetchingCounts.current = false;
+      lastTenantId.current = currentTenantId;
+    }
+  }, [currentTenantId]);
+
+  const title = getLabel("posts");
+  const subtitle = getLabel("publications_desc");
+  const loadingText = getLabel("loading");
 
   const mapTabToStatus = useCallback((tab: Tab): PostStatus => {
     if (tab === "drafts") return "draft";
@@ -46,35 +68,27 @@ export default function PostsPage() {
   }, []);
 
   const fetchCounts = useCallback(async () => {
-    if (!user) return;
+    if (!user?.id || !currentTenantId || isFetchingCounts.current) return;
+
+    isFetchingCounts.current = true;
     try {
-      const tenants = user.tenants || [];
-      const tenantIds = tenants.map(t => t.id).filter(Boolean);
-      const tabs: Tab[] = ["published", "drafts", "scheduled", "unlisted", "deleted"];
+      const res = await getPostCounts(currentTenantId);
 
-      const countsMap: Record<string, number> = {};
-
-      await Promise.all(
-        tabs.map(async tab => {
-          let total = 0;
-          const statusParam = mapTabToStatus(tab);
-          for (const tId of tenantIds) {
-            const res = await getPosts(tId, {
-              author: user.id,
-              status: statusParam,
-              limit: 1,
-            });
-            total += res.meta?.total || 0;
-          }
-          countsMap[tab] = total;
-        }),
-      );
-
-      setCounts(countsMap);
+      if (res) {
+        setCounts({
+          published: res.published || 0,
+          drafts: res.drafts || 0,
+          scheduled: res.scheduled || 0,
+          unlisted: res.unlisted || 0,
+          deleted: res.deleted || 0,
+        });
+      }
     } catch (err) {
       console.error("Failed to fetch counts:", err);
+    } finally {
+      isFetchingCounts.current = false;
     }
-  }, [user, mapTabToStatus]);
+  }, [user?.id, currentTenantId]);
 
   useEffect(() => {
     fetchCounts();
@@ -82,71 +96,63 @@ export default function PostsPage() {
 
   useEffect(() => {
     const fetchPosts = async () => {
-      if (!user) return;
+      if (!user?.id || !currentTenantId) return;
 
-      if (fetchedTabs.has(activeTab)) {
+      if (
+        (fetchedTabs.has(activeTab) || isFetchingPosts.current[activeTab]) &&
+        lastFetchedTenantId.current === currentTenantId
+      ) {
         setLoading(false);
         return;
       }
 
+      isFetchingPosts.current[activeTab] = true;
       setLoading(true);
       try {
-        const tenants = user.tenants || [];
-        const tenantIds = tenants.map(t => t.id).filter(Boolean);
-
-        if (tenantIds.length === 0) {
-          setCachedPosts(prev => ({ ...prev, [activeTab]: [] }));
-          setFetchedTabs(prev => new Set(prev).add(activeTab));
-          setLoading(false);
-          return;
-        }
-
         const statusParam = mapTabToStatus(activeTab);
 
-        const results = await Promise.all(
-          tenantIds.map(async tId => {
-            const res = await getPosts(tId, {
-              author: user.id,
-              status: statusParam,
-              page: 1,
-              limit: 50,
-            });
-            return res.data || [];
-          }),
+        const res = await getPosts(currentTenantId, {
+          author: user.id,
+          status: statusParam,
+          page: 1,
+          limit: 50,
+        });
+
+        const allPosts = (res.data || []).sort(
+          (a, b) => new Date(b.publishedAt || b.createdAt).getTime() - new Date(a.publishedAt || a.createdAt).getTime(),
         );
 
-        const allPosts = results
-          .flat()
-          .sort(
-            (a, b) =>
-              new Date(b.publishedAt || b.createdAt).getTime() - new Date(a.publishedAt || a.createdAt).getTime(),
-          );
-
         setCachedPosts(prev => ({ ...prev, [activeTab]: allPosts }));
-        setFetchedTabs(prev => new Set(prev).add(activeTab));
+        setFetchedTabs(prev => {
+          const next = new Set(prev);
+          next.add(activeTab);
+          return next;
+        });
+        lastFetchedTenantId.current = currentTenantId;
       } catch (err) {
         console.error("Failed to fetch posts:", err);
       } finally {
+        isFetchingPosts.current[activeTab] = false;
         setLoading(false);
       }
     };
 
     fetchPosts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, activeTab]);
+  }, [user?.id, activeTab, currentTenantId]);
 
   const handleConfirmDelete = async () => {
-    if (!deleteTargetId) return
+    if (!deleteTargetId) return;
 
     const targetPost = cachedPosts[activeTab].find(p => p.id === deleteTargetId);
-    const activeTenantId = targetPost?.tenantId || user?.tenantId || (user?.tenants && user.tenants[0]?.id)
+    const activeTenantId = targetPost?.tenantId || user?.tenantId || (user?.tenants && user.tenants[0]?.id);
 
     if (!activeTenantId) {
-      toast.error("Could not determine context for this post.")
-      return
+      toast.error("Could not determine context for this post.");
+      return;
     }
 
-    setIsDeleting(true)
+    setIsDeleting(true);
     try {
       await deletePost(deleteTargetId, activeTenantId);
       toast.success(getLabel("delete_success"));
@@ -166,12 +172,12 @@ export default function PostsPage() {
 
       setDeleteTargetId(null);
     } catch (err) {
-      console.error("Failed to delete post:", err)
-      toast.error("Failed to delete post.")
+      console.error("Failed to delete post:", err);
+      toast.error("Failed to delete post.");
     } finally {
-      setIsDeleting(false)
+      setIsDeleting(false);
     }
-  }
+  };
 
   const handleRestore = async (id: string) => {
     setCachedPosts(prev => {

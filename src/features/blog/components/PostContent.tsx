@@ -15,7 +15,8 @@ import { DictionaryPopup } from "@/features/studio/components/DictionaryPopup";
 
 export function PostContent({ content }: { content: TiptapContent }) {
   const { config } = useTheme();
-  const { isCyberCopy, isTerminalCopy } = useThemeHelpers();
+  const { isCyberCopy, isTerminalCopy, isRoninCopy } = useThemeHelpers();
+  const isSerif = config.fontFamily === "serif";
 
   const editor = useEditor({
     extensions: [
@@ -42,11 +43,13 @@ export function PostContent({ content }: { content: TiptapContent }) {
           "prose prose-invert max-w-none focus:outline-none transition-all duration-500",
           "prose-p:text-foreground/90 prose-headings:text-foreground",
           isCyberCopy
-            ? "prose-p:font-mono prose-headings:font-display uppercase tracking-tight"
+            ? "prose-base md:prose-lg prose-p:font-mono prose-headings:font-display prose-headings:uppercase tracking-tight prose-p:leading-8"
             : isTerminalCopy
               ? "prose-p:font-mono prose-headings:font-bold prose-headings:uppercase tracking-tight"
-              : "prose-p:font-sans",
-          config.fontFamily === "serif" && !isTerminalCopy
+              : isRoninCopy
+                ? "prose-base md:prose-lg prose-p:font-serif prose-p:leading-loose"
+                : "prose-p:font-sans",
+          isSerif && !isTerminalCopy && !isRoninCopy
             ? "prose-p:font-serif prose-p:leading-[1.9]"
             : "prose-p:leading-relaxed",
         ),

@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowLeft, Calendar } from "lucide-react";
+import { ArrowLeft, Calendar, Sparkles, X } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { PostContent } from "@/features/blog/components/PostContent";
 import { FeedItem } from "@/features/feed/types";
 import { TiptapContent } from "@/features/blog/types";
@@ -22,18 +23,20 @@ interface ArticleLayoutProps {
 
 export function ClassicArticleLayout({ post, tenant, isPreview: isPreviewProp }: ArticleLayoutProps) {
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
   const { config } = useTheme();
-  const { isDarkMode } = useThemeHelpers();
+  const { isDarkMode, isProfessionalCopy, isOctaneCopy } = useThemeHelpers();
   const searchParams = useSearchParams();
   const isPreview = isPreviewProp || searchParams.get("preview") === "true";
 
   const { navigateToBlogHome } = useBlogNavigation(tenant.slug);
-  const isProfessional = config.id === "professional";
+  const isProfessional = isProfessionalCopy || config.id === "professional";
+  const isOctane = isOctaneCopy || config.id === "octane";
 
   return (
     <main className="min-h-screen bg-noir-bg text-foreground pb-20 transition-all duration-700">
       {/* Editorial Header */}
-      <div className="border-b border-noir-border py-6 bg-noir-panel/50 backdrop-blur-md sticky top-0 z-[40]">
+      <div className="border-b border-noir-border py-6 bg-noir-panel/50 backdrop-blur-xl sticky top-0 z-[40]">
         <div className="container mx-auto px-2 md:px-6 max-w-5xl flex items-center justify-between">
           <div className="flex items-center gap-6">
             {!isPreview && (
@@ -50,8 +53,20 @@ export function ClassicArticleLayout({ post, tenant, isPreview: isPreviewProp }:
               {tenant.name}
             </span>
           </div>
+          <div className="flex items-center gap-4 relative">
+            {post.summary && (
+              <button
+                onClick={() => setShowSummary(!showSummary)}
+                className={cn(
+                  "flex items-center gap-2 px-3 py-1.5 rounded-full border border-accent/20 transition-all text-[10px] font-mono uppercase tracking-widest cursor-pointer",
+                  showSummary ? "bg-accent text-black border-accent" : "bg-accent/5 text-accent hover:bg-accent/10",
+                )}
+              >
+                <Sparkles size={12} />
+                <span className="hidden md:inline">Ai Insight</span>
+              </button>
+            )}
 
-          <div className="flex items-center gap-4">
             <span className="text-[10px] font-mono text-foreground-subtle uppercase transition-all hidden md:block">
               {post.readingTimeMinutes} min pulse
             </span>
@@ -59,8 +74,15 @@ export function ClassicArticleLayout({ post, tenant, isPreview: isPreviewProp }:
         </div>
       </div>
 
-      <div className="container mx-auto px-2 md:px-6 mt-4 md:mt-20 max-w-4xl animate-in fade-in slide-in-from-bottom-8 duration-1000">
-        <article className="feed-container">
+      <div
+        className={cn(
+          "container mx-auto px-2 md:px-12 mt-4 md:mt-20 animate-in fade-in slide-in-from-bottom-8 duration-1000",
+          isProfessional || isOctane ? "max-w-5xl" : "max-w-4xl",
+        )}
+      >
+        <article
+          className={cn("feed-container transition-all", (isProfessional || isOctane) && "px-4 md:px-10 py-4 md:py-10")}
+        >
           <header className="mb-8 md:mb-16 space-y-6 md:space-y-10">
             <div className="flex flex-wrap gap-2 md:gap-3">
               {post.tags.map((tag: string) => (
@@ -184,7 +206,7 @@ export function ClassicArticleLayout({ post, tenant, isPreview: isPreviewProp }:
         onClose={() => setIsCommentsOpen(false)}
       />
 
-      {!isPreview && (
+      {post.authorName && !isPreview && (
         <div className="mt-32 bg-noir-panel/20 border-t border-noir-border">
           <MoreFromAuthor
             authorName={post.authorName}
@@ -195,6 +217,52 @@ export function ClassicArticleLayout({ post, tenant, isPreview: isPreviewProp }:
           />
         </div>
       )}
+
+      {/* AI Summary */}
+      <AnimatePresence>
+        {showSummary && post.summary && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowSummary(false)}
+              className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-md cursor-pointer"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.98 }}
+              className={cn(
+                "bg-noir-panel border border-accent/30 rounded-2xl shadow-[0_0_80px_rgba(0,0,0,0.6)] p-8 z-[101] backdrop-blur-2xl",
+                "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] md:w-[650px] max-h-[85vh] overflow-y-auto",
+              )}
+            >
+              <div className="flex items-center justify-between mb-6 border-b border-white/5 pb-3">
+                <span className="text-accent text-[10px] uppercase font-mono tracking-[0.2em] font-bold flex items-center gap-2">
+                  <Sparkles size={14} />
+                  Generated_Summary
+                </span>
+                <button
+                  onClick={() => setShowSummary(false)}
+                  className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-foreground-subtle hover:text-accent hover:bg-accent/10 transition-all cursor-pointer"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+              <p className="text-sm md:text-lg leading-relaxed text-foreground font-medium italic border-l-2 border-accent/20 pl-6 my-4 py-1">
+                &quot;{post.summary}&quot;
+              </p>
+              <div className="mt-8 flex justify-between items-center opacity-40">
+                <span className="text-[9px] font-mono tracking-widest uppercase">system.analytics.v1</span>
+                <span className="text-[9px] font-mono tracking-widest uppercase">
+                  REF_{post.postId.substring(0, 8)}
+                </span>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </main>
   );
 }

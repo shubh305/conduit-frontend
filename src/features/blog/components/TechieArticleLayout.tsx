@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Cpu, Terminal } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { PostContent } from "@/features/blog/components/PostContent";
 import { FeedItem } from "@/features/feed/types";
 import { TiptapContent } from "@/features/blog/types";
@@ -24,6 +25,7 @@ interface ArticleLayoutProps {
 export function TechieArticleLayout({ post, tenant, isPreview: isPreviewProp }: ArticleLayoutProps) {
   const { navigateToBlogHome } = useBlogNavigation(tenant.slug);
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
   const { focusMode } = useTheme();
   const { isDarkMode } = useThemeHelpers();
   const searchParams = useSearchParams();
@@ -40,15 +42,31 @@ export function TechieArticleLayout({ post, tenant, isPreview: isPreviewProp }: 
         <div className="container mx-auto max-w-[1600px]">
           <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[500px]">
             {/* Header Left: Content */}
-            <div className="p-2 sm:p-12 lg:p-20 flex flex-col justify-center gap-6 sm:gap-8 relative overflow-hidden">
+            <div className="px-2 py-12 sm:p-12 lg:p-20 flex flex-col justify-center gap-6 sm:gap-8 relative z-30">
               {/* Background Grid Decoration */}
               <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--border-primary)_1px,transparent_1px),linear-gradient(to_bottom,var(--border-primary)_1px,transparent_1px)] bg-[size:40px_40px] opacity-[0.05] pointer-events-none" />
 
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-noir-panel/50 rounded-sm border border-white/10 w-fit backdrop-blur-sm shadow-sm">
-                <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse shadow-[0_0_8px_rgba(var(--accent-rgb),0.8)]" />
-                <span className="text-[10px] font-mono text-accent uppercase tracking-widest">
-                  Transmission Recieved
-                </span>
+              <div className="flex items-center gap-4 mb-4 relative z-20">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-noir-panel/50 rounded-sm border border-white/10 w-fit backdrop-blur-sm shadow-sm">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse shadow-[0_0_8px_rgba(var(--accent-rgb),0.8)]" />
+                  <span className="text-[10px] font-mono text-accent uppercase tracking-widest">
+                    Transmission Recieved
+                  </span>
+                </div>
+
+                {post.summary && (
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowSummary(!showSummary)}
+                      className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 border border-accent/20 rounded-sm hover:bg-accent/20 transition-all group cursor-pointer"
+                    >
+                      <Cpu size={12} className="text-accent group-hover:animate-spin" />
+                      <span className="text-[10px] font-mono text-accent uppercase tracking-widest">
+                        {showSummary ? "ABORT_DECODE" : "DECODE_INTEL"}
+                      </span>
+                    </button>
+                  </div>
+                )}
               </div>
 
               {!isPreview && (
@@ -227,7 +245,7 @@ export function TechieArticleLayout({ post, tenant, isPreview: isPreviewProp }: 
           </aside>
 
           {/* Content Area (Right) */}
-          <div className="p-2 sm:p-12 lg:p-20 relative">
+          <div className="px-2 py-12 sm:p-12 lg:p-20 relative">
             <div
               ref={el => {
                 contentRef.current = el;
@@ -284,6 +302,83 @@ export function TechieArticleLayout({ post, tenant, isPreview: isPreviewProp }: 
           currentTenantSlug={tenant.slug}
         />
       )}
+
+      {/* AI Summary */}
+      <AnimatePresence>
+        {showSummary && post.summary && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowSummary(false)}
+              className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-md cursor-pointer"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 30, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 30, scale: 0.98 }}
+              className={cn(
+                "fixed bg-noir-bg/98 border border-accent/20 shadow-[0_0_150px_rgba(0,0,0,1)] z-[101] overflow-hidden rounded-sm backdrop-blur-3xl flex flex-col",
+                "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] md:w-[800px] max-h-[85vh]",
+              )}
+            >
+              <div className="bg-accent/10 border-b border-accent/20 px-6 py-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Terminal size={14} className="text-accent" />
+                  <span className="text-[10px] font-mono text-accent uppercase tracking-[0.3em] font-bold">
+                    SYS_ROOT/SUMMARY.LOG
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
+                  <button
+                    onClick={() => setShowSummary(false)}
+                    className="w-2.5 h-2.5 rounded-full bg-red-500/50 hover:bg-red-500 transition-all cursor-pointer"
+                    title="Terminate Process"
+                  />
+                </div>
+              </div>
+
+              <div className="p-10 font-mono flex-1 overflow-y-auto">
+                <div className="mb-6 flex gap-2 text-accent/30 text-[10px]">
+                  <span>[STATUS: DECODED]</span>
+                  <span>[SOURCE: NEURAL_NET_V4]</span>
+                </div>
+
+                <div className="text-base md:text-xl leading-relaxed text-accent/90 relative pl-8 border-l border-accent/10">
+                  <div
+                    className="absolute inset-0 bg-repeat bg-[center_top] opacity-[0.02] pointer-events-none"
+                    style={{
+                      backgroundImage:
+                        "linear-gradient(0deg, transparent 24%, rgba(var(--accent-rgb), .3) 25%, rgba(var(--accent-rgb), .3) 26%, transparent 27%, transparent 74%, rgba(var(--accent-rgb), .3) 75%, rgba(var(--accent-rgb), .3) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(var(--accent-rgb), .3) 25%, rgba(var(--accent-rgb), .3) 26%, transparent 27%, transparent 74%, rgba(var(--accent-rgb), .3) 75%, rgba(var(--accent-rgb), .3) 76%, transparent 77%, transparent)",
+                      backgroundSize: "20px 20px",
+                    }}
+                  />
+                  <span className="text-accent mr-3 font-black">{">"}</span>
+                  {post.summary}
+                  <span className="animate-pulse ml-2 inline-block w-2 h-4 bg-accent/50 align-middle" />
+                </div>
+
+                <div className="mt-12 pt-8 border-t border-white/5 space-y-2 opacity-30">
+                  <div className="flex justify-between text-[8px] uppercase tracking-[0.4em]">
+                    <span>Process_Completed</span>
+                    <span>100%</span>
+                  </div>
+                  <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full bg-accent"
+                      initial={{ width: 0 }}
+                      animate={{ width: "100%" }}
+                      transition={{ duration: 1 }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </main>
   );
 }

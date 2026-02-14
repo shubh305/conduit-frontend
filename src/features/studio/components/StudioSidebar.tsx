@@ -210,7 +210,9 @@ export function StudioSidebar({ isOpen = true, onToggle }: StudioSidebarProps) {
             const formattedLabel =
               isCyberCopy || isTechieCopy ? displayLabel.toUpperCase().replace(" ", "_") : displayLabel;
 
-            const linkHref = tenantId ? `${item.href}?tenantId=${tenantId}` : item.href;
+            const effectiveTenantId = tenantId || currentTenant?.id;
+            const separator = item.href.includes("?") ? "&" : "?";
+            const linkHref = effectiveTenantId ? `${item.href}${separator}tenantId=${effectiveTenantId}` : item.href;
 
             if (item.labelKey === "notifications" && !WIP_LIMITS.showNotifications) return null;
 
@@ -277,4 +279,3 @@ export function StudioSidebar({ isOpen = true, onToggle }: StudioSidebarProps) {
     </aside>
   );
 }
-

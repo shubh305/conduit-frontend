@@ -153,7 +153,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
   const isEditorRoute = pathname.startsWith("/studio/editor");
   const segments = pathname.split("/").filter(Boolean);
   const isPostView =
-    segments.length === 2 &&
+    (segments.length === 2 || segments.length === 1) &&
     ![
       "studio",
       "u",
@@ -167,8 +167,10 @@ export function ShellLayout({ children }: ShellLayoutProps) {
       "tag",
       "about",
       "feeds",
+      "api",
+      "admin",
     ].includes(segments[0]) &&
-    !["archives", "about", "tag"].includes(segments[1]);
+    !["archives", "about", "tag"].includes(segments[segments.length - 1]);
   const isJournalImmersion = isJournalCopy && isPostView;
 
   const layoutKey = mounted ? window.location.hostname : "ssr";
@@ -306,7 +308,6 @@ export function ShellLayout({ children }: ShellLayoutProps) {
           "flex justify-start md:justify-center",
           isEditorRoute ? "h-full min-h-0 flex-col overflow-hidden" : "min-h-screen",
           isStudioRoute ? (isSidebarOpen ? "md:pl-64" : "md:pl-20") : "",
-          isJournalImmersion && "pl-0",
         )}
       >
         {/* Left Sidebar Spacer - dynamically sized */}
@@ -320,10 +321,11 @@ export function ShellLayout({ children }: ShellLayoutProps) {
         <main
           className={cn(
             "flex-1 min-w-0 transition-all duration-300 xl:border-r w-full border-noir-border pb-24 md:pb-8",
-            isDashboardRoute ? "pt-[64px]" : "pt-20 md:pt-24",
-            isCyber || isTechieCopy || isOctaneCopy || isDashboardRoute || isProfilePage
-              ? "px-2 md:px-8"
-              : "px-2 md:px-8",
+            isJournalImmersion
+              ? "pt-0 h-screen overflow-hidden bg-journal-parchment flex flex-col"
+              : isDashboardRoute
+                ? "pt-[64px]"
+                : "pt-20 md:pt-24",
             isTechieCopy && "xl:border-none",
             isStudioRoute &&
               cn(
@@ -332,9 +334,8 @@ export function ShellLayout({ children }: ShellLayoutProps) {
               ),
             isDashboardRoute && cn("pb-0", isOctaneCopy || isCyber || isTechieCopy ? "px-2 md:px-0" : "px-2 md:px-0"),
             isEditorRoute && "pt-0 md:pt-0 px-0 md:px-0 flex flex-col h-full overflow-hidden",
-            isJournalImmersion && "h-screen pt-0 pb-0 mt-0 px-0 overflow-hidden bg-journal-parchment flex flex-col",
-            isJournalCopy && "bg-journal-ink/5",
-
+            isJournalImmersion && "mt-0 px-0",
+            isJournalCopy && !isJournalImmersion && "bg-journal-ink/5",
             !isDarkMode && !isJournalCopy && "bg-noir-panel md:bg-noir-bg",
             focusMode && "xl:border-none pt-16 md:pt-24 max-w-[1920px] mx-auto flex-none w-full px-6 md:px-12 lg:px-24",
           )}

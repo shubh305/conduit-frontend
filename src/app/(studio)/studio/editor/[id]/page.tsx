@@ -47,6 +47,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const lastSavedJsonRef = useRef("");
   const isSlugManuallyEdited = useRef(false);
+  const isPublishingRef = useRef(false);
 
   const [wordCount, setWordCount] = useState(0);
   const [paragraphsCount, setParagraphsCount] = useState(0);
@@ -66,7 +67,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   const handleSave = useCallback(
     async (isAuto = false) => {
       const tenantId = getActiveTenantId();
-      if (!post || !post.id || !tenantId || isSaving) return;
+      if (isPublishingRef.current || !post || !post.id || !tenantId || isSaving) return;
 
       const currentSaveJson = JSON.stringify({ title, content, featuredImage, slug, tags });
       if (currentSaveJson === lastSavedJsonRef.current) return;
@@ -130,8 +131,9 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
     }
 
     setIsSaving(true);
+    isPublishingRef.current = true;
     try {
-      await updatePost(
+      const { post: updatedPost } = await updatePost(
         post.id,
         {
           title: title.trim() || "[Untitled]",
@@ -147,6 +149,11 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
         },
         tenantId,
       );
+
+      if (updatedPost) {
+        setPost(updatedPost);
+      }
+
       toast.success(t("storyPublished"));
       router.push("/studio/posts");
     } catch (error) {
@@ -154,6 +161,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
       toast.error(t("broadcastFailure"));
     } finally {
       setIsSaving(false);
+      if (!post) isPublishingRef.current = false;
     }
   };
 

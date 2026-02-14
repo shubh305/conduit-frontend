@@ -1,6 +1,5 @@
 "use client";
 
-
 import { FeedItem } from "@/features/feed/types";
 import { TiptapContent } from "@/features/blog/types";
 import { PostContent } from "@/features/blog/components/PostContent";
@@ -14,6 +13,7 @@ import { cn, getMediaUrl } from "@/lib/utils";
 import { useTheme, useLabels } from "@/features/theme/ThemeProvider";
 import { useFollowUser } from "@/features/profile/hooks/useFollowUser";
 import { useBlogNavigation } from "@/features/blog/hooks/useBlogNavigation";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface TerminalPostLayoutProps {
   post: FeedItem & { content: TiptapContent; readingTimeMinutes: number };
@@ -38,6 +38,7 @@ export function TerminalPostLayout({ post, tenant, isPreview: isPreviewProp }: T
   });
 
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
   const [likes, setLikes] = useState(post.likesCount);
   const [isLiked, setIsLiked] = useState(post.isLiked);
   const { user } = useAuth();
@@ -130,7 +131,7 @@ export function TerminalPostLayout({ post, tenant, isPreview: isPreviewProp }: T
   return (
     <div
       className={cn(
-        "min-h-screen bg-black font-mono text-foreground pt-28 pb-12 px-2 md:px-0 mx-auto transition-all duration-700",
+        "min-h-screen bg-black font-mono text-foreground pt-28 pb-12 px-2 md:px-0 mx-auto transition-all duration-500 ease-in-out",
         focusMode ? "max-w-5xl" : "max-w-4xl",
       )}
     >
@@ -142,13 +143,23 @@ export function TerminalPostLayout({ post, tenant, isPreview: isPreviewProp }: T
       />
 
       {/* Header Metadata */}
-      <div className="mb-4 font-mono text-xs space-y-1 select-none">
+      <div className="mb-4 font-mono text-xs space-y-1 select-none relative">
         <div className="flex justify-between text-foreground-muted border-b border-accent/20 pb-1">
-          <div className="flex flex-wrap gap-4 md:gap-8">
+          <div className="flex flex-wrap gap-4 md:gap-8 items-center">
             <span>File: {post.postSlug}.md</span>
             <span>Permission: -r--r--r--</span>
             <span>Owner: root</span>
-            <span>Group: wheel</span>
+
+            {post.summary && (
+              <div className="relative">
+                <button
+                  onClick={() => setShowSummary(!showSummary)}
+                  className="text-accent hover:bg-accent hover:text-black px-1 transition-colors flex items-center gap-1 cursor-pointer"
+                >
+                  [{showSummary ? "READING..." : "CAT SUMMARY.TXT"}]
+                </button>
+              </div>
+            )}
           </div>
         </div>
         <div className="flex justify-between text-foreground-muted">
@@ -285,6 +296,59 @@ export function TerminalPostLayout({ post, tenant, isPreview: isPreviewProp }: T
           <span>1:1</span>
         </div>
       </div>
+
+      {/* AI Summary */}
+      <AnimatePresence>
+        {showSummary && post.summary && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowSummary(false)}
+              className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-md cursor-pointer"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 30, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 30, scale: 0.98 }}
+              className={cn(
+                "fixed bg-black border-2 border-accent shadow-[12px_12px_0_rgba(var(--accent-rgb),0.5)] z-[101] overflow-hidden flex flex-col font-mono",
+                "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] md:w-[700px] max-h-[85vh]",
+              )}
+            >
+              <div className="bg-accent text-black px-4 py-2 flex items-center justify-between font-bold">
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] uppercase tracking-widest">SUMMARY_BUFFER</span>
+                </div>
+                <button
+                  onClick={() => setShowSummary(false)}
+                  className="hover:bg-black hover:text-accent px-2 transition-colors cursor-pointer"
+                >
+                  [X]
+                </button>
+              </div>
+
+              <div className="p-8 flex-1 overflow-y-auto bg-black text-accent/90">
+                <div className="mb-6 opacity-40 text-[10px]">
+                  <div>$ cat /var/log/ai/summary.txt</div>
+                  <div>Reading from segment {post.postId.substring(0, 8)}...</div>
+                </div>
+
+                <div className="text-base md:text-xl leading-relaxed whitespace-pre-wrap italic pl-6 border-l-2 border-accent/20">
+                  {post.summary}
+                  <span className="animate-pulse ml-2 inline-block w-2 h-4 bg-accent align-middle" />
+                </div>
+
+                <div className="mt-12 opacity-30 text-[9px] uppercase tracking-[0.2em] flex flex-col gap-1">
+                  <div>-- EOF --</div>
+                  <div>System: Pulse_v9.2</div>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -263,7 +263,6 @@
   [data-theme='octane'] .profile-container,
   [data-theme='octane'] .settings-container,
   [data-theme='octane'] .feed-container {
-    padding: 0 !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
   }

@@ -450,7 +450,7 @@ export function CommentSection({ postId, tenantId, className, isOpen, onClose }:
               </h2>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-noir-hover rounded-full transition-colors text-foreground-subtle hover:text-accent"
+                className="p-2 hover:bg-noir-hover rounded-full transition-colors text-foreground-subtle hover:text-accent cursor-pointer"
               >
                 <X size={20} />
               </button>

@@ -90,11 +90,9 @@ export function OnboardingLanding() {
       router.push("/login?redirect=/dashboard");
     } else if (user) {
       getMyTenants()
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .then((tenants: any[]) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const mappedBlogs: UserBlog[] = tenants.map((t: any) => ({
-            id: t.id || t._id,
+        .then(tenants => {
+          const mappedBlogs: UserBlog[] = tenants.map(t => ({
+            id: t.id || t._id || "",
             name: t.name,
             subdomain: t.slug,
             logo: `https://api.dicebear.com/7.x/identicon/svg?seed=${t.slug}`,

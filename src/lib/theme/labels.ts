@@ -572,7 +572,7 @@ const labelMap: Record<LabelKey, Record<ThemeVariant | "default", string>> = {
     octane: "LOADING...",
     journal: "Loading...",
     terminal: "FETCHING...",
-    classic: "Processing...",
+    classic: "Loading...",
     "classic-white": "Loading...",
     professional: "Loading...",
     techie: "PROCESSING...",

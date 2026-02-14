@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowLeft, Clock, Calendar } from "lucide-react";
+import { ArrowLeft, Clock, Calendar, Sparkles, X, Zap } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { PostContent } from "@/features/blog/components/PostContent";
 import { FeedActionBar } from "@/features/feed/components/FeedActionBar";
 import { FeedItem } from "@/features/feed/types";
@@ -22,6 +23,7 @@ interface ArticleLayoutProps {
 
 export function CyberArticleLayout({ post, tenant, isPreview: isPreviewProp }: ArticleLayoutProps) {
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+  const [showSummary, setShowSummary] = useState(false); // New state
   const { config } = useTheme();
   const { isCyberCopy, isSakuraCopy, isRoninCopy, isDarkMode } = useThemeHelpers();
   const searchParams = useSearchParams();
@@ -31,14 +33,14 @@ export function CyberArticleLayout({ post, tenant, isPreview: isPreviewProp }: A
   return (
     <main
       className={cn(
-        "min-h-screen text-foreground transition-all duration-700",
-        isRoninCopy || isSakuraCopy ? "bg-transparent" : "bg-noir-bg",
+        "min-h-screen transition-all duration-700",
+        isSakuraCopy ? "bg-[#fffafa] text-stone-900" : "bg-noir-bg text-foreground",
       )}
     >
       {/* Immersive Header */}
       <div
         className={cn(
-          "border-b border-noir-border min-h-[400px] md:min-h-[500px] flex flex-col relative justify-end pb-12 sm:pb-20 px-2 md:px-24 transition-all",
+          "border-b border-noir-border min-h-[300px] md:min-h-[350px] flex flex-col relative justify-end pb-12 sm:pb-16 px-8 md:px-20 transition-all",
           isSakuraCopy && "bg-gradient-to-br from-noir-bg via-noir-bg to-accent/10",
         )}
       >
@@ -62,7 +64,7 @@ export function CyberArticleLayout({ post, tenant, isPreview: isPreviewProp }: A
           )}
         </div>
 
-        <div className="relative z-10 max-w-5xl mx-auto w-full">
+        <div className="relative z-10 max-w-screen-2xl mx-auto w-full py-12 md:py-24">
           {!isPreview && (
             <button
               onClick={navigateToBlogHome}
@@ -103,12 +105,13 @@ export function CyberArticleLayout({ post, tenant, isPreview: isPreviewProp }: A
 
           <h1
             className={cn(
-              "text-4xl sm:text-6xl md:text-8xl font-black text-foreground mb-8 md:mb-12 leading-[0.9] tracking-tighter break-words max-w-5xl transition-all",
+              "font-black text-foreground mb-8 md:mb-12 leading-[1.0] tracking-tighter break-words max-w-5xl transition-all",
               isCyberCopy
-                ? "font-display italic uppercase"
-                : config.fontFamily === "serif"
-                  ? "font-serif italic"
-                  : "font-sans",
+                ? "text-4xl sm:text-5xl md:text-6xl font-display italic uppercase"
+                : config.fontFamily === "serif" || isRoninCopy
+                  ? "text-4xl sm:text-5xl md:text-6xl font-serif italic"
+                  : "text-4xl sm:text-5xl md:text-7xl font-sans",
+              isRoninCopy && "md:text-6xl uppercase tracking-widest",
             )}
           >
             {post.title}
@@ -156,6 +159,28 @@ export function CyberArticleLayout({ post, tenant, isPreview: isPreviewProp }: A
                 {post.readingTimeMinutes} {isSakuraCopy ? "分" : "MIN"}
               </div>
             </div>
+
+            {/* Summary Trigger */}
+            <div className="flex flex-col gap-2 relative">
+              <span className="text-[9px] font-mono text-foreground-subtle uppercase tracking-[0.2em]">
+                {isSakuraCopy ? "AI要約" : "Intel"}
+              </span>
+              {post.summary ? (
+                <>
+                  <button
+                    onClick={() => setShowSummary(!showSummary)}
+                    className="flex items-center gap-2 text-accent font-mono text-xs font-bold uppercase tracking-widest group hover:text-white transition-colors cursor-pointer"
+                  >
+                    <Zap size={14} className="group-hover:fill-accent transition-all" />
+                    <span>
+                      {showSummary ? (isSakuraCopy ? "閉じる" : "CLOSING") : isSakuraCopy ? "表示" : "ACCESS"}
+                    </span>
+                  </button>
+                </>
+              ) : (
+                <span className="text-xs text-foreground-subtle font-mono">--</span>
+              )}
+            </div>
           </div>
 
           <FeedActionBar
@@ -175,10 +200,10 @@ export function CyberArticleLayout({ post, tenant, isPreview: isPreviewProp }: A
       </div>
 
       {/* Main Content Area */}
-      <div className="max-w-[1920px] mx-auto">
+      <div className="w-full">
         <article
-          className={cn("mx-auto py-12 md:py-32 px-2 md:px-16 transition-all duration-700", {
-            "max-w-3xl lg:max-w-5xl": !useTheme().focusMode,
+          className={cn("mx-auto py-12 md:py-32 px-8 md:px-20 transition-all duration-700", {
+            "max-w-4xl": !useTheme().focusMode,
             "max-w-[1400px]": useTheme().focusMode,
           })}
         >
@@ -262,6 +287,81 @@ export function CyberArticleLayout({ post, tenant, isPreview: isPreviewProp }: A
           />
         </div>
       )}
+
+      {/* AI Summary*/}
+      <AnimatePresence>
+        {showSummary && post.summary && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowSummary(false)}
+              className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-md cursor-pointer"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 30, scale: 0.98, filter: "blur(10px)" }}
+              animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: 30, scale: 0.98, filter: "blur(10px)" }}
+              className={cn(
+                "z-[101] p-10 backdrop-blur-2xl overflow-hidden shadow-[0_0_120px_rgba(0,0,0,0.9)] flex flex-col",
+                "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] md:w-[700px] max-h-[80vh]",
+                isSakuraCopy
+                  ? "bg-noir-bg/90 border border-stone-200 text-stone-900 rounded-3xl"
+                  : "bg-noir-bg/90 border border-accent/40 text-white shadow-[0_0_60px_rgba(var(--accent-rgb),0.3)]",
+                isCyberCopy && "rounded-none border-t-4 border-b-4",
+                isRoninCopy && "rounded-3xl border-2",
+              )}
+            >
+              {!isSakuraCopy && isCyberCopy && (
+                <div className="absolute inset-0 opacity-[0.05] pointer-events-none bg-[url('https://media.giphy.com/media/oEI9uBYSzLpBK/giphy.gif')] bg-cover mix-blend-screen" />
+              )}
+
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-8 border-b border-white/10 pb-4">
+                  <div className={cn("flex items-center gap-3", isSakuraCopy ? "text-stone-600" : "text-accent")}>
+                    <Sparkles size={18} />
+                    <span className="text-xs font-mono font-bold uppercase tracking-[0.3em]">
+                      {isSakuraCopy ? "AI要約データ" : "NEURAL_SYNTHESIS"}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setShowSummary(false)}
+                    className={cn(
+                      "w-10 h-10 flex items-center justify-center transition-all rounded-full cursor-pointer",
+                      isSakuraCopy
+                        ? "text-stone-400 hover:text-stone-900 hover:bg-stone-100"
+                        : "text-accent/40 hover:text-accent hover:bg-accent/10 border border-accent/10",
+                    )}
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <p
+                  className={cn(
+                    "text-base md:text-xl leading-relaxed italic border-l-2 pl-8 my-8 py-2",
+                    isCyberCopy || isRoninCopy ? "font-mono" : "font-sans",
+                    isSakuraCopy ? "border-stone-200 text-stone-800" : "border-accent/30 text-white/90",
+                  )}
+                >
+                  {post.summary}
+                </p>
+
+                <div className="mt-12 flex justify-between items-center opacity-40">
+                  <span className="text-[10px] font-mono tracking-widest uppercase">
+                    {isSakuraCopy ? "人工知能によって生成" : "SYT_INTEL_STREAM"}
+                  </span>
+                  <span className="text-[10px] font-mono tracking-widest flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                    {isSakuraCopy ? "完了" : "EXEC_DONE"}
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
