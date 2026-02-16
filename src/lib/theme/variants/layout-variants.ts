@@ -72,15 +72,19 @@ export function getRoundedClass(theme: ThemeVariant, size: "sm" | "md" | "lg" | 
 
 export function getDialogContentClasses(theme: ThemeVariant): string {
   const base = "max-w-2xl p-0 overflow-hidden border shadow-2xl animate-in fade-in zoom-in-95 duration-300";
-  const styles = {
+  const styles: Record<string, string> = {
     cyber: "bg-noir-bg border-accent shadow-[0_0_50px_rgba(var(--accent-rgb),0.2)] rounded-none",
-    terminal: "bg-black border-accent/40 font-mono rounded-none",
-    journal: "bg-[var(--journal-paper)] border-accent/10 rounded-lg",
+    terminal: "bg-black border-accent/40 font-mono rounded-none shadow-[0_0_60px_rgba(var(--accent-rgb),0.2)]",
+    journal: "bg-[#fdfcf8] border-accent/10 rounded-2xl shadow-xl",
     techie: "bg-noir-bg border-noir-border shadow-xl rounded-none",
-    default: "bg-noir-panel border-noir-border rounded-2xl",
+    ronin: "bg-noir-bg border-accent/30 shadow-2xl rounded-none",
+    sakura:
+      "bg-white/90 backdrop-blur-xl border-noir-border shadow-[0_20px_50px_rgba(var(--accent-rgb),0.2)] rounded-[2rem]",
+    octane: "bg-noir-bg border-accent shadow-[0_0_30px_rgba(var(--accent-rgb),0.1)] rounded-none",
+    default: "bg-noir-panel border-noir-border rounded-3xl",
   };
   
-  return cn(base, styles[theme as keyof typeof styles] || styles.default);
+  return cn(base, styles[theme] || styles.default);
 }
 
 export function getTabsListClasses(theme: ThemeVariant): string {

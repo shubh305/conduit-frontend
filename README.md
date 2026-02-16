@@ -1,115 +1,57 @@
-# Conduit Frontend: The Multi-Tenant Publishing Platform
+# Conduit Frontend — Fluidic UI Platform
 
-Conduit is a high-performance, multi-tenant publishing platform. The frontend is built on the **Fluidic UI** philosophy—a design system that allows for seamless, real-time transitions between drastically different aesthetic states.
+**Conduit** is a Next.js application built for the **Fluidic UI** philosophy - an artisan design system that enables real-time, high-fidelity transitions between diverse aesthetic states. Engineered for enterprise-scale multi-tenancy, it features deep-integrated NLP semantic search, subdomain-driven routing, and a polymorphic UI/UX that morphs across identities like *Cyber*, *Journal*, and *Terminal* while maintaining strict data isolation.
 
-## The Fluidic UI Engine
+## Quick Start
 
-Conduit features a custom theme interpolation engine built on **Framer Motion** and high-precision CSS variables. Unlike standard theme systems that simply swap colors, Conduit performs a **"Physical Morph"**—reflowing the entire layout, changing border radii, font scales, and decorative artifacts (like scanlines or paper textures) in a single fluid animation.
+1. **Setup**:
+   ```bash
+   npm install
+   ```
+2. **Launch**:
+   ```bash
+   npm run dev
+   ```
+3. **Access**: `http://localhost:3000` (ensure `conduit-core` is running).
 
-### Theme Catalog
+### Prerequisites
+- **Node.js**: v22 or later
+- **Backend**: `conduit-core` running on port 4000/4001
+- **Subdomain Config**: Local `hosts` entry for testing tenants (e.g., `127.0.0.1 alice.localhost`)
 
-| Theme ID | Aesthetic DNA | Typography | Tone & Vibe |
-|:---|:---|:---|:---|
-| `terminal` | Retro CRT, monospaced, green screen simulation | `JetBrains Mono` | CLI Commands, Root access |
-| `ronin` | Cinematic ink-and-brush, samurai inspired | `Noto Serif JP` | Poetic, Crimson accents |
-| `cyber` | Neon-drenched, digital noise, grid systems | `Outfit (Mono)` | Technical, ALL_CAPS |
-| `journal` | Warm artisan-paper, литературный (literary) editorial | `Crimson Text` | Artisan, Warm Parchment |
-| `techie` | Industrial hardware-reviewer, module-based | `Roboto Mono` | Spec Sheet, Electric Cyan |
-| `octane` | Industrial automotive, gunmetal gradients | `Outfit` | Workshop, High-performance |
-| `sakura` | Cherry blossom, light and ephemeral Japanese | `Playfair Display` | Zen, Sakura Pink |
-| `professional`| Corporate data-focused, slate dual-tone | `Inter` | Precise, Analytical |
-| `classic` | Noir elegance, high contrast, minimalist | `Lora` | Refined, Literary |
-| `classic-white`| Clean white, blue accents, professional standard | `Geist` | Straightforward, Minimalist |
+## Architecture
+Conduit Frontend implements the following core philosophies:
+- **Aesthetic Morphing**: Instant transition engine using HSL interpolation and Framer Motion.
+- **Micro-Frontend Patterns**: Feature-first domain isolation for scalability.
+- **Edge Intelligence**: Subdomain-to-tenant resolution via Next.js middleware.
 
----
+## Technical Documentation Suite
 
-## Modular Architecture
+The authoritative documentation for the frontend platform is available in the `docs` directory:
 
-The codebase follows a **Feature-First Architecture** to ensure independent scalability of domains:
-
-- **`src/features/theme`**: The core Interpolation Engine and `ThemeProvider`.
-- **`src/features/studio`**: A high-density suite for creators with real-time **Analytics** (Recharts).
-- **`src/features/blog`**: Highly-themed reader experiences with **Advanced Layout Awareness** (Grid, Stack, Magazine).
-- **`src/features/feed`**: Global discovery engine using reactive interaction patterns.
-- **`src/features/search`**: Global predictive search with type-ahead suggestions for tags and authors.
-
-### Layout Management
-- **The LayoutManager**: A central authority ensuring zero "layout drift" across themes.
-- **BasePostCard**: A universal component that adapts its visual style (flat, bordered, horizontal) based on the current theme's physical tokens.
-- **Terminal Pattern**: Specialized "windowed" views for administrative tasks that override the standard scroll model.
-
----
-
-## Directory Structure
-
-```text
-conduit-frontend/
-├── docs/                   # Full platform specs and architectural guides
-├── public/                 # Static assets (fonts, theme-specific background images)
-├── src/
-│   ├── app/                # Next.js App Router (Pages, Layouts, and API routes)
-│   ├── components/         # Shared UI components and themed primitives
-│   │   ├── shared/         # Cross-feature components (Navbar, Footer, etc.)
-│   │   ├── theme/          # Fluidic UI Atomic components (ThemeCard, ThemeButton)
-│   │   └── ui/             # Shadcn/UI base primitives
-│   ├── features/           # Domain-driven feature modules
-│   │   ├── auth/           # Login, Signup, and AuthProvider
-│   │   ├── blog/           # Article viewing, layouts (Magazine, Single, Grid)
-│   │   ├── feed/           # Global and tenant-specific feeds
-│   │   ├── studio/         # Creator dashboard, analytics, and editor
-│   │   └── theme/          # Core interpolation engine (FluidicWrapper, useThemeInterpolation)
-│   ├── lib/                # Shared utilities and logic
-│   │   ├── api-client.ts   # Centralized fetch API with interceptors
-│   │   ├── theme/          # Theme metadata, labels, and variant definitions
-│   │   └── utils.ts        # CN utility and shared helpers
-│   ├── providers/          # Global React context providers (Query, Auth, Theme)
-│   └── styles/             # Global CSS and individual theme definitions (.css files)
-└── tailwind.config.ts      # Theme-aware Tailwind configuration
-```
+| Document | Description |
+| :--- | :--- |
+| [**Architecture**](./docs/architecture.md) | Fluidic UI philosophy, subdomain resolution, and FE structure. |
+| [**Frontend Deep Dive**](./docs/frontend.md) | Theme catalog, component portfolio, and responsive strategy. |
+| [**Operations**](./docs/operations.md) | CI/CD, PWA capabilities, and FE deployment stack. |
+| [**User Flows**](./docs/flows.md) | Visual sequence diagrams for morphing, editing, and discovery. |
+| [**Configuration**](./docs/reference.md) | Client environment variables and shared UI libraries. |
 
 ---
 
-## Advanced Platform Features
-
-### 1. Studio Suite
-- **Live Performance Tracking**: Visualizing engagement, traffic sources, and reader demographics.
-- **Project Console**: Manage multiple blogs (Relay Stations) from a unified dashboard.
-- **Resource Management**: Built-in File Library and Media management.
-
-### 2. The Creative Editor
-- **Tiptap Core**: Native support for structured rich-text content via JSON storage.
-- **Dynamic Prose**: Typography that adapts its weight, leading, and scale in real-time.
-- **Dual-Mode Editing**: Switch between a standard canvas and a simulated Terminal editor.
-
-### 3. Discovery & Social
-- **Global Signal**: Aggregated discovery feed across all platform tenants.
-- **Social Graph**: Tenant-scoped following systems and personalized discovery paths.
-- **Reactive Interactions**: Smooth animations for Likes, Saves, and nested Comment trees.
+## Primary Capabilities
+- **Terminal Editor**: A specialized monospaced editing environment for developers.
+- **Journal Layout**: Sophisticated editorial design for long-form literary content.
+- **Semantic Discovery**: Integrated search bars with vector-based type-ahead.
+- **Global Signal**: Aggregated discovery feed syncing thousands of creators.
 
 ---
 
 ## Technology Stack
-
-- **Framework**: [Next.js 16+](https://nextjs.org) (App Router)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com) + CSS Variables
+- **Framework**: [Next.js 16](https://nextjs.org) (App Router)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com) + CSS Variables
 - **Animation**: [Framer Motion](https://www.framer.com/motion/)
 - **Charts**: [Recharts](https://recharts.org)
 - **Editor**: [Tiptap](https://tiptap.dev)
 - **Icons**: [Lucide React](https://lucide.dev)
-
----
-
-## Getting Started
-
-### Installation
-```bash
-git clone https://github.com/shubh305/conduit-frontend.git
-cd conduit-frontend
-npm install
-```
-
-### Development
-1. Configure `.env.local` to point to your `conduit-core` instance.
-2. Launch the development server: `npm run dev`
-3. Access the platform at `http://localhost:3000`.
-
+- **Persistence**: [React Query](https://tanstack.com/query)
