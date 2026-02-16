@@ -33,7 +33,7 @@ export function MoreFromAuthor({
   compact = false,
 }: MoreFromAuthorProps) {
   const { config } = useTheme();
-  const { isCyberCopy, isSakuraCopy, isJournalCopy, isDarkMode } = useThemeHelpers();
+  const { isCyberCopy, isSakuraCopy, isJournalCopy, isDarkMode, isTerminalCopy } = useThemeHelpers();
   const t = useThemeLabel();
   const { posts, isLoading } = useMoreFromAuthor(tenantId, currentPostId);
 
@@ -104,9 +104,11 @@ export function MoreFromAuthor({
                     "flex flex-col h-full transition-all shadow-lg overflow-hidden",
                     isJournalCopy
                       ? "bg-white/60 border border-black/5 hover:border-accent/40 hover:shadow-xl hover:bg-white/80"
-                      : "bg-noir-panel/30 border border-noir-border hover:border-accent hover:shadow-accent/5",
+                      : isTerminalCopy
+                        ? "bg-black border border-accent hover:bg-accent/5 hover:shadow-[0_0_15px_rgba(var(--accent-rgb),0.2)]"
+                        : "bg-noir-panel/30 border border-noir-border hover:border-accent hover:shadow-accent/5",
                     compact ? "p-0 rounded-lg" : "p-1 rounded-xl",
-                    isJournalCopy && "rounded-sm",
+                    (isJournalCopy || isCyberCopy || isTerminalCopy) && "rounded-none",
                   )}
                 >
                   {/* Image */}
@@ -115,7 +117,7 @@ export function MoreFromAuthor({
                       className={cn(
                         "relative bg-noir-bg transition-all duration-700 shrink-0 overflow-hidden",
                         compact ? "aspect-[30/12]" : "aspect-[21/9] sm:aspect-[16/10]",
-                        isCyberCopy
+                        isCyberCopy || isTerminalCopy
                           ? "rounded-none"
                           : isJournalCopy
                             ? "rounded-sm border-b border-black/5"
@@ -130,7 +132,7 @@ export function MoreFromAuthor({
                         fill
                         className={cn(
                           "object-cover transition-all duration-700 group-hover:scale-110",
-                          isDarkMode
+                          isDarkMode || isTerminalCopy
                             ? "opacity-70 group-hover:opacity-100 grayscale-[50%] group-hover:grayscale-0"
                             : isJournalCopy
                               ? "opacity-90 group-hover:opacity-100 sepia-[0.3]"
@@ -138,6 +140,9 @@ export function MoreFromAuthor({
                         )}
                       />
                       {isJournalCopy && <div className="absolute inset-0 bg-journal-paper/10 mix-blend-multiply" />}
+                      {isTerminalCopy && (
+                        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-10 bg-[length:100%_2px,3px_100%] pointer-events-none opacity-40" />
+                      )}
                     </div>
                   )}
 
@@ -147,7 +152,7 @@ export function MoreFromAuthor({
                       <div
                         className={cn(
                           "w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center text-[8px] sm:text-[9px] font-bold border border-noir-border bg-noir-bg shadow-sm",
-                          isCyberCopy ? "rounded-none" : "rounded-full",
+                          isCyberCopy || isTerminalCopy ? "rounded-none" : "rounded-full",
                           isJournalCopy && "bg-white border-black/10 text-black font-serif",
                         )}
                       >
@@ -156,7 +161,11 @@ export function MoreFromAuthor({
                       <span
                         className={cn(
                           "text-[8px] sm:text-[10px] font-bold uppercase tracking-widest text-foreground-subtle group-hover:text-accent transition-colors",
-                          isCyberCopy ? "font-mono" : isJournalCopy ? "font-serif text-black/60" : "font-sans",
+                          isCyberCopy || isTerminalCopy
+                            ? "font-mono"
+                            : isJournalCopy
+                              ? "font-serif text-black/60"
+                              : "font-sans",
                         )}
                       >
                         {post.authorName}
@@ -169,7 +178,7 @@ export function MoreFromAuthor({
                         compact
                           ? "text-[10px] sm:text-sm mb-1 sm:mb-2 line-clamp-2"
                           : "text-xs sm:text-lg mb-2 sm:mb-3 line-clamp-2",
-                        isCyberCopy
+                        isCyberCopy || isTerminalCopy
                           ? "font-mono uppercase tracking-tighter"
                           : isJournalCopy
                             ? "font-serif text-black/90 font-medium"
@@ -229,7 +238,7 @@ export function MoreFromAuthor({
                 "inline-flex items-center gap-3 border font-black uppercase tracking-[0.3em] transition-all shadow-xl hover:-translate-y-1",
                 "bg-noir-panel border-noir-border text-foreground hover:border-accent hover:text-accent hover:shadow-accent/10",
                 compact ? "px-6 py-3 text-[9px]" : "px-10 py-4 text-[10px]",
-                isCyberCopy ? "rounded-none" : "rounded-full",
+                isCyberCopy || isTerminalCopy ? "rounded-none" : "rounded-full",
               )}
             >
               {t("accessAllFromAuthor").replace("{name}", authorName)}

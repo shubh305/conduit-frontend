@@ -79,7 +79,15 @@ export type StudioLabelKey =
   | "stats_7_days"
   | "stats_engagement"
   | "publication_updated_success"
-  | "input_active_status";
+  | "input_active_status"
+  | "new_publication_btn"
+  | "new_publication_btn_long"
+  | "create_list_title"
+  | "edit_list_title"
+  | "list_name_placeholder"
+  | "list_desc_placeholder"
+  | "list_private_label"
+  | "list_default_label";
 
 export const STUDIO_LABELS: Record<StudioLabelKey, Record<string, string>> = {
   brand: {
@@ -257,13 +265,13 @@ export const STUDIO_LABELS: Record<StudioLabelKey, Record<string, string>> = {
   },
   new_publication_btn: {
     default: "Create",
-    sakura: "Transmit",
-    octane: "Ignite",
+    sakura: "作成",
+    octane: "CREATE",
     journal: "Inscribe",
     cyber: "INIT",
-    terminal: "$ mk",
-    ronin: "ESTABLISH",
-    techie: "INIT",
+    terminal: "[ EXECUTE ]",
+    ronin: "Seal",
+    techie: "CREATE",
   },
   analytics: {
     default: "Analytics",
@@ -476,7 +484,7 @@ export const STUDIO_LABELS: Record<StudioLabelKey, Record<string, string>> = {
     journal: "Cancel",
     cyber: "ABORT_MISSION",
     terminal: "[ ABORT ]",
-    ronin: "RETREAT",
+    ronin: "Abort",
   },
   site_created_success: {
     default: "Publication created successfully!",
@@ -862,6 +870,77 @@ export const STUDIO_LABELS: Record<StudioLabelKey, Record<string, string>> = {
     cyber: "[INPUT_ACTIVE]",
     terminal: "[ACTIVE]",
     techie: "[READY]",
+  },
+
+  new_publication_btn_long: {
+    default: "Create New Publication",
+    sakura: "新しい配信を作成",
+    octane: "INITIALIZE_UPLINK",
+    journal: "Create New Journal",
+    cyber: "INITIALIZE_NEW_NODE",
+    terminal: "EXECUTE: NEW_NODE",
+    ronin: "ESTABLISH_NEW_DOMAIN",
+    techie: "CREATE_NEW_PROJECT",
+  },
+  create_list_title: {
+    default: "Create New List",
+    sakura: "新規コレクションの初期化",
+    octane: "NEW_COLLECTION",
+    journal: "Inscribe New Collection",
+    cyber: "NEW_ARRAY_INIT",
+    terminal: "MKDIR: NEW_COLLECTION",
+    ronin: "Save to Chronicle",
+    techie: "CREATE_NEW_COLLECTION",
+  },
+  edit_list_title: {
+    default: "Edit List",
+    sakura: "コレクションを編集",
+    octane: "MODIFY_COLLECTION",
+    journal: "Revise Collection",
+    cyber: "UPDATE_ARRAY_DATA",
+    terminal: "CHMOD: EDIT_COLLECTION",
+    ronin: "Revise Chronicle",
+    techie: "EDIT_COLLECTION",
+  },
+  list_name_placeholder: {
+    default: "Give it a name",
+    sakura: "例：私の秘密基地",
+    octane: "ENTER_NAME",
+    journal: "Title of the work...",
+    cyber: "IDENTIFIER_INPUT...",
+    terminal: "await name_entry",
+    ronin: "Chronicle Name",
+    techie: "collection_name",
+  },
+  list_desc_placeholder: {
+    default: "Add a description",
+    sakura: "このブログについて...",
+    octane: "ENTER_DESCRIPTION",
+    journal: "Summary of contents...",
+    cyber: "METADATA_DESCRIPTION...",
+    terminal: "await desc_entry",
+    ronin: "Chronicle Summary",
+    techie: "optional_description",
+  },
+  list_private_label: {
+    default: "Make it private",
+    sakura: "非公開にする",
+    octane: "PRIVATE_UPLINK",
+    journal: "Keep Sealed",
+    cyber: "SECURE_MODE",
+    terminal: "SET_PRIVATE",
+    ronin: "Seal Content (Private)",
+    techie: "PRIVATE_ACCESS",
+  },
+  list_default_label: {
+    default: "Make it default",
+    sakura: "デフォルトにする",
+    octane: "DEFAULT_FEED",
+    journal: "Primary Ledger",
+    cyber: "DEFAULT_GATEWAY",
+    terminal: "SET_PRIMARY",
+    ronin: "Primary Record",
+    techie: "DEFAULT_COLLECTION",
   },
 };
 

@@ -64,7 +64,7 @@ export function CyberArticleLayout({ post, tenant, isPreview: isPreviewProp }: A
           )}
         </div>
 
-        <div className="relative z-10 max-w-screen-2xl mx-auto w-full py-12 md:py-24">
+        <div className="relative z-10 max-w-screen-2xl mx-auto w-full py-8 md:py-24">
           {!isPreview && (
             <button
               onClick={navigateToBlogHome}

@@ -127,11 +127,30 @@
 }
 
 .terminal-scanline-bg {
-  background: repeating-linear-gradient(0deg, var(--accent) 0px, var(--accent) 3px, rgba(0, 0, 0, 0.2) 3px, rgba(0, 0, 0, 0.2) 4px);
+  background: 
+    linear-gradient(rgba(var(--accent-rgb), 0.02), rgba(var(--accent-rgb), 0.02)),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.01) 0px, rgba(255, 255, 255, 0.01) 1px, transparent 1px, transparent 8px);
+}
+
+.terminal-publish-pill {
+  background: linear-gradient(180deg, #FFFFFF 0%, #A0A0A0 100%);
+  border: 1px solid var(--accent);
+  color: #000000 !important;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transition: all 0.2s ease;
+}
+
+.terminal-publish-pill:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 0 25px rgba(var(--accent-rgb), 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 .terminal-glow {
-  filter: drop-shadow(0 0 8px rgba(74, 246, 38, 0.4));
+  filter: drop-shadow(0 0 8px rgba(var(--accent-rgb), 0.4));
 }
 
 @keyframes terminal-reveal {

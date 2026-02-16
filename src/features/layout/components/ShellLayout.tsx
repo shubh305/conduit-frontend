@@ -16,6 +16,7 @@ import { WIP_LIMITS } from "@/lib/wip-limits";
 import { UserNavWidget } from "./UserNavWidget";
 import { useThemeLabel } from "@/components/theme/ThemeLabel";
 import { useAuth } from "@/features/auth/AuthProvider";
+import { isRootSite } from "@/lib/utils";
 
 interface ShellLayoutProps {
   children: React.ReactNode;
@@ -208,15 +209,37 @@ export function ShellLayout({ children }: ShellLayoutProps) {
 
       {/* Exit Void Button */}
       {focusMode && (
-        <button
-          onClick={() => setFocusMode(false)}
-          className={cn(
-            "fixed top-8 left-8 z-[110] text-[10px] text-accent/30 hover:text-accent transition-all uppercase tracking-widest animate-in fade-in duration-1000",
-            fontFamily === "mono" ? "font-mono" : fontFamily === "serif" ? "font-serif" : "font-sans",
-          )}
-        >
-          [ Esc_to_Exit_Void ]
-        </button>
+        <div className="fixed top-6 right-6 z-[120] flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-700">
+          <button
+            onClick={() => setFocusMode(false)}
+            className={cn(
+              "hidden md:block text-[10px] text-accent/50 hover:text-accent transition-all uppercase tracking-widest px-3 py-1 border border-accent/20 hover:border-accent/50 bg-black/40 backdrop-blur-md",
+              fontFamily === "mono" ? "font-mono" : fontFamily === "serif" ? "font-serif" : "font-sans",
+            )}
+          >
+            [ Esc_to_Exit_Void ]
+          </button>
+
+          <button
+            onClick={() => setFocusMode(false)}
+            className="flex items-center justify-center w-10 h-10 rounded-full border border-accent/30 bg-black/60 text-accent hover:bg-accent hover:text-black transition-all shadow-[0_0_15px_rgba(var(--accent-rgb),0.2)] md:w-8 md:h-8"
+            aria-label="Exit Void Mode"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
       )}
       {/* Terminal Scanlines */}
       {isTerminalCopy && <div className="scanlines" />}
@@ -248,7 +271,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
       </Suspense>
 
       <Suspense fallback={null}>
-        {user && (pathname === "/" || pathname.startsWith("/search")) && (
+        {user && !focusMode && isRootSite() && (pathname === "/" || pathname.startsWith("/search")) && !isPostView && (
           <AuxiliarySidebar isOpen={isRightSidebarOpen} onClose={() => setIsRightSidebarOpen(false)} />
         )}
       </Suspense>
@@ -325,7 +348,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
               ? "pt-0 h-screen overflow-hidden bg-journal-parchment flex flex-col"
               : isDashboardRoute
                 ? "pt-[64px]"
-                : "pt-20 md:pt-24",
+                : "pt-12 md:pt-24",
             isTechieCopy && "xl:border-none",
             isStudioRoute &&
               cn(

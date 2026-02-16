@@ -42,7 +42,7 @@ export function TechieArticleLayout({ post, tenant, isPreview: isPreviewProp }: 
         <div className="container mx-auto max-w-[1600px]">
           <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[500px]">
             {/* Header Left: Content */}
-            <div className="px-2 py-12 sm:p-12 lg:p-20 flex flex-col justify-center gap-6 sm:gap-8 relative z-30">
+            <div className="px-2 py-8 sm:p-12 lg:p-20 flex flex-col justify-center gap-6 sm:gap-8 relative z-30">
               {/* Background Grid Decoration */}
               <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--border-primary)_1px,transparent_1px),linear-gradient(to_bottom,var(--border-primary)_1px,transparent_1px)] bg-[size:40px_40px] opacity-[0.05] pointer-events-none" />
 

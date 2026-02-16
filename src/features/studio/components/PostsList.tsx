@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw, MoreHorizontal, Trash2, ExternalLink, Pencil, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
-import { cn, formatDate, getExcerptFromTiptap } from "@/lib/utils";
+import { cn, formatDate, getExcerptFromTiptap, getPostUrl } from "@/lib/utils";
 import { WIP_LIMITS } from "@/lib/wip-limits";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { restorePost } from "@/features/blog/api";
@@ -83,7 +83,23 @@ export function PostsList({ posts, counts, activeTab, onTabChange, onDelete, onR
         name: post.title || "untitled.md",
         link: `/studio/editor/${post.id}${post.tenantId ? `?tenant=${post.tenantId}` : ""}`,
         actions: (
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-3">
+            {!post.deletedAt && (
+              <>
+                <Link
+                  href={getPostUrl({ ...post, postSlug: post.slug, tenantSlug: post.tenantSlug }, post.tenantSlug)}
+                  className="text-accent hover:text-white no-underline"
+                >
+                  [VIEW]
+                </Link>
+                <Link
+                  href={`/studio/editor/${post.id}${post.tenantId ? `?tenant=${post.tenantId}` : ""}`}
+                  className="text-accent hover:text-white no-underline"
+                >
+                  [EDIT]
+                </Link>
+              </>
+            )}
             {post.deletedAt ? (
               <button
                 onClick={() => handleRestore(post.id, post.tenantId)}
@@ -115,7 +131,7 @@ export function PostsList({ posts, counts, activeTab, onTabChange, onDelete, onR
                 key={tab}
                 onClick={() => onTabChange(tab)}
                 className={cn(
-                  "hover:text-white hover:bg-accent hover:text-black px-1 transition-colors",
+                  "hover:text-white hover:bg-accent hover:text-black px-1 transition-colors cursor-pointer",
                   activeTab === tab ? "bg-accent/20 text-accent font-bold" : "text-foreground-muted",
                 )}
               >

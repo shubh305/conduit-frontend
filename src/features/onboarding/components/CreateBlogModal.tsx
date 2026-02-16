@@ -115,12 +115,12 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
   // --- TERMINAL MODE ---
   if (isTerminalCopy) {
     return (
-      <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
-        <div className="w-full max-w-2xl border border-accent bg-black shadow-[0_0_30px_rgba(34,197,94,0.1)] font-mono text-sm text-accent">
+      <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-noir-bg/90 backdrop-blur-sm">
+        <div className="w-full max-w-2xl border border-accent bg-noir-bg shadow-[0_0_30px_rgba(var(--accent-rgb),0.2)] font-mono text-sm text-accent">
           {/* Header */}
           <div className="bg-accent text-black p-2 font-bold flex justify-between">
             <span>{getLabel("create_site_title")}</span>
-            <button onClick={onClose} className="hover:bg-black hover:text-accent px-1">
+            <button onClick={onClose} className="hover:bg-noir-bg hover:text-accent px-1">
               [X]
             </button>
           </div>
@@ -131,7 +131,7 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
               <input
                 value={name}
                 onChange={handleNameChange}
-                className="bg-black border-b border-accent text-white outline-none focus:bg-accent/10 px-2 py-1 uppercase"
+                className="bg-noir-bg border-b border-accent text-foreground outline-none focus:bg-accent/10 px-2 py-1 uppercase"
                 placeholder="ENTER_NAME"
                 autoFocus
               />
@@ -142,7 +142,7 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
               <input
                 value={description}
                 onChange={e => setDescription(e.target.value)}
-                className="bg-black border-b border-accent text-white outline-none focus:bg-accent/10 px-2 py-1"
+                className="bg-noir-bg border-b border-accent text-foreground outline-none focus:bg-accent/10 px-2 py-1"
                 placeholder="ENTER_DESC"
               />
             </div>
@@ -154,7 +154,7 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
                 <input
                   value={subdomain}
                   onChange={e => setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
-                  className="bg-black border-b border-accent text-green-500 outline-none focus:bg-accent/10 px-2 py-1 w-full"
+                  className="bg-noir-bg border-b border-accent text-accent outline-none focus:bg-accent/10 px-2 py-1 w-full"
                   placeholder="slug"
                 />
               </div>
@@ -242,7 +242,7 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
               : isOctaneCopy
                 ? "rounded-sm bg-noir-bg border-accent/40 shadow-accent/5"
                 : isJournalCopy
-                  ? "rounded-2xl bg-journal-paper border-accent/20 shadow-2xl"
+                  ? "rounded-2xl bg-noir-panel border-accent/20 shadow-2xl"
                   : "rounded-none bg-noir-bg border-noir-border",
         )}
       >
@@ -253,7 +253,7 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
           <X size={24} />
         </button>
 
-        <div className="p-10 md:p-16">
+        <div className="p-8 md:p-12 lg:p-16">
           <h2
             className={cn(
               "text-3xl font-black mb-10 transition-colors tracking-widest",
@@ -264,9 +264,9 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
             {getLabel("create_site_title")}
           </h2>
 
-          <div className="flex flex-col-reverse md:flex-row gap-8 md:gap-12">
+          <div className="flex flex-col md:flex-row gap-8 md:gap-12">
             {/* Form Side */}
-            <div className="flex-1 space-y-10">
+            <div className="flex-1 space-y-8">
               <div className="group">
                 <label
                   className={cn(
@@ -284,7 +284,8 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
                   placeholder={getLabel("site_name_placeholder")}
                   className={cn(
                     "w-full outline-none transition-all py-3 shadow-inner",
-                    "border-b border-noir-border focus:border-accent text-foreground font-bold text-lg placeholder:text-foreground-subtle/20",
+                    "border-b border-noir-border focus:border-accent text-foreground font-bold text-lg",
+                    isRoninCopy ? "placeholder:text-accent/50" : "placeholder:text-foreground-subtle/20",
                     isJournalCopy
                       ? "font-serif h-12 text-xl border border-accent/20 rounded-lg px-4 bg-noir-hover/20"
                       : "px-4 bg-noir-panel",
@@ -311,7 +312,8 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
                   placeholder={getLabel("site_description_placeholder")}
                   className={cn(
                     "w-full outline-none transition-all py-3 shadow-inner",
-                    "border-b border-noir-border focus:border-accent text-foreground font-bold text-lg placeholder:text-foreground-subtle/20",
+                    "border-b border-noir-border focus:border-accent text-foreground font-bold text-lg",
+                    isRoninCopy ? "placeholder:text-accent/50" : "placeholder:text-foreground-subtle/20",
                     isJournalCopy
                       ? "font-serif h-12 text-sm border border-accent/20 rounded-lg px-4 bg-noir-hover/20"
                       : "px-4 bg-noir-panel",
@@ -353,8 +355,11 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
                 >
                   <input
                     value={subdomain}
-                    onChange={e => setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
-                    className="bg-transparent border-none text-foreground w-full h-full focus:ring-0 placeholder:text-foreground-subtle/20 outline-none font-mono text-sm font-bold"
+                    onChange={e => setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-9-]/g, ""))}
+                    className={cn(
+                      "bg-transparent border-none text-foreground w-full h-full focus:ring-0 outline-none font-mono text-sm font-bold",
+                      isRoninCopy ? "placeholder:text-accent/50" : "placeholder:text-foreground-subtle/20",
+                    )}
                     placeholder="frequency-id"
                   />
                   <span className="text-foreground-subtle font-mono text-[10px] tracking-widest border-l border-noir-border pl-4 ml-4 whitespace-nowrap opacity-60">
@@ -414,17 +419,17 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
                 )}
                 <div
                   className={cn(
-                    "absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all text-[9px] font-mono font-black uppercase tracking-[0.2em] bg-black/60 text-white backdrop-blur-[2px]",
-                    isUploading && "opacity-100 bg-black/80",
+                    "absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all text-[9px] font-mono font-black uppercase tracking-[0.2em] bg-noir-bg/60 text-foreground backdrop-blur-[2px]",
+                    isUploading && "opacity-100 bg-noir-bg/80",
                   )}
                 >
                   {isUploading ? (
                     <div className="flex flex-col items-center gap-2">
                       <Loader2 size={16} className="animate-spin text-accent" />
-                      <span>Uploading...</span>
+                      <span>{getLabel("loading")}</span>
                     </div>
                   ) : (
-                    "Upload Signal Icon"
+                    "Upload Icon"
                   )}
                 </div>
               </div>
@@ -440,7 +445,7 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
 
         <div
           className={cn(
-            "p-8 md:px-12 md:pb-12 flex justify-end gap-6 bg-noir-panel/50 backdrop-blur-md",
+            "p-8 md:px-12 md:pb-12 flex justify-end items-center gap-6 bg-noir-panel/50 backdrop-blur-md",
             isJournalCopy && "bg-noir-hover/10 border-t border-accent/10",
           )}
         >
@@ -460,7 +465,7 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
             onClick={handleSubmit}
             disabled={!name || !subdomain || !isSubdomainAvailable || isCreating}
             className={cn(
-              "h-10 px-10 transition-all font-mono uppercase font-black tracking-[0.2em] text-[10px] shadow-xl",
+              "h-12 px-12 transition-all font-mono uppercase font-black tracking-[0.2em] text-[10px] shadow-xl",
               isCyberCopy
                 ? "bg-accent text-noir-bg hover:brightness-110 rounded-none"
                 : isRoninCopy
@@ -468,7 +473,7 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
                   : isOctaneCopy
                     ? "bg-accent text-noir-bg hover:bg-accent/90 rounded-none border border-accent font-bold"
                     : isJournalCopy
-                      ? "bg-accent text-[#FDF5E6] hover:bg-accent/90 rounded-xl shadow-md hover:shadow-lg font-serif italic border-none h-12"
+                      ? "bg-accent text-noir-bg hover:bg-accent-secondary rounded-xl shadow-md hover:shadow-lg font-serif italic border-none h-12"
                       : "bg-foreground text-noir-bg hover:bg-accent rounded-full",
             )}
           >

@@ -9,6 +9,7 @@ export function getSettingsSidebarClasses(theme: ThemeVariant): string {
   const styles = {
     techie: "bg-noir-bg border-noir-border text-foreground",
     ronin: "bg-[var(--bg-sidebar)] border-l border-[#3D3835] text-foreground",
+    terminal: "bg-black border-l border-accent/20 text-accent font-mono shadow-[0_0_30px_rgba(var(--accent-rgb),0.2)]",
     default: "bg-noir-panel border-noir-border text-foreground",
   };
 
@@ -23,8 +24,9 @@ export function getSettingsHeaderClasses(theme: ThemeVariant): string {
     cyber: "font-mono text-accent",
     journal: "font-serif",
     techie: "font-mono text-accent tracking-widest",
-    default: "", 
-  }
+    terminal: "font-mono text-accent terminal-scanline-text",
+    default: "",
+  };
 
   const themeStyle = styles[theme as keyof typeof styles] || styles.default
   return cn(base, themeStyle)
@@ -37,8 +39,9 @@ export function getSettingsLabelClasses(theme: ThemeVariant): string {
     cyber: "text-accent font-mono",
     journal: "font-serif text-foreground",
     techie: "text-accent-secondary font-mono",
+    terminal: "text-accent font-mono uppercase tracking-[0.3em]",
     default: "text-foreground-muted",
-  }
+  };
 
   const themeStyle = styles[theme as keyof typeof styles] || styles.default
   return cn(base, themeStyle)
@@ -50,8 +53,9 @@ export function getSettingsInputContainerClasses(theme: ThemeVariant, isEditing:
   const styles = {
     techie: `bg-noir-panel border-noir-border ${isEditing ? "border-accent" : "border-noir-border"} rounded-none`,
     cyber: `bg-noir-bg border-noir-border ${isEditing ? "border-accent" : "border-noir-border hover:border-noir-border/80"} rounded-none`,
+    terminal: `bg-black border-accent/20 ${isEditing ? "border-accent" : "border-accent/20 hover:border-accent/40"} rounded-none font-mono`,
     default: `bg-noir-bg border-noir-border ${isEditing ? "border-accent" : "border-noir-border hover:border-noir-border/80"} rounded-xl`,
-  }
+  };
 
   const themeStyle = styles[theme as keyof typeof styles] || styles.default
   return cn(base, themeStyle)
@@ -77,8 +81,10 @@ export function getSettingsPublishButtonClasses(theme: ThemeVariant): string {
     cyber: "bg-accent text-noir-bg font-mono rounded-none border border-accent hover:bg-accent/90",
     techie:
       "bg-accent text-noir-bg font-mono rounded-md hover:bg-accent-secondary shadow-[0_0_15px_rgba(var(--accent-rgb),0.2)] border-none",
+    terminal:
+      "rounded-full border border-accent hover:scale-[1.02] terminal-publish-pill shadow-[0_0_15px_rgba(var(--accent-rgb),0.3)]",
     default: "rounded-full",
-  }
+  };
 
   const themeStyle = styles[theme as keyof typeof styles] || styles.default
   return cn(base, themeStyle)

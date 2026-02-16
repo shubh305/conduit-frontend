@@ -119,7 +119,7 @@ export const CodeBlockComponent = ({
     languages.find(l => l.value === (defaultLanguage || "null"))?.label || "Plain Text";
 
   return (
-    <NodeViewWrapper className="code-block-wrapper my-6 group relative rounded-xl overflow-hidden border border-[var(--code-border)] bg-[var(--code-bg)] shadow-2xl transition-all hover:shadow-accent/5">
+    <NodeViewWrapper className="code-block-wrapper my-8 group relative rounded-xl overflow-hidden border border-[var(--code-border)] bg-[var(--code-bg)] shadow-2xl transition-all hover:shadow-accent/5 max-w-4xl mx-auto">
       <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--code-border)] bg-[var(--code-header)] backdrop-blur-md sticky top-0 z-10">
         <div className="relative">
           <button
@@ -128,7 +128,10 @@ export const CodeBlockComponent = ({
           >
             <span className="w-2 h-2 rounded-full bg-accent/50 group-hover/lang:bg-accent transition-colors shrink-0" />
             {currentLanguageLabel}
-            <ChevronDown size={12} className={cn("transition-transform duration-300", isDropdownOpen && "rotate-180")} />
+            <ChevronDown
+              size={12}
+              className={cn("transition-transform duration-300", isDropdownOpen && "rotate-180")}
+            />
           </button>
 
           {isDropdownOpen && (
@@ -139,8 +142,8 @@ export const CodeBlockComponent = ({
                   onClick={() => handleLanguageChange(lang.value)}
                   className={cn(
                     "w-full text-left px-4 py-2 text-[10px] uppercase font-bold tracking-widest transition-all cursor-pointer",
-                    (defaultLanguage || "null") === lang.value 
-                      ? "text-accent bg-accent/5" 
+                    (defaultLanguage || "null") === lang.value
+                      ? "text-accent bg-accent/5"
                       : "text-[var(--code-text)] opacity-40 hover:opacity-100 hover:bg-black/5",
                   )}
                 >
@@ -159,7 +162,7 @@ export const CodeBlockComponent = ({
           >
             {isCopied ? <Check size={14} className="text-emerald-400" /> : <Clipboard size={14} />}
           </button>
-          
+
           <button
             onClick={formatCode}
             className="p-1.5 text-[var(--code-text)] opacity-30 hover:opacity-100 hover:bg-black/5 rounded-lg transition-all active:scale-95 group/format cursor-pointer"
@@ -179,7 +182,13 @@ export const CodeBlockComponent = ({
       </div>
 
       <pre className="p-5 overflow-x-auto selection:bg-accent/30 no-scrollbar bg-transparent">
-        <NodeViewContent as="div" className={cn(defaultLanguage && `language-${defaultLanguage}`, "block font-mono text-sm leading-relaxed text-[var(--code-text)]")} />
+        <NodeViewContent
+          as="div"
+          className={cn(
+            defaultLanguage && `language-${defaultLanguage}`,
+            "block font-mono text-sm leading-relaxed text-[var(--code-text)]",
+          )}
+        />
       </pre>
     </NodeViewWrapper>
   );

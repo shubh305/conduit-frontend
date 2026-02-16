@@ -14,6 +14,7 @@ import { useTheme, useLabels } from "@/features/theme/ThemeProvider";
 import { useFollowUser } from "@/features/profile/hooks/useFollowUser";
 import { useBlogNavigation } from "@/features/blog/hooks/useBlogNavigation";
 import { AnimatePresence, motion } from "framer-motion";
+import { MoreFromAuthor } from "@/features/blog/components/MoreFromAuthor";
 
 interface TerminalPostLayoutProps {
   post: FeedItem & { content: TiptapContent; readingTimeMinutes: number };
@@ -131,7 +132,7 @@ export function TerminalPostLayout({ post, tenant, isPreview: isPreviewProp }: T
   return (
     <div
       className={cn(
-        "min-h-screen bg-black font-mono text-foreground pt-28 pb-12 px-2 md:px-0 mx-auto transition-all duration-500 ease-in-out",
+        "min-h-screen bg-black font-mono text-foreground pt-16 md:pt-28 pb-12 px-2 md:px-0 mx-auto transition-all duration-500 ease-in-out",
         focusMode ? "max-w-5xl" : "max-w-4xl",
       )}
     >
@@ -141,6 +142,18 @@ export function TerminalPostLayout({ post, tenant, isPreview: isPreviewProp }: T
         isOpen={isCommentsOpen}
         onClose={() => setIsCommentsOpen(false)}
       />
+
+      {!isPreview && (
+        <div className="mb-8">
+          <button
+            onClick={navigateToBlogHome}
+            className="flex items-center gap-2 group text-accent hover:text-white transition-all text-xs uppercase tracking-widest font-bold"
+          >
+            <span className="group-hover:-translate-x-1 transition-transform">{"<--"}</span>
+            <span className="border-b border-accent group-hover:border-white pb-0.5">RETURN_TO_BASE</span>
+          </button>
+        </div>
+      )}
 
       {/* Header Metadata */}
       <div className="mb-4 font-mono text-xs space-y-1 select-none relative">
@@ -255,6 +268,29 @@ export function TerminalPostLayout({ post, tenant, isPreview: isPreviewProp }: T
           </div>
         )}
       </article>
+
+      {!isPreview && (
+        <div className="mt-24 pt-12 border-t border-accent/20">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-xl md:text-2xl font-bold text-accent uppercase tracking-tighter">
+              {">"} RELATED_TRANSMISSIONS (BY_@{post.authorUsername || "author"})
+            </h3>
+            <div className="text-[10px] text-foreground-muted hidden md:block italic">
+              [SOURCE: /var/log/recommendations.log]
+            </div>
+          </div>
+
+          <MoreFromAuthor
+            authorName={post.authorName}
+            currentPostId={post.postId}
+            tenantSlug={tenant.slug || ""}
+            tenantId={tenant.id}
+            className="!py-0 !px-0 bg-transparent border-none"
+            hideHeader
+            gridClassName="!grid-cols-1 sm:!grid-cols-2 lg:!grid-cols-4"
+          />
+        </div>
+      )}
 
       {/* VIM Status Bar*/}
       <div className="fixed bottom-0 left-0 right-0 bg-accent text-black font-mono text-xs px-4 py-1 flex flex-col md:flex-row justify-between z-50 border-t border-black">

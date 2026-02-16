@@ -298,7 +298,9 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                     "px-4 md:px-6 h-8 md:h-9 text-[10px] md:text-xs uppercase font-bold tracking-wider",
                     isCyberCopy
                       ? "text-accent border border-accent/20 hover:bg-accent/10"
-                      : "text-foreground-subtle hover:text-accent hover:bg-accent/5",
+                      : theme === "terminal"
+                        ? "text-accent border border-accent/30 hover:bg-accent hover:text-black font-mono"
+                        : "text-foreground-subtle hover:text-accent hover:bg-accent/5",
                   )}
                   style={{ borderRadius: isCyberCopy ? "0" : config.tokens.borderRadius }}
                 >
@@ -311,7 +313,9 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                     "px-4 md:px-6 h-8 md:h-9 text-[10px] md:text-xs uppercase font-bold tracking-wider",
                     isCyberCopy
                       ? "bg-noir-panel border border-accent/20 text-accent hover:bg-accent/5"
-                      : "bg-foreground/5 hover:bg-foreground/10 text-foreground border-none",
+                      : theme === "terminal"
+                        ? "bg-black border border-accent/40 text-accent hover:bg-accent/10 font-mono"
+                        : "bg-foreground/5 hover:bg-foreground/10 text-foreground border-none",
                   )}
                   style={{ borderRadius: isCyberCopy ? "0" : config.tokens.borderRadius }}
                 >
@@ -331,7 +335,9 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                         ? "bg-accent text-noir-bg rounded-none hover:bg-accent-secondary shadow-[0_0_12px_rgba(var(--accent-rgb),0.2)]"
                         : isJournalCopy
                           ? "rounded-lg bg-[#8B4513] text-[#fdf5e6] hover:bg-[#A0522D] font-serif shadow-md hover:shadow-lg border border-transparent"
-                          : "bg-accent hover:bg-accent/80 text-noir-bg",
+                          : theme === "terminal"
+                            ? "bg-accent text-black font-mono uppercase font-black hover:bg-accent/90 shadow-[0_0_15px_rgba(var(--accent-rgb),0.3)]"
+                            : "bg-accent hover:bg-accent/80 text-noir-bg",
                   )}
                   style={{ borderRadius: isCyberCopy ? "0" : config.tokens.borderRadius }}
                 >
@@ -362,9 +368,11 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                   ? "placeholder:text-foreground-subtle/20 text-foreground uppercase tracking-tighter font-mono"
                   : isTechieCopy
                     ? "font-mono uppercase tracking-tighter text-foreground placeholder:text-noir-border"
-                    : config.fontFamily === "serif"
-                      ? "font-serif italic"
-                      : "font-sans",
+                    : theme === "terminal"
+                      ? "font-mono uppercase tracking-tighter text-accent placeholder:text-accent/10 terminal-glow"
+                      : config.fontFamily === "serif"
+                        ? "font-serif italic"
+                        : "font-sans",
               )}
               value={title}
               onChange={e => setTitle(e.target.value)}
@@ -376,72 +384,76 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
             content={content}
             onChange={setContent}
             tenantId={activeTenantId || undefined}
-          />
-
-          <SettingsSidebar
-            isOpen={isSidebarOpen}
-            onClose={() => setIsSidebarOpen(false)}
-            slug={slug}
-            tags={tags}
+            title={title}
+            onTitleChange={setTitle}
             featuredImage={featuredImage}
-            onUpdate={updates => {
-              if (updates.slug !== undefined) {
-                setSlug(updates.slug);
-                isSlugManuallyEdited.current = true;
-              }
-              if (updates.tags !== undefined) setTags(updates.tags);
-              if (updates.featuredImage !== undefined) setFeaturedImage(updates.featuredImage);
-            }}
-            tenantId={activeTenantId || undefined}
-            postTitle={title}
-            authorUsername={user.username}
-            onPublish={handlePublish}
-            readingTimeMinutes={readingTimeMinutes}
-            wordCount={wordCount}
-            paragraphsCount={paragraphsCount}
-            onSchedule={async date => {
-              const tenantId = getActiveTenantId();
-              if (!post || !post.id || !tenantId) return;
-
-              if (tags.length === 0) {
-                toast.warning(t("addTagWarningSchedule"));
-                setIsSidebarOpen(true);
-                return;
-              }
-
-              setIsSaving(true);
-              try {
-                await updatePost(
-                  post.id,
-                  {
-                    title,
-                    content,
-                    featuredImage: featuredImage || undefined,
-                    slug,
-                    tags,
-                    status: "scheduled",
-                    scheduledAt: date,
-                    wordCount,
-                    paragraphsCount,
-                    readingTimeMinutes,
-                  },
-                  tenantId,
-                );
-                await schedulePost(post.id, date, tenantId);
-                toast.success("Post scheduled successfully!");
-                router.push("/studio/posts");
-              } catch (e) {
-                console.error(e);
-                toast.error("Failed to schedule.");
-              } finally {
-                setIsSaving(false);
-              }
-            }}
-            scheduledAt={post.scheduledAt}
-            isPublishing={isSaving}
-            status={post.status}
+            onFeaturedImageChange={setFeaturedImage}
           />
         </div>
+
+        <SettingsSidebar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+          slug={slug}
+          tags={tags}
+          featuredImage={featuredImage}
+          onUpdate={updates => {
+            if (updates.slug !== undefined) {
+              setSlug(updates.slug);
+              isSlugManuallyEdited.current = true;
+            }
+            if (updates.tags !== undefined) setTags(updates.tags);
+            if (updates.featuredImage !== undefined) setFeaturedImage(updates.featuredImage);
+          }}
+          tenantId={activeTenantId || undefined}
+          postTitle={title}
+          authorUsername={user.username}
+          onPublish={handlePublish}
+          readingTimeMinutes={readingTimeMinutes}
+          wordCount={wordCount}
+          paragraphsCount={paragraphsCount}
+          onSchedule={async date => {
+            const tenantId = getActiveTenantId();
+            if (!post || !post.id || !tenantId) return;
+
+            if (tags.length === 0) {
+              toast.warning(t("addTagWarningSchedule"));
+              setIsSidebarOpen(true);
+              return;
+            }
+
+            setIsSaving(true);
+            try {
+              await updatePost(
+                post.id,
+                {
+                  title,
+                  content,
+                  featuredImage: featuredImage || undefined,
+                  slug,
+                  tags,
+                  status: "scheduled",
+                  scheduledAt: date,
+                  wordCount,
+                  paragraphsCount,
+                  readingTimeMinutes,
+                },
+                tenantId,
+              );
+              await schedulePost(post.id, date, tenantId);
+              toast.success("Post scheduled successfully!");
+              router.push("/studio/posts");
+            } catch (e) {
+              console.error(e);
+              toast.error("Failed to schedule.");
+            } finally {
+              setIsSaving(false);
+            }
+          }}
+          scheduledAt={post.scheduledAt}
+          isPublishing={isSaving}
+          status={post.status}
+        />
         {/* Mobile Action Bar */}
         <div
           className={cn(

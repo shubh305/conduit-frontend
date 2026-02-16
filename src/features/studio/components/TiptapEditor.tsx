@@ -28,9 +28,22 @@ interface TiptapEditorProps {
   onChange?: (content: TiptapContent) => void;
   className?: string;
   tenantId?: string;
+  title?: string;
+  onTitleChange?: (title: string) => void;
+  featuredImage?: string | null;
+  onFeaturedImageChange?: (url: string | null) => void;
 }
 
-export function TiptapEditor({ content = "", onChange, className, tenantId }: TiptapEditorProps) {
+export function TiptapEditor({
+  content = "",
+  onChange,
+  className,
+  tenantId,
+  title,
+  onTitleChange,
+  featuredImage,
+  onFeaturedImageChange,
+}: TiptapEditorProps) {
   const { theme, config } = useTheme();
   const { isTerminalCopy, isTechieCopy, isCyberCopy } = useThemeHelpers();
   const { getLabel } = useStudioLabels();
@@ -101,7 +114,14 @@ export function TiptapEditor({ content = "", onChange, className, tenantId }: Ti
       }}
     >
       {isTerminalCopy ? (
-        <TerminalEditorShell editor={editor} />
+        <TerminalEditorShell
+          editor={editor}
+          title={title}
+          onTitleChange={onTitleChange}
+          featuredImage={featuredImage}
+          onFeaturedImageChange={onFeaturedImageChange}
+          tenantId={tenantId}
+        />
       ) : (
         <>
           <EditorToolbar

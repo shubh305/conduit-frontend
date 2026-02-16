@@ -44,9 +44,9 @@ export function TerminalFeedLayout({ items, blogDescription, blogTitle, currentT
         description: blogDescription,
       }}
     >
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full overflow-hidden">
-        <div className="lg:col-span-8 flex flex-col gap-6 h-full overflow-hidden">
-          <div className="flex-none h-1/2 border border-accent p-4 relative overflow-hidden group">
+      <div className="flex flex-col gap-6 h-full overflow-y-auto no-scrollbar">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-none">
+          <div className="lg:col-span-8 border border-accent p-6 relative overflow-hidden group min-h-[400px]">
             <div className="absolute top-2 left-4 text-[10px] bg-black px-2 z-10 border border-accent text-accent">
               ./Start_Engine.sh --featured
             </div>
@@ -83,89 +83,84 @@ export function TerminalFeedLayout({ items, blogDescription, blogTitle, currentT
             )}
           </div>
 
-          <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar border border-accent/20">
-            <TerminalDirectory
-              path="/var/log/blog_posts.log"
-              command="tail -f"
-              items={directoryItems}
-              totalItems={rest.length}
-              username="root"
-            />
-          </div>
-        </div>
-        <div className="lg:col-span-4 flex flex-col gap-6 h-full overflow-y-auto no-scrollbar pb-8">
-          <div className="border border-accent p-4 relative font-mono text-xs">
-            <div className="absolute top-[-10px] left-4 bg-black px-2 text-accent">neofetch</div>
-            <div className="flex gap-4 mt-2">
-              <div className="text-accent hidden xl:block">
-                <pre className="leading-none text-[8px] sm:text-[10px]">
-                  {`
+          <div className="lg:col-span-4 flex flex-col gap-6">
+            <div className="border border-accent p-4 relative font-mono text-xs bg-black/50">
+              <div className="absolute top-[-10px] left-4 bg-black px-2 text-accent">neofetch</div>
+              <div className="flex gap-4 mt-2">
+                <div className="text-accent hidden xl:block">
+                  <pre className="leading-none text-[8px] sm:text-[10px]">
+                    {`
        .---.
       /     \\
       | (_) |
       \\     /
        '---'
 `}
-                </pre>
-              </div>
-              <div className="space-y-1 text-foreground-muted">
-                <div>
-                  <span className="text-accent">OS:</span> ConduitOS v1.0
+                  </pre>
                 </div>
-                <div>
-                  <span className="text-accent">Host:</span> {hostname}
-                </div>
-                <div>
-                  <span className="text-accent">Kernel:</span> React 19.0.0
-                </div>
-                <div>
-                  <span className="text-accent">Shell:</span> ZSH 5.9
-                </div>
-                <div>
-                  <span className="text-accent">Theme:</span> TERMINAL (Phosphor)
+                <div className="space-y-1 text-foreground-muted">
+                  <div>
+                    <span className="text-accent">OS:</span> ConduitOS v1.0
+                  </div>
+                  <div>
+                    <span className="text-accent">Host:</span> {hostname}
+                  </div>
+                  <div>
+                    <span className="text-accent">Kernel:</span> React 19.x
+                  </div>
+                  <div>
+                    <span className="text-accent">Shell:</span> ZSH 5.9
+                  </div>
+                  <div>
+                    <span className="text-accent">Theme:</span> PHOSPHOR
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Shortcuts Widget */}
-          <div className="border border-accent p-4 relative font-mono text-xs h-fit">
-            <div className="absolute top-[-10px] left-4 bg-black px-2 text-accent">man shortcuts</div>
-            <div className="space-y-2 mt-2">
-              <div className="flex justify-between border-b border-accent/20 pb-1">
-                <span className="text-foreground-muted">Navigation</span>
-                <span className="text-accent">[TAB]</span>
-              </div>
-              <div className="flex justify-between border-b border-accent/20 pb-1">
-                <span className="text-foreground-muted">Scroll</span>
-                <span className="text-accent">[j] / [k]</span>
-              </div>
-              <div className="flex justify-between border-b border-accent/20 pb-1">
-                <span className="text-foreground-muted">Search</span>
-                <span className="text-accent">[/]</span>
-              </div>
-              <div className="flex justify-between border-b border-accent/20 pb-1">
-                <span className="text-foreground-muted">Home</span>
-                <span className="text-accent">[g] [g]</span>
+            {/* Shortcuts Widget */}
+            <div className="border border-accent p-4 relative font-mono text-xs h-fit bg-black/50">
+              <div className="absolute top-[-10px] left-4 bg-black px-2 text-accent">man shortcuts</div>
+              <div className="space-y-2 mt-2">
+                {[
+                  { label: "Navigation", key: "[TAB]" },
+                  { label: "Scroll", key: "[j] / [k]" },
+                  { label: "Search", key: "[/]" },
+                  { label: "Home", key: "[g] [g]" },
+                ].map(item => (
+                  <div key={item.label} className="flex justify-between border-b border-accent/20 pb-1">
+                    <span className="text-foreground-muted">{item.label}</span>
+                    <span className="text-accent">{item.key}</span>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
 
-          {/* MOTD Widget */}
-          <div className="border border-accent p-4 relative font-mono text-xs flex-none">
-            <div className="absolute top-[-10px] left-4 bg-black px-2 text-accent">cat /etc/motd</div>
-            <div className="mt-2 text-foreground-muted leading-relaxed">
-              {">"} Welcome to the OctaneBrew Network.
-              <br />
-              {">"} Authorized personnel only.
-              <br />
-              {">"} All transmissions are monitored.
-            </div>
-            <div className="mt-6 border-t border-accent/30 pt-4">
-              <div className="text-[10px] text-foreground-subtle mb-1">Last Login:</div>
-              <div className="text-accent">{new Date().toDateString()} from 127.0.0.1</div>
+            {/* cat /etc/motd */}
+            <div className="border border-accent p-4 relative font-mono text-xs bg-black/50 flex-1">
+              <div className="absolute top-[-10px] left-4 bg-black px-2 text-accent">cat /etc/motd</div>
+              <div className="mt-2 text-foreground-muted leading-relaxed">
+                {">"} Welcome to the OctaneBrew Network.
+                <br />
+                {">"} Authorized personnel only.
+                <br />
+                {">"} All transmissions are monitored.
+              </div>
+              <div className="mt-4 pt-4 border-t border-accent/30 text-[10px] text-accent/50 text-right">
+                {new Date().toDateString()} @ 127.0.0.1
+              </div>
             </div>
           </div>
+        </div>
+
+        <div className="w-full flex-none border border-accent/20 bg-black/30 p-2 md:p-4 min-h-[600px] mb-12">
+          <TerminalDirectory
+            path="/var/log/blog_posts.log"
+            command="tail -f"
+            items={directoryItems}
+            totalItems={rest.length}
+            username="root"
+          />
         </div>
       </div>
     </TerminalBlogShell>

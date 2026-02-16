@@ -230,16 +230,26 @@ export function CoverImageManager({ value, attribution, onChange, tenantId, vari
                 variant === "sidebar" &&
                   (isCyberCopy
                     ? "border border-accent/20 bg-accent/5 hover:bg-accent/10"
-                    : "bg-foreground/10 text-foreground hover:bg-foreground/20 hover:scale-105"),
+                    : theme === "terminal"
+                      ? "border border-accent/20 bg-accent/5 hover:bg-accent/20 text-accent font-mono"
+                      : "bg-foreground/10 text-foreground hover:bg-foreground/20 hover:scale-105"),
                 variant === "editor" && "text-foreground-subtle opacity-60 hover:opacity-100",
               )}
             >
               {variant === "sidebar" ? (
-                <Camera size={14} className={isCyberCopy || isTechieCopy ? "text-accent" : "text-foreground"} />
+                <Camera
+                  size={14}
+                  className={isCyberCopy || isTechieCopy || theme === "terminal" ? "text-accent" : "text-foreground"}
+                />
               ) : (
-                <Plus size={14} className={isCyberCopy || isTechieCopy ? "text-accent" : "text-foreground-subtle"} />
+                <Plus
+                  size={14}
+                  className={
+                    isCyberCopy || isTechieCopy || theme === "terminal" ? "text-accent" : "text-foreground-subtle"
+                  }
+                />
               )}
-              {t("addFromDevice")}
+              {theme === "terminal" && variant === "sidebar" ? "ADD --LOCAL" : t("addFromDevice")}
             </Button>
 
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -255,19 +265,28 @@ export function CoverImageManager({ value, attribution, onChange, tenantId, vari
                     variant === "sidebar" &&
                       (isCyberCopy
                         ? "border border-accent/20 bg-accent/5 hover:bg-accent/10"
-                        : "bg-foreground/10 text-foreground hover:bg-foreground/20 hover:scale-105"),
+                        : theme === "terminal"
+                          ? "border border-accent/20 bg-accent/5 hover:bg-accent/20 text-accent font-mono"
+                          : "bg-foreground/10 text-foreground hover:bg-foreground/20 hover:scale-105"),
                     variant === "editor" && "text-foreground-subtle opacity-60 hover:opacity-100",
                   )}
                 >
                   {variant === "sidebar" ? (
-                    <Search size={14} className={isCyberCopy || isTechieCopy ? "text-accent" : "text-foreground"} />
+                    <Search
+                      size={14}
+                      className={
+                        isCyberCopy || isTechieCopy || theme === "terminal" ? "text-accent" : "text-foreground"
+                      }
+                    />
                   ) : (
                     <Plus
                       size={14}
-                      className={isCyberCopy || isTechieCopy ? "text-accent" : "text-foreground-subtle"}
+                      className={
+                        isCyberCopy || isTechieCopy || theme === "terminal" ? "text-accent" : "text-foreground-subtle"
+                      }
                     />
                   )}
-                  {t("addFromUnsplash")}
+                  {theme === "terminal" && variant === "sidebar" ? "ADD --REMOTE" : t("addFromUnsplash")}
                 </Button>
               </DialogTrigger>
               <DialogContent className={getDialogContentClasses(theme)}>
