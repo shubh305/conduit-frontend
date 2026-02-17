@@ -55,7 +55,10 @@ export function NavigationSidebar({ isOpen = true }: NavigationSidebarProps) {
     { id: "mySites", label: mySitesLabel, icon: LayoutDashboard, href: "/dashboard" },
   ];
 
+  const isWalkthrough = pathname === "/walkthrough";
+
   const filteredNavItems = navItems.filter(item => {
+    if (isWalkthrough) return true;
     if (item.href === "/me/library" || item.href === "/dashboard") {
       return !!user;
     }
@@ -135,6 +138,17 @@ export function NavigationSidebar({ isOpen = true }: NavigationSidebarProps) {
         </button>
       </div>
 
+      {isWalkthrough && (
+        <div
+          data-tour-id="nav-section-home"
+          className="px-6 py-4 border-b border-accent/20 bg-accent/5 mb-4 hidden md:block group"
+        >
+          <div className="text-[8px] font-mono text-accent/60 uppercase tracking-[0.2em]">Active_Territory</div>
+          <div className="text-sm font-black uppercase tracking-tighter text-accent group-hover:animate-pulse">
+            Home_Network
+          </div>
+        </div>
+      )}
       <div className="px-4 space-y-8 flex-1">
         {/* Main Nav */}
         <div className="space-y-1">
@@ -162,6 +176,8 @@ export function NavigationSidebar({ isOpen = true }: NavigationSidebarProps) {
             return (
               <LinkComponent
                 key={item.href}
+                id={`nav-${item.id}`}
+                data-tour-id={item.id}
                 href={item.href}
                 {...extraProps}
                 className={cn(

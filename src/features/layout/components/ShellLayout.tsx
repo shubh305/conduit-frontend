@@ -17,6 +17,7 @@ import { UserNavWidget } from "./UserNavWidget";
 import { useThemeLabel } from "@/components/theme/ThemeLabel";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { isRootSite } from "@/lib/utils";
+import { useOnboarding } from "@/features/auth/hooks/useOnboarding";
 
 interface ShellLayoutProps {
   children: React.ReactNode;
@@ -39,6 +40,8 @@ export function ShellLayout({ children }: ShellLayoutProps) {
   const searchParams = useSearchParams();
   const { user } = useAuth();
   const t = useThemeLabel();
+
+  useOnboarding();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -90,6 +93,16 @@ export function ShellLayout({ children }: ShellLayoutProps) {
 
     return () => mql.removeEventListener("change", onChange);
   }, [setIsSidebarOpen]);
+
+  useEffect(() => {
+    const handleOpenSidebar = () => {
+      if (typeof window !== "undefined" && window.innerWidth < 768) {
+        setIsSidebarOpen(true);
+      }
+    };
+    window.addEventListener("open-studio-sidebar", handleOpenSidebar);
+    return () => window.removeEventListener("open-studio-sidebar", handleOpenSidebar);
+  }, []);
 
   useEffect(() => {
     const checkDesktop = () => {
@@ -149,7 +162,8 @@ export function ShellLayout({ children }: ShellLayoutProps) {
 
   const isProfilePage = pathname.startsWith("/u/");
 
-  const isStudioRoute = pathname.startsWith("/studio");
+  const isStudioRoute =
+    pathname.startsWith("/studio") || (pathname === "/walkthrough" && searchParams.get("tourStage") === "creator");
   const isDashboardRoute = pathname === "/dashboard";
   const isEditorRoute = pathname.startsWith("/studio/editor");
   const segments = pathname.split("/").filter(Boolean);
@@ -260,20 +274,21 @@ export function ShellLayout({ children }: ShellLayoutProps) {
       {/* Unified Sidebars */}
       {/* Unified Sidebars - Desktop Only */}
       <Suspense fallback={<div className="w-20 lg:w-64 hidden md:block bg-noir-bg border-r border-noir-border" />}>
-        {user && !isStudioRoute && !isProfilePage && !focusMode && (
+        {(user || pathname === "/walkthrough") && !isStudioRoute && !isProfilePage && !focusMode && (
           <div className="hidden md:block">
             <NavigationSidebar isOpen={isSidebarOpen} />
           </div>
         )}
-        {isStudioRoute && !focusMode && (
-          <StudioSidebar isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
-        )}
+        {(isStudioRoute || (pathname === "/walkthrough" && searchParams.get("tourStage") === "creator")) &&
+          !focusMode && <StudioSidebar isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />}
       </Suspense>
 
       <Suspense fallback={null}>
-        {user && !focusMode && isRootSite() && (pathname === "/" || pathname.startsWith("/search")) && !isPostView && (
-          <AuxiliarySidebar isOpen={isRightSidebarOpen} onClose={() => setIsRightSidebarOpen(false)} />
-        )}
+        {(user || pathname === "/walkthrough") &&
+          !focusMode &&
+          isRootSite() &&
+          (pathname === "/" || pathname === "/walkthrough" || pathname.startsWith("/search")) &&
+          !isPostView && <AuxiliarySidebar isOpen={isRightSidebarOpen} onClose={() => setIsRightSidebarOpen(false)} />}
       </Suspense>
 
       {/* Mobile Sidebars Backdrop */}
@@ -288,7 +303,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
       )}
 
       {/* Unified Top Header for all themes */}
-      {!isStudioRoute && !focusMode && (
+      {(!isStudioRoute || pathname === "/walkthrough") && !focusMode && (
         <TopNavigation
           onToggleSidebar={() => {
             setIsSidebarOpen(!isSidebarOpen);
@@ -301,29 +316,33 @@ export function ShellLayout({ children }: ShellLayoutProps) {
         />
       )}
 
-      {isStudioRoute && !focusMode && !pathname.startsWith("/studio/editor") && (
-        <div
-          className={cn(
-            "md:hidden fixed top-0 left-0 right-0 h-16 bg-noir-bg border-b border-noir-border flex items-center px-2 z-[200]",
-            isJournalCopy && "bg-[var(--journal-paper)] border-accent/20",
-            isSakuraCopy && "bg-[var(--bg-sidebar)] border-accent/20",
-          )}
-        >
-          <button
-            onClick={e => {
-              e.stopPropagation();
-              setIsSidebarOpen(!isSidebarOpen);
-            }}
-            className="p-2 -ml-2 text-foreground-muted hover:text-foreground relative z-[190] cursor-pointer"
-            aria-label="Toggle Sidebar"
+      {(isStudioRoute || (pathname === "/walkthrough" && searchParams.get("tourStage") === "creator")) &&
+        !focusMode &&
+        !pathname.startsWith("/studio/editor") && (
+          <div
+            className={cn(
+              "md:hidden fixed top-0 left-0 right-0 h-16 bg-noir-bg border-b border-noir-border flex items-center px-2 z-[200]",
+              isJournalCopy && "bg-[var(--journal-paper)] border-accent/20",
+              isSakuraCopy && "bg-[var(--bg-sidebar)] border-accent/20",
+            )}
           >
-            <div className="w-5 h-0.5 bg-current mb-1" />
-            <div className="w-5 h-0.5 bg-current mb-1" />
-            <div className="w-5 h-0.5 bg-current" />
-          </button>
-          <span className="ml-4 font-black uppercase tracking-tighter text-lg">STUDIO</span>
-        </div>
-      )}
+            <button
+              onClick={e => {
+                e.stopPropagation();
+                setIsSidebarOpen(!isSidebarOpen);
+              }}
+              className="p-2 -ml-2 text-foreground-muted hover:text-foreground relative z-[190] cursor-pointer"
+              aria-label="Toggle Sidebar"
+            >
+              <div className="w-5 h-0.5 bg-current mb-1" />
+              <div className="w-5 h-0.5 bg-current mb-1" />
+              <div className="w-5 h-0.5 bg-current" />
+            </button>
+            <span data-tour-id="mobile-studio-header" className="ml-4 font-black uppercase tracking-tighter text-lg">
+              STUDIO_CORE
+            </span>
+          </div>
+        )}
 
       {/* Main Grid Layout */}
       <div
@@ -334,7 +353,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
         )}
       >
         {/* Left Sidebar Spacer - dynamically sized */}
-        {user && !isStudioRoute && !isProfilePage && (
+        {(user || pathname === "/walkthrough") && !isStudioRoute && !isProfilePage && (
           <div
             className={cn("hidden md:block shrink-0 transition-all duration-300", isSidebarOpen ? "w-64" : "w-20")}
           />
@@ -343,7 +362,8 @@ export function ShellLayout({ children }: ShellLayoutProps) {
         {/* Center Content */}
         <main
           className={cn(
-            "flex-1 min-w-0 transition-all duration-300 xl:border-r w-full border-noir-border pb-24 md:pb-8",
+            "flex-1 min-w-0 transition-all duration-300 w-full border-noir-border pb-24 md:pb-8",
+            isRootSite() && "xl:border-r",
             isJournalImmersion
               ? "pt-0 h-screen overflow-hidden bg-journal-parchment flex flex-col"
               : isDashboardRoute
@@ -351,6 +371,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
                 : "pt-12 md:pt-24",
             isTechieCopy && "xl:border-none",
             isStudioRoute &&
+              pathname !== "/walkthrough" &&
               cn(
                 "pt-16 md:pt-0 border-none pb-0",
                 isOctaneCopy || isCyber || isTechieCopy ? "px-2 md:px-0" : "px-2 md:px-0",
@@ -367,22 +388,25 @@ export function ShellLayout({ children }: ShellLayoutProps) {
         </main>
 
         {/* Right Sidebar Spacer - matched with fixed sidebar width */}
-        {user && (pathname === "/" || pathname.startsWith("/search")) && (
-          <div className="hidden xl:block w-80 shrink-0" />
-        )}
+        {(user || pathname === "/walkthrough") &&
+          isRootSite() &&
+          (pathname === "/" || pathname === "/walkthrough" || pathname.startsWith("/search")) && (
+            <div className="hidden xl:block w-80 shrink-0" />
+          )}
       </div>
 
       {/* Mobile Nav */}
-      {user && !pathname.startsWith("/studio/editor") && (
+      {(user || pathname === "/walkthrough") && !pathname.startsWith("/studio/editor") && (
         <div
           className={cn(
-            "md:hidden fixed bottom-0 left-0 right-0 border-t px-6 py-3 flex justify-between items-center z-[200]",
+            "md:hidden fixed bottom-0 left-0 right-0 border-t px-6 py-3 flex justify-between items-center z-[150]",
             "bg-noir-bg/95 backdrop-blur-xl border-noir-border shadow-[0_-4px_12px_rgba(0,0,0,0.5)]",
             isJournalCopy && "bg-[var(--journal-paper)] border-accent/20",
           )}
         >
           <a
             href={getRootUrl()}
+            data-tour-id="nav-home"
             className={cn(
               "flex flex-col items-center gap-1 transition-colors cursor-pointer",
               pathname === "/" ? "text-accent" : "text-foreground-muted hover:text-foreground",
@@ -393,6 +417,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
           </a>
           <Link
             href="/search"
+            data-tour-id="nav-search"
             className={cn(
               "flex flex-col items-center gap-1 transition-colors cursor-pointer",
               pathname.startsWith("/search") ? "text-accent" : "text-foreground-muted hover:text-foreground",
@@ -401,9 +426,10 @@ export function ShellLayout({ children }: ShellLayoutProps) {
             <Search size={20} strokeWidth={pathname.startsWith("/search") ? 2 : 1.5} />
             <span className="text-[10px] uppercase tracking-wide">{t("search")}</span>
           </Link>
-          {user && (
+          {(user || pathname === "/walkthrough") && (
             <Link
               href="/dashboard"
+              data-tour-id="nav-mySites"
               className={cn(
                 "flex flex-col items-center gap-1 transition-colors cursor-pointer",
                 pathname.startsWith("/dashboard") ? "text-accent" : "text-foreground-muted hover:text-foreground",
@@ -415,6 +441,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
           )}
           <Link
             href="/me/library"
+            data-tour-id="nav-library"
             className={cn(
               "flex flex-col items-center gap-1 transition-colors cursor-pointer",
               pathname.startsWith("/me/library") ? "text-accent" : "text-foreground-muted hover:text-foreground",
@@ -423,7 +450,9 @@ export function ShellLayout({ children }: ShellLayoutProps) {
             <Bookmark size={20} strokeWidth={pathname.startsWith("/me/library") ? 2 : 1.5} />
             <span className="text-[10px] uppercase tracking-wide">{t("library")}</span>
           </Link>
-          <UserNavWidget variant="bottom-nav" />
+          <div data-tour-id="nav-profile">
+            <UserNavWidget variant="bottom-nav" />
+          </div>
         </div>
       )}
 

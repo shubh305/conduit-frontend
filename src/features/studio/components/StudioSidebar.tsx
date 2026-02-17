@@ -12,14 +12,14 @@ import { StudioLabelKey } from "@/features/theme/studio-labels"
 import { SearchInput } from "@/features/search/components/SearchInput";
 import { WIP_LIMITS } from "@/lib/wip-limits";
 
-const navItemsConfig: { icon: React.ElementType; labelKey: StudioLabelKey; href: string }[] = [
+const navItemsConfig: { icon: React.ElementType; labelKey: StudioLabelKey; href: string; id: string }[] = [
   // { icon: LayoutDashboard, labelKey: "overview", href: "/studio" }, // Temp: Hidden
-  { icon: FileText, labelKey: "posts", href: "/studio/posts" },
-  { icon: PenTool, labelKey: "create_post", href: "/studio/editor" },
-  { icon: Globe, labelKey: "publications", href: "/studio/config?tab=transmissions" },
-  { icon: Palette, labelKey: "appearance", href: "/studio/config?tab=appearance" },
-  { icon: Bell, labelKey: "notifications", href: "/studio/config?tab=notifications" },
-  { icon: User, labelKey: "profile", href: "/studio/settings" },
+  { id: "studio-posts", icon: FileText, labelKey: "posts", href: "/studio/posts" },
+  { id: "studio-editor", icon: PenTool, labelKey: "create_post", href: "/studio/editor" },
+  { id: "studio-publications", icon: Globe, labelKey: "publications", href: "/studio/config?tab=transmissions" },
+  { id: "studio-appearance", icon: Palette, labelKey: "appearance", href: "/studio/config?tab=appearance" },
+  { id: "studio-notifications", icon: Bell, labelKey: "notifications", href: "/studio/config?tab=notifications" },
+  { id: "studio-settings", icon: User, labelKey: "profile", href: "/studio/settings" },
 ];
 
 
@@ -37,8 +37,10 @@ export function StudioSidebar({ isOpen = true, onToggle }: StudioSidebarProps) {
   const { isCyberCopy, isOctaneCopy, isTechieCopy } = useThemeHelpers();
   const { user, logout } = useAuth();
 
+  const isWalkthrough = pathname === "/walkthrough" && searchParams.get("tourStage") === "creator";
   const tenantId = searchParams.get("tenantId");
-  const tenants = user?.tenants || [];
+  const tenants =
+    user?.tenants || (isWalkthrough ? [{ id: "mock-id", name: "Walkthrough Blog", slug: "walkthrough" }] : []);
   const currentTenant = tenants.find(t => t.id === tenantId) || tenants[0];
 
   const handleTenantSwitch = (id: string) => {
@@ -116,10 +118,12 @@ export function StudioSidebar({ isOpen = true, onToggle }: StudioSidebarProps) {
       </div>
 
       {/* Tenant Switcher */}
-      {user && tenants.length > 0 && (
-        <div className={cn("px-4 py-4 border-b", isTechieCopy ? "border-[var(--bg-panel)]" : "border-noir-border")}>
+      {(user || isWalkthrough) && tenants.length > 0 && (
+        <div
+          className={cn("px-4 py-2 md:py-4 border-b", isTechieCopy ? "border-[var(--bg-panel)]" : "border-noir-border")}
+        >
           <DropdownMenu>
-            <DropdownMenuTrigger className="w-full outline-none group text-left">
+            <DropdownMenuTrigger data-tour-id="studio-switcher" className="w-full outline-none group text-left">
               <div className={getTenantSwitcherClasses(theme)}>
                 <div className={cn("flex items-center gap-3 overflow-hidden", !isOpen && "justify-center")}>
                   <div
@@ -188,14 +192,14 @@ export function StudioSidebar({ isOpen = true, onToggle }: StudioSidebarProps) {
 
       {/* Search - WIP Indicator */}
       {isOpen && WIP_LIMITS.showSidebarSearch && (
-        <div className="px-5 pt-6 pb-2">
+        <div className="px-5 pt-2 md:pt-6 pb-1 md:pb-2">
           <SearchInput placeholder="Search studio..." className="scale-95 origin-left" />
         </div>
       )}
 
       {/* Navigation */}
-      {user && (
-        <nav className="flex-1 p-4 space-y-2 mt-4">
+      {(user || isWalkthrough) && (
+        <nav className="flex-1 p-2 md:p-4 space-y-1 md:space-y-2 mt-1 md:mt-4">
           {navItemsConfig.map(item => {
             const itemUrl = new URL(item.href, "http://conduit.local");
             const itemPathname = itemUrl.pathname;
@@ -219,6 +223,8 @@ export function StudioSidebar({ isOpen = true, onToggle }: StudioSidebarProps) {
             return (
               <Link
                 key={item.href}
+                id={`studio-${item.id}`}
+                data-tour-id={item.id}
                 href={linkHref}
                 className={cn(
                   getSidebarItemClasses(theme, isActive),
@@ -240,7 +246,7 @@ export function StudioSidebar({ isOpen = true, onToggle }: StudioSidebarProps) {
         </nav>
       )}
 
-      {!user && (
+      {!user && !isWalkthrough && (
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center opacity-40">
           <div className="w-12 h-12 rounded-full border border-dashed border-foreground/20 flex items-center justify-center mb-4">
             <User size={20} />
@@ -260,7 +266,10 @@ export function StudioSidebar({ isOpen = true, onToggle }: StudioSidebarProps) {
       )}
       {user && (
         <div
-          className={cn("p-6 border-t bg-noir-bg/20", isTechieCopy ? "border-[var(--bg-panel)]" : "border-noir-border")}
+          className={cn(
+            "p-4 md:p-6 border-t bg-noir-bg/20",
+            isTechieCopy ? "border-[var(--bg-panel)]" : "border-noir-border",
+          )}
         >
           <button
             onClick={() => logout()}

@@ -43,6 +43,7 @@ export function UserNavWidget({ variant = "top-nav" }: UserNavWidgetProps) {
               "bg-noir-panel border-noir-border text-foreground hover:border-accent hover:text-accent",
               getRoundedClass(theme, "full"),
             )}
+            data-tour-id="nav-profile"
           >
             {user ? (
               <span className="font-mono text-xs font-bold transition-all group-hover:scale-110">{userInitial}</span>
@@ -51,9 +52,14 @@ export function UserNavWidget({ variant = "top-nav" }: UserNavWidgetProps) {
             )}
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-1 text-foreground-muted hover:text-foreground transition-colors">
+          <div
+            className="flex flex-col items-center gap-1 text-foreground-muted hover:text-foreground transition-colors"
+            data-tour-id="nav-profile-mobile"
+          >
             <UserIcon size={20} strokeWidth={1.5} />
-            <span className="text-[10px] uppercase tracking-wide">{user ? t("profile") : t("signIn")}</span>
+            <span className="text-[10px] uppercase tracking-wide">
+              {user || pathname === "/walkthrough" ? t("profile") : t("signIn")}
+            </span>
           </div>
         )}
       </DropdownMenuTrigger>

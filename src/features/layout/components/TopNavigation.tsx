@@ -32,10 +32,11 @@ export function TopNavigation({ onToggleSidebar, onToggleRightSidebar }: TopNavi
   // Sync with URL on search page
   useEffect(() => {
     const fromUrl = searchParams.get("semantic") === "true";
-    if (pathname === "/search") {
-      setIsAiActive(fromUrl);
+    if (pathname === "/search" && isAiActive !== fromUrl) {
+      const timer = setTimeout(() => setIsAiActive(fromUrl), 0);
+      return () => clearTimeout(timer);
     }
-  }, [searchParams, pathname]);
+  }, [searchParams, pathname, isAiActive]);
 
   const isStudioRoute = pathname.startsWith("/studio");
   const showRightSidebarToggle = pathname === "/" || pathname.startsWith("/search");
