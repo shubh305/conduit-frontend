@@ -47,7 +47,11 @@ export function isRootSite() {
   if (typeof window === "undefined") return false;
   const hostname = window.location.hostname;
 
-  return hostname === "localhost" || hostname === ROOT_DOMAIN;
+  return (
+    hostname === "localhost" ||
+    hostname === ROOT_DOMAIN ||
+    hostname === `conduit.${ROOT_DOMAIN}`
+  );
 }
 
 export function getRootUrl() {
