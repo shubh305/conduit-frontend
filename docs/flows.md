@@ -75,3 +75,32 @@ Predictive UX for global and tenant-specific discovery.
 2.  **Type-ahead**: On change, hit the `Search` module; returns semantic "Key Concepts".
 3.  **Suggestion**: Display type-ahead suggestions with highlighted concept matches.
 4.  **Execution**: User presses Enter; route transitions to `/search?q=...` or `/[tenant]/search?q=...`.
+---
+
+## 6. Immersive Platform Walkthrough
+An architectural "Simulation Mode" that introduces the platform's core protocols through a sandboxed environment.
+
+### 6.1 The Simulation Engine
+The walkthrough adopt an industrial aesthetic, utilizing high-density telemetry overlays and a dedicated simulation viewport. To ensure focus, standard platform navigation is **locked** (`pointer-events-none`) until the protocol is complete or skipped.
+
+### 6.2 SVG Spotlighting & State Sync
+- **Spotlight System**: Uses SVG masking and dynamic coordinate tracking to highlight platform background elements with 100% clarity.
+- **Atomic URL Sync**: Both walkthrough `stage` and `step` are synchronized via URL parameters. This ensures zero-flicker transitions (e.g., from Discovery to Creator Studio) and allows for persistent navigation state.
+
+```mermaid
+sequenceDiagram
+    participant P as Profile / Discovery
+    participant W as Walkthrough Engine
+    participant S as Simulation Viewport
+    participant ST as Studio (Creator)
+    
+    P->>W: Initialize (Protocol Start)
+    W->>W: Lock Global Navigation (Pointer Events)
+    W->>S: Render "Discovery" Simulation
+    Note over W,S: User clicks 'Continue' through 5 steps
+    W->>W: Atomic URL Update (tourStage=creator&step=0)
+    W->>S: Render "Studio" Simulation
+    W->>ST: Pre-open Studio Sidebar
+    Note over W,S: User clicks 'Complete'
+    W->>P: Redirect to Home (Status Saved)
+```

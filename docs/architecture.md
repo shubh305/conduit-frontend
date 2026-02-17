@@ -57,3 +57,6 @@ A high-precision CSS Variable interpolation system. It manages global HSL tokens
 
 ### 4.2 Professional Studio Editor
 A custom workspace built on Tiptap that provides high-density analytics and a monospaced "Focused" writing environment for creators.
+
+### 4.3 Tour & Simulation Framework
+A high-fidelity onboarding engine that uses SVG masking and coordinate-aware "Spotlighting" to guide users. It synchronizes walkthrough state via URL parameters to ensure zero-flicker transitions between platform modules.
