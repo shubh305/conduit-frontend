@@ -1,7 +1,7 @@
 "use client";
 
 import { BasePostCard } from "../components/base/BasePostCard";
-import { getPostUrl } from "@/lib/utils";
+import { getPostUrl, cn, isRootSite } from "@/lib/utils";
 import { LayoutProps } from "./types";
 import Link from "next/link";
 import Image from "next/image";
@@ -46,7 +46,9 @@ export function StackedLayout({ posts, tenantSlug, currentTenantSlug, themeConfi
       </div>
 
       {/* Tablet & Desktop*/}
-      <div className="hidden sm:flex flex-col gap-12 w-full max-w-5xl mx-auto px-4">
+      <div
+        className={cn("hidden sm:flex flex-col gap-12 w-full mx-auto px-4", isRootSite() ? "max-w-5xl" : "max-w-none")}
+      >
         {posts.map(post => (
           <BasePostCard
             key={post.id}

@@ -23,79 +23,81 @@ export function CyberFeedHeader({ featured, blogDescription, blogTitle }: { feat
         isJournalCopy && "bg-gradient-to-br from-noir-bg to-accent/5 journal-page-curl",
       )}
     >
-      {/* Left Sidebar */}
-      <div
-        className={cn(
-          "w-full md:w-64 border-b md:border-b-0 md:border-r border-noir-border p-8 flex flex-col gap-6 relative z-10",
-          isCyberCopy ? "bg-noir-bg" : "bg-transparent",
-          isJournalCopy && "md:w-80 border-r-4 border-double border-accent/20 bg-[var(--journal-paper)]",
-        )}
-      >
+      {!isCyberCopy && (
         <div
           className={cn(
-            "w-12 h-12 border flex items-center justify-center transition-all",
-            isCyberCopy
-              ? "border-accent/40 text-accent font-mono"
-              : "border-noir-border text-foreground font-serif bg-noir-panel",
-            !isCyberCopy && "rounded-lg shadow-sm",
-            isJournalCopy &&
-              "border-2 border-accent/40 bg-accent/5 text-accent font-black text-3xl shadow-sm rounded-lg",
+            "w-full md:w-64 border-b md:border-b-0 md:border-r border-noir-border p-8 flex flex-col gap-6 relative z-10",
+            isCyberCopy ? "bg-noir-bg" : "bg-transparent",
+            isJournalCopy && "md:w-80 border-r-4 border-double border-accent/20 bg-[var(--journal-paper)]",
           )}
         >
-          <span className={cn("text-2xl font-bold italic", isJournalCopy && "not-italic")}>
-            {displayTitle.charAt(0).toUpperCase()}
-          </span>
-        </div>
-
-        <h1
-          className={cn(
-            "text-4xl font-bold text-foreground leading-none break-words tracking-tighter",
-            isCyberCopy ? "font-mono uppercase" : config.fontFamily === "serif" ? "font-serif italic" : "font-sans",
-            isJournalCopy && "font-serif font-black text-5xl leading-[0.9] tracking-tight text-journal-ink",
-          )}
-        >
-          {displayTitle}
-        </h1>
-
-        {blogDescription && (
-          <div className="mt-auto">
-            <div
-              className={cn(
-                "text-[10px] mb-2 uppercase tracking-widest",
-                isCyberCopy
-                  ? "font-mono text-accent/50"
-                  : isRoninCopy
-                    ? "font-serif text-accent/70"
-                    : isOctaneCopy
-                      ? "font-sans text-accent/60"
-                      : "font-sans text-foreground-subtle",
-                isJournalCopy && "font-serif text-journal-accent font-bold border-b border-journal-accent/20 pb-1 mb-3",
-              )}
-            >
-              {isSakuraCopy
-                ? "ネットワーク状態"
-                : isRoninCopy
-                  ? "道の状態 (Path Status)"
-                  : isOctaneCopy
-                    ? "STATUS"
-                    : isJournalCopy
-                      ? "The Edition"
-                      : "NETWORK_STATUS"}
-            </div>
-            {!isJournalCopy && <div className="h-[1px] w-full bg-noir-border mb-2" />}
-            <div
-              className={cn(
-                "text-xs leading-relaxed",
-                isCyberCopy ? "text-foreground-subtle/80 font-mono" : "text-foreground-muted",
-                isJournalCopy && "text-journal-ink-muted font-serif italic text-sm",
-              )}
-            >
-              {isCyberCopy ? "// " : ""}
-              {blogDescription}
-            </div>
+          <div
+            className={cn(
+              "w-12 h-12 border flex items-center justify-center transition-all",
+              isCyberCopy
+                ? "border-accent/40 text-accent font-mono"
+                : "border-noir-border text-foreground font-serif bg-noir-panel",
+              !isCyberCopy && "rounded-lg shadow-sm",
+              isJournalCopy &&
+                "border-2 border-accent/40 bg-accent/5 text-accent font-black text-3xl shadow-sm rounded-lg",
+            )}
+          >
+            <span className={cn("text-2xl font-bold italic", isJournalCopy && "not-italic")}>
+              {displayTitle.charAt(0).toUpperCase()}
+            </span>
           </div>
-        )}
-      </div>
+
+          <h1
+            className={cn(
+              "text-4xl font-bold text-foreground leading-none break-words tracking-tighter",
+              isCyberCopy ? "font-mono uppercase" : config.fontFamily === "serif" ? "font-serif italic" : "font-sans",
+              isJournalCopy && "font-serif font-black text-5xl leading-[0.9] tracking-tight text-journal-ink",
+            )}
+          >
+            {displayTitle}
+          </h1>
+
+          {blogDescription && (
+            <div className="mt-auto">
+              <div
+                className={cn(
+                  "text-[10px] mb-2 uppercase tracking-widest",
+                  isCyberCopy
+                    ? "font-mono text-accent/50"
+                    : isRoninCopy
+                      ? "font-serif text-accent/70"
+                      : isOctaneCopy
+                        ? "font-sans text-accent/60"
+                        : "font-sans text-foreground-subtle",
+                  isJournalCopy &&
+                    "font-serif text-journal-accent font-bold border-b border-journal-accent/20 pb-1 mb-3",
+                )}
+              >
+                {isSakuraCopy
+                  ? "ネットワーク状態"
+                  : isRoninCopy
+                    ? "道の状態 (Path Status)"
+                    : isOctaneCopy
+                      ? "STATUS"
+                      : isJournalCopy
+                        ? "The Edition"
+                        : "NETWORK_STATUS"}
+              </div>
+              {!isJournalCopy && <div className="h-[1px] w-full bg-noir-border mb-2" />}
+              <div
+                className={cn(
+                  "text-xs leading-relaxed",
+                  isCyberCopy ? "text-foreground-subtle/80 font-mono" : "text-foreground-muted",
+                  isJournalCopy && "text-journal-ink-muted font-serif italic text-sm",
+                )}
+              >
+                {isCyberCopy ? "// " : ""}
+                {blogDescription}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Center Hero Component */}
       {featured ? (

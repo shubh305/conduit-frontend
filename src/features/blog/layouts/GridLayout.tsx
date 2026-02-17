@@ -1,7 +1,7 @@
 "use client";
 
 import { BasePostCard } from "../components/base/BasePostCard";
-import { getPostUrl } from "@/lib/utils";
+import { getPostUrl, cn, isRootSite } from "@/lib/utils";
 import { LayoutProps } from "./types";
 import Link from "next/link";
 import Image from "next/image";
@@ -14,7 +14,7 @@ export function GridLayout({ posts, tenantSlug, currentTenantSlug, themeConfig }
   } as const;
 
   return (
-    <div className="container mx-auto px-4 md:px-6 py-8">
+    <div className={cn("py-8 px-4 md:px-6", isRootSite() ? "container mx-auto" : "w-full max-w-none")}>
       {/* Mobile */}
       <div className="grid grid-cols-2 sm:hidden gap-3">
         {posts.map(post => (

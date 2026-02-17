@@ -246,7 +246,7 @@ function CardLayout({
   return (
     <div
       className={cn(
-        "group relative block w-full h-[400px] md:h-[440px] p-6 transition-all duration-300 overflow-hidden",
+        "group relative block w-full min-h-[400px] md:min-h-[450px] h-auto p-6 pb-8 transition-all duration-300 overflow-hidden",
         v.base,
         v.border,
         v.radius,

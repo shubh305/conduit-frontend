@@ -37,7 +37,7 @@ export function TechieFeedLayout({
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-8 bg-accent" />
             <h1 className="text-4xl lg:text-5xl font-sans font-black text-white uppercase tracking-tighter leading-none">
-              {blogTitle || "TRANS_LOG_SYS"}
+              {blogTitle || "The Conduit"}
             </h1>
           </div>
           {blogDescription && (

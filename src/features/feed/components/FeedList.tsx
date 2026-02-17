@@ -8,7 +8,7 @@ import { CyberFeedHeader } from "./CyberFeedHeader";
 import { FEED_CATEGORIES } from "../constants"
 import { useSearchParams } from "next/navigation";
 import { getGlobalFeed } from "../api";
-import { cn } from "@/lib/utils";
+import { cn, isRootSite } from "@/lib/utils";
 import { TerminalFeedLayout } from "./TerminalFeedLayout";
 import { TechieFeedLayout } from "./TechieFeedLayout"
 import { JournalFeedLayout } from "./JournalFeedLayout"
@@ -211,7 +211,8 @@ export function FeedList({
           <div className="flex-1 flex flex-col">
             <div
               className={cn(
-                "grid grid-cols-1 md:grid-cols-2 max-w-[1600px] mx-auto w-full gap-6",
+                "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 w-full gap-6",
+                isRootSite() ? "max-w-[1600px] mx-auto" : "max-w-none",
                 isSakuraCopy && "p-6 md:p-12 lg:p-20 gap-8",
                 isJournalCopy && "p-6 md:p-10 gap-8 mt-12",
                 isTechieCopy && "p-6 lg:p-12 gap-10",

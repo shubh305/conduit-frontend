@@ -168,7 +168,7 @@ export default function SettingsPage() {
           {/* Internal Tab Selector */}
           <div
             className={cn(
-              "flex flex-wrap items-center gap-4 mb-12 border-b pb-6",
+              "flex flex-wrap items-center gap-4 mb-4 md:mb-10 border-b pb-2 md:pb-6",
               isTechieCopy || isTerminalCopy || isCyberCopy ? "border-noir-border/10" : "border-noir-border/10",
               isTechieCopy && "border-[var(--bg-panel)]",
             )}

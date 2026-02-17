@@ -93,7 +93,7 @@ export function PostMeta({ data, theme, isFlat }: PostCardPartsProps) {
       )}
     >
       <span>{dateFormatted}</span>
-      {tenantName && (
+      {tenantName && !isCyber && (
         <span>
           {prefix}
           {tenantName}
@@ -101,7 +101,7 @@ export function PostMeta({ data, theme, isFlat }: PostCardPartsProps) {
       )}
       {isFlat && data.readingTimeMinutes && <span>{data.readingTimeMinutes} MIN READ</span>}
     </div>
-  )
+  );
 }
 
 // =============================================================================
