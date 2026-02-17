@@ -21,7 +21,7 @@ export function LoginForm() {
         password: formData.get("password") as string,
       });
     } catch (error) {
-      handleApiError(error, "Login failed");
+      handleApiError(error, "Login failed. Please check your credentials.");
     } finally {
       setIsLoading(false);
     }

@@ -118,7 +118,7 @@ export function SearchInput({
   };
 
   return (
-    <div ref={wrapperRef} className={cn("relative w-full", className)}>
+    <div ref={wrapperRef} data-tour-id="nav-search" className={cn("relative w-full", className)}>
       {!mounted ? (
         <div className="h-10 w-full bg-foreground/5 animate-pulse rounded-full" />
       ) : (

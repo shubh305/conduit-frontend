@@ -118,7 +118,8 @@ export type LabelKey =
   | "followersLabel"
   | "followingLabel"
   | "proLabel"
-  | "uidLabel";
+  | "uidLabel"
+  | "walkthrough";
 
 const labelMap: Record<LabelKey, Record<ThemeVariant | "default", string>> = {
   newSearch: {
@@ -427,11 +428,11 @@ const labelMap: Record<LabelKey, Record<ThemeVariant | "default", string>> = {
     octane: "Dashboard",
     journal: "Notebook",
     terminal: "~/nodes",
-    classic: "Sites",
-    "classic-white": "Sites",
+    classic: "Dashboard",
+    "classic-white": "Dashboard",
     professional: "Dashboard",
     techie: "Projects",
-    default: "Sites",
+    default: "Dashboard",
   },
   forYou: {
     cyber: "FOR_YOU",
@@ -799,6 +800,19 @@ const labelMap: Record<LabelKey, Record<ThemeVariant | "default", string>> = {
     "classic-white": "Pro",
     professional: "Pro",
     default: "Pro",
+  },
+  walkthrough: {
+    cyber: "SYSTEM_WALKTHROUGH",
+    sakura: "Guide (ガイド)",
+    ronin: "The Path (道)",
+    octane: "Orientation",
+    journal: "Introduction",
+    terminal: "MAN_PAGES",
+    classic: "Walkthrough",
+    "classic-white": "Walkthrough",
+    professional: "Walkthrough",
+    techie: "SYSTEM_INDEX",
+    default: "Walkthrough",
   },
   uidLabel: {
     cyber: "UID",

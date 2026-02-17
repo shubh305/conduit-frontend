@@ -97,10 +97,10 @@ export default function RootLayout({
                 <FluidicWrapper>
                   <LayoutWrapper>
                     {children}
-                    <Toaster />
                     <InstallPrompt />
                     <SWRegistration />
                   </LayoutWrapper>
+                  <Toaster />
                 </FluidicWrapper>
               </LibraryProvider>
             </AuthProvider>
