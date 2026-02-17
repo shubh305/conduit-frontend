@@ -174,7 +174,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         setUser(user);
-        router.push("/");
+        
+        if (!user.onboardingCompleted) {
+          router.push("/walkthrough");
+        } else {
+          router.push("/");
+        }
+        
         toast.success("Identity established.");
       } catch (error) {
         console.error(error);

@@ -29,6 +29,7 @@ export interface User {
     stackoverflow?: string;
     instagram?: string;
   };
+  onboardingCompleted?: boolean;
 }
 
 export interface AuthResponse {
