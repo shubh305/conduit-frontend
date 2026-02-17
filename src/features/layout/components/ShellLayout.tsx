@@ -275,12 +275,16 @@ export function ShellLayout({ children }: ShellLayoutProps) {
       {/* Unified Sidebars - Desktop Only */}
       <Suspense fallback={<div className="w-20 lg:w-64 hidden md:block bg-noir-bg border-r border-noir-border" />}>
         {(user || pathname === "/walkthrough") && !isStudioRoute && !isProfilePage && !focusMode && (
-          <div className="hidden md:block">
+          <div className={cn("hidden md:block", pathname === "/walkthrough" && "pointer-events-none")}>
             <NavigationSidebar isOpen={isSidebarOpen} />
           </div>
         )}
         {(isStudioRoute || (pathname === "/walkthrough" && searchParams.get("tourStage") === "creator")) &&
-          !focusMode && <StudioSidebar isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />}
+          !focusMode && (
+            <div className={cn(pathname === "/walkthrough" && "pointer-events-none")}>
+              <StudioSidebar isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
+            </div>
+          )}
       </Suspense>
 
       <Suspense fallback={null}>
@@ -288,7 +292,11 @@ export function ShellLayout({ children }: ShellLayoutProps) {
           !focusMode &&
           isRootSite() &&
           (pathname === "/" || pathname === "/walkthrough" || pathname.startsWith("/search")) &&
-          !isPostView && <AuxiliarySidebar isOpen={isRightSidebarOpen} onClose={() => setIsRightSidebarOpen(false)} />}
+          !isPostView && (
+            <div className={cn(pathname === "/walkthrough" && "pointer-events-none")}>
+              <AuxiliarySidebar isOpen={isRightSidebarOpen} onClose={() => setIsRightSidebarOpen(false)} />
+            </div>
+          )}
       </Suspense>
 
       {/* Mobile Sidebars Backdrop */}
@@ -304,16 +312,18 @@ export function ShellLayout({ children }: ShellLayoutProps) {
 
       {/* Unified Top Header for all themes */}
       {(!isStudioRoute || pathname === "/walkthrough") && !focusMode && (
-        <TopNavigation
-          onToggleSidebar={() => {
-            setIsSidebarOpen(!isSidebarOpen);
-            setIsRightSidebarOpen(false);
-          }}
-          onToggleRightSidebar={() => {
-            setIsRightSidebarOpen(!isRightSidebarOpen);
-            setIsSidebarOpen(false);
-          }}
-        />
+        <div className={cn(pathname === "/walkthrough" && "pointer-events-none")}>
+          <TopNavigation
+            onToggleSidebar={() => {
+              setIsSidebarOpen(!isSidebarOpen);
+              setIsRightSidebarOpen(false);
+            }}
+            onToggleRightSidebar={() => {
+              setIsRightSidebarOpen(!isRightSidebarOpen);
+              setIsSidebarOpen(false);
+            }}
+          />
+        </div>
       )}
 
       {(isStudioRoute || (pathname === "/walkthrough" && searchParams.get("tourStage") === "creator")) &&
@@ -396,10 +406,11 @@ export function ShellLayout({ children }: ShellLayoutProps) {
       </div>
 
       {/* Mobile Nav */}
-      {(user || pathname === "/walkthrough") && !pathname.startsWith("/studio/editor") && (
+      {(user || pathname === "/walkthrough") && !isStudioRoute && !pathname.startsWith("/studio/editor") && (
         <div
           className={cn(
             "md:hidden fixed bottom-0 left-0 right-0 border-t px-6 py-3 flex justify-between items-center z-[150]",
+            pathname === "/walkthrough" && "pointer-events-none",
             "bg-noir-bg/95 backdrop-blur-xl border-noir-border shadow-[0_-4px_12px_rgba(0,0,0,0.5)]",
             isJournalCopy && "bg-[var(--journal-paper)] border-accent/20",
           )}
