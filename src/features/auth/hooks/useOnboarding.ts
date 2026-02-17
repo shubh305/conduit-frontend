@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/features/auth/AuthProvider";
+import { isRootSite } from "@/lib/utils";
 
 export function useOnboarding() {
   const { user, isLoading } = useAuth();
@@ -14,10 +15,10 @@ export function useOnboarding() {
 
     if (pathname === "/walkthrough") return;
 
-    const isAuthRoute = ["/login", "/signup", "/forgot-password"].some(route =>
-      pathname.startsWith(route)
-    );
+    const isAuthRoute = ["/login", "/signup", "/forgot-password"].some(route => pathname.startsWith(route));
     if (isAuthRoute) return;
+
+    if (!isRootSite()) return;
 
     // Check onboarding status
     const localCompleted = localStorage.getItem("conduit_onboarding_completed") === "true";

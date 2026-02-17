@@ -194,7 +194,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
     <div
       key={layoutKey}
       className={cn(
-        "min-h-screen transition-all duration-1000 ease-in-out text-foreground max-w-[100vw] overflow-x-hidden overscroll-behavior-none",
+        "min-h-screen transition-all duration-1000 ease-in-out text-foreground max-w-[100vw] overflow-x-clip overscroll-behavior-none",
         isEditorRoute ? "h-[100dvh] overflow-hidden overscroll-none" : "min-h-screen",
         isRoninCopy || isSakuraCopy || isJournalCopy || isTerminalCopy || isTechieCopy
           ? "bg-transparent"

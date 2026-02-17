@@ -156,20 +156,20 @@ export function TechieArticleLayout({ post, tenant, isPreview: isPreviewProp }: 
         ROW 2: CONTENT)
       */}
       <div className="container mx-auto max-w-[1600px] border-x border-white/5">
-        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] relative">
+        <div className="grid grid-cols-1 lg:grid-cols-[420px_1fr] relative">
           {/* Sticky Sidebar (Left) */}
-          <aside className="hidden lg:block border-r border-white/5 bg-noir-bg">
-            <div className="sticky top-20 p-8 space-y-12">
+          <aside className="hidden lg:block border-r border-white/5 bg-noir-bg h-full">
+            <div className="sticky top-24 p-10 space-y-16">
               {/* Back Nav */}
               {!isPreview && (
                 <button
                   onClick={navigateToBlogHome}
-                  className="group flex items-center gap-3 text-xs font-mono text-accent hover:text-white transition-colors text-left"
+                  className="group flex items-center gap-4 text-sm font-mono text-accent hover:text-white transition-colors text-left"
                 >
-                  <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+                  <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
                   <div>
-                    <span className="block font-black tracking-tighter italic uppercase text-sm">INDEX.SYS</span>
-                    <span className="block text-[8px] text-accent/40 tracking-[0.2em] mt-0.5 opacity-50 uppercase">
+                    <span className="block font-black tracking-tighter italic uppercase text-lg">INDEX.SYS</span>
+                    <span className="block text-[10px] text-accent/40 tracking-[0.2em] mt-1 opacity-50 uppercase">
                       {tenant.name}
                     </span>
                   </div>
@@ -178,15 +178,15 @@ export function TechieArticleLayout({ post, tenant, isPreview: isPreviewProp }: 
 
               {/* Related Tags */}
               {post.tags && post.tags.length > 0 && (
-                <div className="border-l-2 border-accent/40 pl-4">
-                  <h3 className="text-accent/60 font-mono text-[10px] uppercase font-bold mb-4 flex items-center gap-2 tracking-widest">
+                <div className="border-l-2 border-accent/40 pl-6">
+                  <h3 className="text-accent/60 font-mono text-xs uppercase font-bold mb-6 flex items-center gap-2 tracking-[0.2em]">
                     RELATED TAGS
                   </h3>
-                  <div className="flex flex-col gap-2.5">
+                  <div className="flex flex-col gap-3.5">
                     {post.tags.map((tag: string) => (
                       <span
                         key={tag}
-                        className="font-mono text-[11px] text-foreground/40 hover:text-accent transition-colors block truncate hover:translate-x-1 duration-200"
+                        className="font-mono text-sm text-foreground/40 hover:text-accent transition-colors block truncate hover:translate-x-1 duration-200"
                       >
                         #{tag}
                       </span>
@@ -197,18 +197,18 @@ export function TechieArticleLayout({ post, tenant, isPreview: isPreviewProp }: 
 
               {/* Dynamic Table of Contents */}
               {toc.length > 0 && (
-                <div className="border-l-2 border-white/5 pl-4 hover:border-accent/40 transition-colors group/toc">
-                  <h3 className="text-accent/60 font-mono text-[10px] uppercase font-bold mb-4 flex items-center gap-2 tracking-widest">
+                <div className="border-l-2 border-white/5 pl-6 hover:border-accent/40 transition-colors group/toc">
+                  <h3 className="text-accent/60 font-mono text-xs uppercase font-bold mb-6 flex items-center gap-2 tracking-[0.2em]">
                     INDEX_PROTOCOL
                   </h3>
-                  <nav className="flex flex-col gap-2">
+                  <nav className="flex flex-col gap-3">
                     {toc.map(item => (
                       <a
                         key={item.id}
                         href={`#${item.id}`}
                         className={cn(
-                          "font-mono text-[10px] truncate transition-all duration-300 block hover:translate-x-1 uppercase",
-                          item.level === 3 && "pl-3",
+                          "font-mono text-xs truncate transition-all duration-300 block hover:translate-x-1 uppercase tracking-tight",
+                          item.level === 3 && "pl-4",
                           activeId === item.id ? "text-accent font-black" : "text-foreground/30 hover:text-accent/80",
                         )}
                         onClick={e => {
@@ -224,16 +224,16 @@ export function TechieArticleLayout({ post, tenant, isPreview: isPreviewProp }: 
               )}
 
               {/* Metadata */}
-              <div className="border-l-2 border-white/5 pl-4 hover:border-accent/40 transition-colors">
-                <h3 className="text-accent/60 font-mono text-[10px] uppercase font-bold mb-4 flex items-center gap-2 tracking-widest">
+              <div className="border-l-2 border-white/5 pl-6 hover:border-accent/40 transition-colors">
+                <h3 className="text-accent/60 font-mono text-xs uppercase font-bold mb-6 flex items-center gap-2 tracking-[0.2em]">
                   METADATA
                 </h3>
-                <div className="space-y-3 text-[10px] font-mono text-foreground/50">
-                  <div className="flex justify-between items-center border-b border-white/5 pb-1">
+                <div className="space-y-4 text-xs font-mono text-foreground/50">
+                  <div className="flex justify-between items-center border-b border-white/5 pb-2">
                     <span className="text-accent/40 uppercase">ID</span>
-                    <span className="font-bold text-white/80">{post.postId.substring(0, 8)}d</span>
+                    <span className="font-bold text-white/80 uppercase">{post.postId.substring(0, 8)}d</span>
                   </div>
-                  <div className="flex justify-between items-center border-b border-white/5 pb-1">
+                  <div className="flex justify-between items-center border-b border-white/5 pb-2">
                     <span className="text-accent/40 uppercase">WORDS</span>
                     <span className="font-bold text-white/80">
                       {post.readingTimeMinutes ? Math.round(post.readingTimeMinutes * 230) : 0}

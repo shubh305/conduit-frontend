@@ -79,7 +79,17 @@ export default async function middleware(req: NextRequest) {
   }
 
   // Global Routes
-  const globalRoutes = ["/dashboard", "/studio", "/login", "/signup", "/forgot-password", "/me", "/search", "/u"];
+  const globalRoutes = [
+    "/dashboard",
+    "/studio",
+    "/login",
+    "/signup",
+    "/forgot-password",
+    "/me",
+    "/search",
+    "/u",
+    "/walkthrough",
+  ];
 
   if (globalRoutes.some(route => pathname === route || pathname.startsWith(route + "/"))) {
     return NextResponse.next();
