@@ -1,6 +1,6 @@
 import { fetchApi } from "@/lib/api-client";
 
-export async function uploadImage(file: File): Promise<{ url: string; filename: string }> {
+export async function uploadFile(file: File): Promise<{ url: string; filename: string }> {
   const formData = new FormData();
   formData.append("file", file);
 

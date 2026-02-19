@@ -17,7 +17,7 @@ import {
   Minus,
   Loader2,
 } from "lucide-react";
-import { uploadImage as apiUploadImage } from "@/features/media/api";
+import { uploadFile as apiUploadImage } from "@/features/media/api";
 import { toast } from "sonner";
 
 interface TerminalEditorShellProps {

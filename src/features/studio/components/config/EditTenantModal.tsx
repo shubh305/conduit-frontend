@@ -9,7 +9,7 @@ import { updateTenant } from "@/features/blog/api";
 import { Tenant } from "@/features/blog/types";
 import { toast } from "sonner";
 import { handleApiError } from "@/lib/error-utils";
-import { uploadImage } from "@/features/media/api";
+import { uploadFile } from "@/features/media/api";
 import { ThemeVariant, getHeadingClasses } from "@/lib/theme-variants"
 
 interface EditTenantModalProps {
@@ -44,7 +44,7 @@ export function EditTenantModal({ isOpen, onClose, onUpdate, tenant }: EditTenan
 
     setIsUploading(true);
     try {
-      const { url } = await uploadImage(file);
+      const { url } = await uploadFile(file);
       setLogo(url);
       toast.success(getLabel("logo_uploaded_success") || "Logo uploaded")
     } catch (error) {

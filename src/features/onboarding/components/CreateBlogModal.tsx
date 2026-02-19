@@ -10,7 +10,7 @@ import { createTenant } from "@/features/blog/api";
 import { toast } from "sonner";
 import { handleApiError } from "@/lib/error-utils";
 import { useAuth } from "@/features/auth/AuthProvider";
-import { uploadImage } from "@/features/media/api";
+import { uploadFile } from "@/features/media/api";
 import { ThemeVariant, getHeadingClasses } from "@/lib/theme-variants"
 import { fetchApi } from "@/lib/api-client";
 
@@ -39,7 +39,7 @@ export function CreateBlogModal({ isOpen, onClose, onCreate }: CreateBlogModalPr
 
     setIsUploading(true);
     try {
-      const { url } = await uploadImage(file);
+      const { url } = await uploadFile(file);
       setLogo(url);
       toast.success(getLabel("logo_uploaded_success"))
     } catch (error) {

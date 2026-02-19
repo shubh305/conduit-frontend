@@ -25,7 +25,7 @@ import { cn } from "@/lib/utils";
 import { useRef, useState } from "react";
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider"
 import { getToolbarButtonClasses } from "@/lib/theme-variants"
-import { uploadImage } from "@/lib/api-client";
+import { uploadFile } from "@/lib/api-client";
 import { toast } from "sonner";
 
 export function EditorToolbar({
@@ -164,7 +164,7 @@ export function EditorToolbar({
     if (file) {
       const toastId = toast.loading("Uploading image...");
       try {
-        const url = await uploadImage(file, tenantId);
+        const url = await uploadFile(file, tenantId);
         editor.chain().focus().setImage({ src: url }).run();
         toast.dismiss(toastId);
         toast.success("Image uploaded");

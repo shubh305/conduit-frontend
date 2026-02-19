@@ -148,7 +148,7 @@ export async function fetchApi<T>(path: string, options: FetchOptions = {}): Pro
   return data as T;
 }
 
-export async function uploadImage(file: File, tenantId?: string): Promise<string> {
+export async function uploadFile(file: File, tenantId?: string): Promise<string> {
   const formData = new FormData();
   formData.append("file", file);
 
