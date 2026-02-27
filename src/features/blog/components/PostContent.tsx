@@ -1,6 +1,6 @@
 "use client";
 
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, ReactNodeViewRenderer } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
@@ -12,6 +12,16 @@ import { cn } from "@/lib/utils";
 import { Ruby, RubyText } from "@/features/studio/extensions/Ruby";
 
 import { DictionaryPopup } from "@/features/studio/components/DictionaryPopup";
+import { CatalystExtension } from "@/features/studio/extensions/CatalystExtension";
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import { common, createLowlight } from "lowlight";
+import { CodeBlockComponent } from "@/features/studio/components/CodeBlockComponent";
+import { Table } from "@tiptap/extension-table";
+import { TableRow } from "@tiptap/extension-table-row";
+import { TableHeader } from "@tiptap/extension-table-header";
+import { TableCell } from "@tiptap/extension-table-cell";
+
+const lowlight = createLowlight(common);
 
 export function PostContent({ content }: { content: TiptapContent }) {
   const { config } = useTheme();
@@ -34,6 +44,24 @@ export function PostContent({ content }: { content: TiptapContent }) {
       Youtube.configure({
         controls: false,
       }),
+      CatalystExtension,
+      CodeBlockLowlight.extend({
+        addNodeView() {
+          return ReactNodeViewRenderer(CodeBlockComponent);
+        },
+      }).configure({
+        lowlight,
+      }),
+      Table.configure({
+        resizable: false,
+        HTMLAttributes: {
+          class:
+            "border-collapse table-fixed w-full mb-4 border border-[var(--editor-border)] rounded-md overflow-hidden",
+        },
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
     content,
     editable: false,

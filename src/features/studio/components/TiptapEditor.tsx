@@ -10,6 +10,10 @@ import Youtube from "@tiptap/extension-youtube";
 import BubbleMenuExtension from "@tiptap/extension-bubble-menu";
 import { common, createLowlight } from "lowlight";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import { Table } from "@tiptap/extension-table";
+import { TableRow } from "@tiptap/extension-table-row";
+import { TableHeader } from "@tiptap/extension-table-header";
+import { TableCell } from "@tiptap/extension-table-cell";
 import { CodeBlockComponent } from "./CodeBlockComponent";
 import { EditorToolbar } from "./EditorToolbar";
 import { TerminalEditorShell } from "./TerminalEditorShell"
@@ -19,6 +23,7 @@ import { Ruby, RubyText } from "../extensions/Ruby";
 import { TiptapContent } from "@/features/blog/types";
 import { useTheme, useThemeHelpers, useStudioLabels } from "@/features/theme/ThemeProvider"
 import { getEditorContainerClasses, getEditorProseClasses } from "@/lib/theme-variants"
+import { CatalystExtension } from "../extensions/CatalystExtension";
 
 const lowlight = createLowlight(common);
 
@@ -78,6 +83,29 @@ export function TiptapEditor({
         addPasteHandler: false,
       }),
       BubbleMenuExtension,
+      CatalystExtension,
+      Table.configure({
+        resizable: true,
+        HTMLAttributes: {
+          class:
+            "border-collapse table-fixed w-full mb-4 border border-[var(--editor-border)] rounded-md overflow-hidden",
+        },
+      }),
+      TableRow.configure({
+        HTMLAttributes: {
+          class: "border-b border-[var(--editor-border)]",
+        },
+      }),
+      TableHeader.configure({
+        HTMLAttributes: {
+          class: "bg-accent/5 font-bold p-3 text-left border-r border-[var(--editor-border)] last:border-r-0",
+        },
+      }),
+      TableCell.configure({
+        HTMLAttributes: {
+          class: "p-3 border-r border-[var(--editor-border)] last:border-r-0 text-sm",
+        },
+      }),
     ],
     content,
     editorProps: {
@@ -157,6 +185,46 @@ export function TiptapEditor({
         .tippy-box {
           pointer-events: auto !important;
           z-index: 10001 !important;
+        }
+        /* Table Styles for Pro Look */
+        .ProseMirror table {
+          border-collapse: collapse;
+          table-layout: fixed;
+          width: 100%;
+          margin: 0;
+          overflow: hidden;
+        }
+        .ProseMirror table td,
+        .ProseMirror table th {
+          min-width: 1em;
+          border: 1px solid var(--editor-border);
+          padding: 8px 12px;
+          vertical-align: top;
+          box-sizing: border-box;
+          position: relative;
+        }
+        .ProseMirror table th {
+          font-weight: bold;
+          text-align: left;
+          background-color: rgba(var(--accent-rgb), 0.05);
+        }
+        .ProseMirror table .selectedCell:after {
+          z-index: 2;
+          position: absolute;
+          content: "";
+          left: 0; right: 0; top: 0; bottom: 0;
+          background: rgba(var(--accent-rgb), 0.1);
+          pointer-events: none;
+        }
+        .ProseMirror table .column-resize-handle {
+          position: absolute;
+          right: -2px;
+          top: 0;
+          bottom: 0;
+          width: 4px;
+          z-index: 20;
+          background-color: var(--accent);
+          pointer-events: none;
         }
       `,
         }}
