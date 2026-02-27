@@ -196,6 +196,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px !important;
+  height: 0px !important;
   display: block !important;
 }
 .custom-scrollbar::-webkit-scrollbar-track {

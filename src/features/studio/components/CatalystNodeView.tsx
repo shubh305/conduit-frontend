@@ -207,10 +207,16 @@ export function CatalystNodeView({ node, editor, deleteNode, updateAttributes }:
     }
 
     const activeFields = fields.filter((f, i) => {
-      const isImportant = i < 2 || f.label.includes("Price") || f.label === "Engine" || f.label === "Power";
+      const isImportant =
+        i < 2 || f.label.includes("Price") || f.label === "Rating" || f.label === "Engine" || f.label === "Power";
       const hasValue = f.value.length > 0 && f.value[0] !== "" && f.value[0] !== "-";
       return isImportant || hasValue;
     });
+
+    const badgeField =
+      category === "book"
+        ? activeFields.find(f => f.label === "Rating")
+        : activeFields.find(f => f.label.includes("Price"));
 
     return (
       <div className="relative group/catalyst-table my-6 select-none">
@@ -218,7 +224,7 @@ export function CatalystNodeView({ node, editor, deleteNode, updateAttributes }:
         {editor.isEditable && (
           <button
             onClick={() => deleteNode()}
-            className="absolute -top-3 -right-3 z-30 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-lg opacity-0 group-hover/catalyst-table:opacity-100 transition-all hover:scale-110"
+            className="absolute -top-3 -right-3 z-30 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-lg opacity-100 md:opacity-0 md:group-hover/catalyst-table:opacity-100 transition-all hover:scale-110"
             title="Remove component"
           >
             <Trash2 className="h-4 w-4" />
@@ -236,32 +242,41 @@ export function CatalystNodeView({ node, editor, deleteNode, updateAttributes }:
                 {activeFields[1]?.value[0] || category} • Technical Details
               </p>
             </div>
-            {activeFields.find(f => f.label.includes("Price"))?.value[0] !== "-" && (
-              <div className="px-4 py-2 bg-accent/10 rounded-xl text-accent font-black text-base shadow-sm border border-accent/20">
-                {activeFields.find(f => f.label.includes("Price"))?.value[0]}
+            {badgeField && badgeField.value[0] !== "-" && (
+              <div className="px-4 py-2 bg-accent/10 rounded-xl text-accent font-black text-base shadow-sm border border-accent/20 flex items-center gap-1.5">
+                {category === "book" && <span className="text-[10px] opacity-70">★</span>}
+                {badgeField.value[0]}
               </div>
             )}
           </div>
 
           {/* Specs Grid */}
-          <div className="p-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-6">
+          <div className={cn(
+            "p-6 grid gap-x-8 gap-y-6",
+            category === "book" ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5" : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"
+          )}>
             {activeFields
-              .filter(f => !f.label.includes("Price") && f.label !== "Model" && f.label !== "Make" && f.label !== "Brand" && f.label !== "Title")
+              .filter(
+                f =>
+                  f !== badgeField &&
+                  f.label !== "Model" &&
+                  f.label !== "Make" &&
+                  f.label !== "Brand" &&
+                  f.label !== "Title",
+              )
               .map((f, i) => (
                 <div key={i} className="flex flex-col gap-1.5 min-w-0">
                   <span className="text-[11px] text-muted-foreground uppercase font-black tracking-[0.1em] truncate opacity-70">
                     {f.label}
                   </span>
                   <div className="text-sm font-semibold leading-snug">
-                    {f.value.length > 0 ? (
-                      f.value.map((text, j) => (
-                        <p key={j} className="truncate text-foreground/90 font-medium" title={text}>
-                          {text || "-"}
-                        </p>
-                      ))
-                    ) : (
-                      "-"
-                    )}
+                    {f.value.length > 0
+                      ? f.value.map((text, j) => (
+                          <p key={j} className="truncate text-foreground/90 font-medium" title={text}>
+                            {text || "-"}
+                          </p>
+                        ))
+                      : "-"}
                   </div>
                 </div>
               ))}

@@ -55,7 +55,7 @@ export const SlashCommandList = forwardRef(({ items, command }: SlashCommandList
 
   return (
     <div className="z-50 w-72 overflow-hidden rounded-xl border border-[var(--editor-border)] bg-[var(--editor-bg)] shadow-2xl animate-in fade-in zoom-in-95 duration-200 p-1.5">
-      <div className="max-h-96 overflow-y-auto custom-scrollbar">
+      <div className="max-h-96 overflow-y-auto overflow-x-hidden custom-scrollbar">
         {items.length > 0 ? (
           items.map((item, index) => (
             <button
@@ -64,25 +64,31 @@ export const SlashCommandList = forwardRef(({ items, command }: SlashCommandList
               onMouseEnter={() => setSelectedIndex(index)}
               className={cn(
                 "group flex w-full cursor-pointer items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-all duration-150",
-                index === selectedIndex ? "bg-accent/10 translate-x-0.5" : "hover:bg-accent/5"
+                index === selectedIndex ? "bg-accent/10" : "hover:bg-accent/5",
               )}
             >
-              <div className={cn(
-                "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--editor-border)] bg-[var(--editor-bg)] transition-all duration-200 shadow-sm",
-                index === selectedIndex ? "border-accent/40 shadow-accent/5" : ""
-              )}>
-                <div className={cn(
-                  "transition-transform duration-200 scale-90",
-                  index === selectedIndex ? "scale-100 text-accent" : "text-muted-foreground"
-                )}>
+              <div
+                className={cn(
+                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--editor-border)] bg-[var(--editor-bg)] transition-all duration-200 shadow-sm",
+                  index === selectedIndex ? "border-accent/40 shadow-accent/5" : "",
+                )}
+              >
+                <div
+                  className={cn(
+                    "transition-transform duration-200 scale-90",
+                    index === selectedIndex ? "scale-100 text-accent" : "text-muted-foreground",
+                  )}
+                >
                   {item.icon}
                 </div>
               </div>
               <div className="flex-1 min-w-0">
-                <div className={cn(
-                  "text-[13px] font-bold leading-tight transition-colors",
-                  index === selectedIndex ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
-                )}>
+                <div
+                  className={cn(
+                    "text-[13px] font-bold leading-tight transition-colors",
+                    index === selectedIndex ? "text-foreground" : "text-muted-foreground group-hover:text-foreground",
+                  )}
+                >
                   {item.title}
                 </div>
                 <div className="text-[11px] text-muted-foreground/80 leading-snug line-clamp-1 mt-0.5 font-medium">
