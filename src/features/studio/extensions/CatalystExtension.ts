@@ -90,7 +90,7 @@ export const CatalystExtension = Node.create<CatalystOptions>({
         items: ({ query }: { query: string }) => {
           return [
             {
-              title: "Cars (Specs)",
+              title: "Cars",
               description: "Insert car specifications",
               icon: React.createElement(Car, { className: "h-5 w-5" }),
               category: "Media",
@@ -99,8 +99,8 @@ export const CatalystExtension = Node.create<CatalystOptions>({
               },
             },
             {
-              title: "Bikes (Specs)",
-              description: "Insert bike specifications",
+              title: "Bikes",
+              description: "Insert motorcycle specifications",
               icon: React.createElement(Bike, { className: "h-5 w-5" }),
               category: "Media",
               command: ({ editor, range }: CommandProps) => {
@@ -108,7 +108,7 @@ export const CatalystExtension = Node.create<CatalystOptions>({
               },
             },
             {
-              title: "Books (Specs)",
+              title: "Books",
               description: "Insert book specifications",
               icon: React.createElement(Book, { className: "h-5 w-5" }),
               category: "Media",
@@ -117,7 +117,7 @@ export const CatalystExtension = Node.create<CatalystOptions>({
               },
             },
             {
-              title: "Mobiles (Specs)",
+              title: "Mobiles",
               description: "Insert mobile specifications",
               icon: React.createElement(Smartphone, { className: "h-5 w-5" }),
               category: "Media",
@@ -125,9 +125,7 @@ export const CatalystExtension = Node.create<CatalystOptions>({
                 editor.chain().focus().deleteRange(range).insertCatalyst("mobile").run();
               },
             },
-          ].filter((item) => 
-            item.title.toLowerCase().includes(query.toLowerCase())
-          );
+          ].filter(item => item.title.toLowerCase().includes(query.toLowerCase()));
         },
         render: () => {
           let component: ReactRenderer<{ onKeyDown: (props: { event: KeyboardEvent }) => boolean }, SuggestionProps<SlashCommandItem>>;
