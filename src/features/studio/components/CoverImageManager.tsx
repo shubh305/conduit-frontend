@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle } from 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../components/ui/tabs";
 import { UnsplashSelector } from "./UnsplashSelector";
 import Image from "next/image";
+import { uploadFile } from "@/features/media/api";
+import { toast } from "sonner";
 import { useRef } from "react";
 import {
   getLabel,
@@ -50,15 +52,24 @@ export function CoverImageManager({ value, attribution, onChange, tenantId, vari
     setIsOpen(true);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        onChange(reader.result as string, null);
-
-      };
-      reader.readAsDataURL(file);
+      const toastId = toast.loading("Uploading cover image...");
+      try {
+        const { url } = await uploadFile(file);
+        onChange(url, null);
+        toast.dismiss(toastId);
+        toast.success("Cover image uploaded");
+        setIsOpen(false);
+      } catch (error) {
+        toast.dismiss(toastId);
+        toast.error("Failed to upload cover image");
+        console.error(error);
+      }
+    }
+    if (e.target) {
+      e.target.value = "";
     }
   };
 
