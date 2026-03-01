@@ -106,7 +106,7 @@ export const STUDIO_LABELS: Record<StudioLabelKey, Record<string, string>> = {
     journal: "Writing Desk (文台)",
     cyber: "UPLINK_STATUS: ACTIVE",
     terminal: "SYS_ACTIVE",
-    ronin: "Shadow Command (影の司令部)",
+    ronin: "Command (影の司令部)",
     techie: "SYS_READY",
   },
   overview: {

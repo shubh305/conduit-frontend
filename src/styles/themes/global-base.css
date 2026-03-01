@@ -83,6 +83,13 @@ h1, h2, h3, h4, h5, h6 {
 .prose-noir hr {
   border-color: var(--border-primary);
 }
+ 
+.prose mark, .prose-noir mark {
+  background-color: #fef08a;
+  color: #000000 !important;
+  border-radius: 2px;
+  padding: 0 0.15em;
+}
 
 /* Tiptap Editor Styles */
 .ProseMirror { outline: none; }
@@ -159,6 +166,13 @@ h1, h2, h3, h4, h5, h6 {
   height: auto !important;
   border-radius: var(--theme-radius-md);
   border: 1px solid var(--border-primary);
+}
+ 
+.ProseMirror mark {
+  background-color: #fef08a;
+  color: #000000 !important;
+  border-radius: 2px;
+  padding: 0 0.15em;
 }
 
 /* Scrollbar Styles */

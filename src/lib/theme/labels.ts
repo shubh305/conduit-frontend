@@ -119,9 +119,36 @@ export type LabelKey =
   | "followingLabel"
   | "proLabel"
   | "uidLabel"
-  | "walkthrough";
+  | "walkthrough"
+  | "insertLink"
+  | "linkUrl"
+  | "labelText"
+  | "apply"
+  | "insertYoutube"
+  | "youtubeUrl"
+  | "addVideo"
+  | "insertFurigana"
+  | "reading"
+  | "textColor"
+  | "highlight"
+  | "editor_title_placeholder"
+  | "reset"
+  | "undo"
+  | "redo"
+  | "bold"
+  | "italic"
+  | "underline"
+  | "strikethrough"
+  | "h1"
+  | "h2"
+  | "bulletList"
+  | "orderedList"
+  | "codeBlock"
+  | "blockquote"
+  | "insertImage"
+  | "horizontalRule";
 
-const labelMap: Record<LabelKey, Record<ThemeVariant | "default", string>> = {
+const labelMap: Record<LabelKey, { default: string } & Partial<Record<ThemeVariant, string>>> = {
   newSearch: {
     cyber: "NEW_SEARCH",
     sakura: "New Search (新しい検索)",
@@ -1674,6 +1701,271 @@ const labelMap: Record<LabelKey, Record<ThemeVariant | "default", string>> = {
     "classic-white": "Access all posts from {name}",
     professional: "View all posts by {name}",
     default: "Access all posts from {name}",
+  },
+  insertLink: {
+    cyber: "ESTABLISH_UPLINK",
+    sakura: "Insert Link",
+    ronin: "Create Bond",
+    octane: "Insert Link",
+    journal: "Insert Link",
+    terminal: "INSERT_LINK",
+    techie: "DEFINE_LINK",
+    classic: "Insert Link",
+    default: "Insert Link",
+  },
+  linkUrl: {
+    cyber: "SIGNAL_URI",
+    sakura: "Link URL",
+    ronin: "Link Coordinates",
+    octane: "Link URL",
+    journal: "Link URL",
+    terminal: "URL (https://)",
+    techie: "URI",
+    classic: "Link URL",
+    "classic-white": "Link URL",
+    professional: "Link URL",
+    default: "URL (https://...)",
+  },
+  labelText: {
+    cyber: "SIGNAL_ALIAS",
+    sakura: "Label Text",
+    ronin: "Bond Name",
+    octane: "Label Text",
+    journal: "Label Text",
+    terminal: "LABEL",
+    techie: "ALIAS",
+    classic: "Label Text",
+    "classic-white": "Label Text",
+    professional: "Label Text",
+    default: "Link text (optional)",
+  },
+  apply: {
+    cyber: "COMMIT",
+    sakura: "Apply",
+    ronin: "Forge",
+    octane: "APPLY",
+    journal: "Apply",
+    terminal: ":apply",
+    techie: "EXECUTE",
+    classic: "Apply",
+    "classic-white": "Apply",
+    professional: "Apply",
+    default: "Apply",
+  },
+  insertYoutube: {
+    cyber: "EMBED_STREAM",
+    sakura: "YouTube Video",
+    ronin: "Embed Vision",
+    octane: "Insert YouTube",
+    journal: "Insert YouTube",
+    terminal: "INSERT_YOUTUBE",
+    techie: "INJECT_YT_NODE",
+    classic: "Insert YouTube",
+    "classic-white": "Insert YouTube",
+    professional: "Insert Video",
+    default: "Insert YouTube",
+  },
+  youtubeUrl: {
+    cyber: "STREAM_URI",
+    sakura: "YouTube URL",
+    ronin: "Vision Source",
+    octane: "YouTube URL",
+    journal: "YouTube URL",
+    terminal: "YT_URL",
+    techie: "STREAM_ID",
+    classic: "YouTube URL",
+    "classic-white": "YouTube URL",
+    professional: "Video URL",
+    default: "https://youtube.com/...",
+  },
+  addVideo: {
+    cyber: "INIT_STREAM",
+    sakura: "Add Video",
+    ronin: "Reveal",
+    octane: "ADD_VIDEO",
+    journal: "Add Video",
+    terminal: "ADD_VIDEO",
+    techie: "LOAD_ASSET",
+    classic: "Add Video",
+    "classic-white": "Add Video",
+    professional: "Add Video",
+    default: "Add Video",
+  },
+  insertFurigana: {
+    cyber: "DEFINE_PHONETICS",
+    sakura: "Furigana",
+    ronin: "Interpretation",
+    octane: "Insert Furigana",
+    journal: "Insert Furigana",
+    terminal: "INSERT_RUBY",
+    techie: "SUB_DATA",
+    classic: "Insert Furigana",
+    "classic-white": "Insert Furigana",
+    professional: "Insert Furigana",
+    default: "Insert Furigana",
+  },
+  reading: {
+    cyber: "AUDIO_DAT",
+    sakura: "Reading",
+    ronin: "Echo",
+    octane: "Reading",
+    journal: "Reading",
+    terminal: "PHONETIC",
+    techie: "STRING",
+    classic: "Reading",
+    "classic-white": "Reading",
+    professional: "Reading",
+    default: "Reading...",
+  },
+  textColor: {
+    cyber: "SIGNAL_COLOR",
+    sakura: "Text Color",
+    ronin: "Ink Color",
+    octane: "Text Color",
+    journal: "Text Color",
+    terminal: "FOREGROUND",
+    techie: "HEX_SET",
+    classic: "Text Color",
+    "classic-white": "Text Color",
+    professional: "Text Color",
+    default: "Text Color",
+  },
+  highlight: {
+    cyber: "SIGNAL_GLOW",
+    sakura: "Highlight",
+    ronin: "Aura",
+    octane: "Highlight",
+    journal: "Highlight",
+    terminal: "BACKGROUND",
+    techie: "VAL_HIGHLIGHT",
+    classic: "Highlight",
+    "classic-white": "Highlight",
+    professional: "Highlight",
+    default: "Highlight",
+  },
+  reset: {
+    cyber: "REVERT",
+    sakura: "Reset",
+    ronin: "Dispel",
+    octane: "RESET",
+    journal: "Reset",
+    terminal: "RESET",
+    techie: "CLR_DAT",
+    classic: "Reset",
+    "classic-white": "Reset",
+    professional: "Reset",
+    default: "Reset",
+  },
+  editor_title_placeholder: {
+    cyber: "TRANSMISSION_TITLE...",
+    sakura: "Title (タイトルを入力)",
+    ronin: "Chronicle Name",
+    octane: "Title",
+    journal: "Volume...",
+    terminal: "UNTITLED.md",
+    techie: "MOD_NAME",
+    classic: "Title",
+    "classic-white": "Title",
+    professional: "Document Title",
+    default: "Article Title...",
+  },
+  undo: {
+    cyber: "REVERT_ACTION",
+    terminal: "u",
+    techie: "UNDO",
+    ronin: "Un-forge",
+    default: "Undo",
+  },
+  redo: {
+    cyber: "REPEAT_ACTION",
+    terminal: "r",
+    techie: "REDO",
+    ronin: "Re-forge",
+    default: "Redo",
+  },
+  bold: {
+    cyber: "HEAVY_TEXT",
+    terminal: "BOLD",
+    techie: "BOLD",
+    ronin: "Strong Spirit",
+    default: "Bold",
+  },
+  italic: {
+    cyber: "SLANTED_TEXT",
+    terminal: "ITALIC",
+    techie: "ITALIC",
+    ronin: "Swift Brush",
+    default: "Italic",
+  },
+  underline: {
+    cyber: "UNDERLINE_SIGNAL",
+    terminal: "UNDERLINE",
+    techie: "UNDERLINE",
+    ronin: "Rooted",
+    default: "Underline",
+  },
+  strikethrough: {
+    cyber: "CANCEL_SIGNAL",
+    terminal: "STRIKE",
+    techie: "STRIKE",
+    ronin: "Severed",
+    default: "Strikethrough",
+  },
+  h1: {
+    cyber: "HEADER_MAIN",
+    terminal: "H1",
+    techie: "H1_DATA",
+    ronin: "Great Heading",
+    default: "Heading 1",
+  },
+  h2: {
+    cyber: "HEADER_SUB",
+    terminal: "H2",
+    techie: "H2_DATA",
+    ronin: "Lesser Heading",
+    default: "Heading 2",
+  },
+  bulletList: {
+    cyber: "UNORDERED_ARRAY",
+    terminal: "BULLET_LIST",
+    techie: "UL_NODE",
+    ronin: "Shadow Marks",
+    default: "Bullet List",
+  },
+  orderedList: {
+    cyber: "ORDERED_ARRAY",
+    terminal: "ORDERED_LIST",
+    techie: "OL_NODE",
+    ronin: "Sequential Steps",
+    default: "Ordered List",
+  },
+  codeBlock: {
+    cyber: "SCRIPT_SEGMENT",
+    terminal: "CODE_BLOCK",
+    techie: "CODE_NODE",
+    ronin: "Secret Scroll",
+    default: "Code Block",
+  },
+  blockquote: {
+    cyber: "QUOTE_SIGNAL",
+    terminal: "BLOCKQUOTE",
+    techie: "QUOTE_DATA",
+    ronin: "Wisdom",
+    default: "Blockquote",
+  },
+  insertImage: {
+    cyber: "INJECT_VISUAL",
+    terminal: "INSERT_IMAGE",
+    techie: "ASSET_LOAD",
+    ronin: "Paint Picture",
+    default: "Insert Image",
+  },
+  horizontalRule: {
+    cyber: "DIVIDER_SIGNAL",
+    terminal: "HORIZONTAL_RULE",
+    techie: "BREAK_LINE",
+    ronin: "Blade Cut",
+    default: "Horizontal Rule",
   },
 };
 
