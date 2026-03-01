@@ -1,4 +1,5 @@
 import { fetchApi } from "@/lib/api-client";
+import { getMediaUrl } from "@/lib/utils";
 
 export interface UploadResponse {
   url: string;
@@ -11,10 +12,14 @@ export async function uploadFile(file: File): Promise<UploadResponse> {
   const formData = new FormData();
   formData.append("file", file);
 
-  return fetchApi<UploadResponse>("/media/upload", {
+  const res = await fetchApi<UploadResponse>("/media/upload", {
     method: "POST",
     body: formData,
-
-    headers: {}, 
+    headers: {},
   });
+
+  return {
+    ...res,
+    url: getMediaUrl(res.url) || res.url,
+  };
 }
