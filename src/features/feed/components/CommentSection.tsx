@@ -10,6 +10,7 @@ import { Comment } from "@/features/comments/types";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { toast } from "sonner";
 import Link from "next/link";
+import { getMediaUrl } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 
 interface CommentSectionProps {
@@ -217,7 +218,10 @@ export function CommentSection({ postId, tenantId, className, isOpen, onClose }:
           <div className="w-8 h-8 rounded-full overflow-hidden bg-noir-hover flex-shrink-0 relative border border-noir-border shadow-inner">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={comment.authorAvatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${comment.authorName}`}
+              src={
+                getMediaUrl(comment.authorAvatar) ||
+                `https://api.dicebear.com/7.x/avataaars/svg?seed=${comment.authorName}`
+              }
               alt={comment.authorName}
               className="w-full h-full object-cover"
             />
@@ -481,7 +485,10 @@ export function CommentSection({ postId, tenantId, className, isOpen, onClose }:
                       <div className="w-8 h-8 rounded-full overflow-hidden bg-noir-hover relative border border-noir-border shadow-inner">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                          src={user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`}
+                          src={
+                            getMediaUrl(user.avatar) ||
+                            `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`
+                          }
                           alt={user.username}
                           className="object-cover w-full h-full"
                         />

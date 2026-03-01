@@ -14,7 +14,7 @@ import { getJapaneseSubLabel } from "@/lib/theme-variants";
 import { getFollowingUsers } from "@/features/profile/api";
 import { Profile } from "@/features/profile/types";
 import { useEffect, useState, useCallback } from "react";
-import { getRootUrl, isRootSite } from "@/lib/utils";
+import { getRootUrl, isRootSite, getMediaUrl } from "@/lib/utils";
 
 interface NavigationSidebarProps {
   isOpen?: boolean;
@@ -339,7 +339,7 @@ export function NavigationSidebar({ isOpen = true }: NavigationSidebarProps) {
                 <div className="w-5 h-5 rounded-full bg-accent/10 flex items-center justify-center shrink-0 overflow-hidden">
                   {profile.avatar ? (
                     <Image
-                      src={profile.avatar}
+                      src={getMediaUrl(profile.avatar) || profile.avatar}
                       alt={profile.username}
                       width={20}
                       height={20}

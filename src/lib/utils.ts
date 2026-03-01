@@ -10,17 +10,9 @@ export function getMediaUrl(url: string | undefined): string | undefined {
   const storageUrl = process.env.NEXT_PUBLIC_STORAGE_URL;
 
   if (url.startsWith("http")) {
-    if (storageUrl && url.startsWith(`${storageUrl}/${storageUrl}`)) {
-      return url.replace(`${storageUrl}/${storageUrl}`, storageUrl);
-    }
-
-    if (url.includes("/conduit-uploads/") && storageUrl && !url.includes(storageUrl)) {
-      try {
-        const path = url.split("/conduit-uploads/")[1];
-        return `${storageUrl}/conduit-uploads/${path}`;
-      } catch {
-        return url;
-      }
+    if (storageUrl && url.includes("/conduit-uploads/")) {
+      const path = url.split("/conduit-uploads/")[1];
+      return `${storageUrl}/conduit-uploads/${path}`;
     }
     return url;
   }
