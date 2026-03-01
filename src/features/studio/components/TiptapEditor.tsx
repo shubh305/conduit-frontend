@@ -1,8 +1,7 @@
 "use client";
-
+ 
 import { useEditor, EditorContent, ReactNodeViewRenderer } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -16,17 +15,24 @@ import { TableHeader } from "@tiptap/extension-table-header";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { CodeBlockComponent } from "./CodeBlockComponent";
 import { EditorToolbar } from "./EditorToolbar";
-import { TerminalEditorShell } from "./TerminalEditorShell"
+import { TerminalEditorShell } from "./TerminalEditorShell";
 import { cn } from "@/lib/utils";
 import { DictionaryPopup } from "./DictionaryPopup";
 import { Ruby, RubyText } from "../extensions/Ruby";
 import { TiptapContent } from "@/features/blog/types";
-import { useTheme, useThemeHelpers, useStudioLabels } from "@/features/theme/ThemeProvider"
-import { getEditorContainerClasses, getEditorProseClasses } from "@/lib/theme-variants"
+import { useTheme, useThemeHelpers, useStudioLabels } from "@/features/theme/ThemeProvider";
+import { getEditorContainerClasses, getEditorProseClasses } from "@/lib/theme-variants";
 import { CatalystExtension } from "../extensions/CatalystExtension";
+import { uploadFile, uploadFileFromUrl } from "@/features/media/api";
+import { toast } from "sonner";
+import { Indent } from "../extensions/Indent";
+import { AlignedImage } from "../extensions/AlignedImage";
+import { TextStyle } from "@tiptap/extension-text-style";
+import { Color } from "@tiptap/extension-color";
+import { Highlight } from "@tiptap/extension-highlight";
+import { TextAlign } from "@tiptap/extension-text-align";
 
 const lowlight = createLowlight(common);
-
 
 interface TiptapEditorProps {
   content?: string | TiptapContent;
@@ -58,8 +64,15 @@ export function TiptapEditor({
       StarterKit.configure({
         codeBlock: false,
       }),
-      Image,
+      AlignedImage,
       Underline,
+      TextStyle,
+      Color,
+      Highlight.configure({ multicolor: true }),
+      TextAlign.configure({
+        types: ["heading", "paragraph"],
+      }),
+      Indent,
       Ruby,
       RubyText,
       CodeBlockLowlight.extend({
@@ -114,6 +127,8 @@ export function TiptapEditor({
       },
       handlePaste: (view, event) => {
         const text = event.clipboardData?.getData("text/plain");
+
+        // Handle YouTube
         if (text && (text.includes("youtube.com/watch") || text.includes("youtu.be/"))) {
           editor
             ?.chain()
@@ -122,11 +137,106 @@ export function TiptapEditor({
             .run();
           return true;
         }
+
+        if (text && text.match(/^https?:\/\/.*?\.(gif|jpe?g|png|webp|svg)$/i)) {
+          const storageUrl = process.env.NEXT_PUBLIC_STORAGE_URL;
+          if (storageUrl && text.includes(storageUrl)) {
+            editor?.chain().focus().setImage({ src: text }).run();
+            return true;
+          }
+
+          event.preventDefault();
+          const toastId = toast.loading("Processing external image...");
+          uploadFileFromUrl(text)
+            .then(data => {
+              editor?.chain().focus().setImage({ src: data.url }).run();
+              toast.dismiss(toastId);
+              toast.success("Image added to storage");
+            })
+            .catch(err => {
+              toast.dismiss(toastId);
+              editor?.chain().focus().setImage({ src: text }).run();
+              console.error("External upload failed, using original link:", err);
+            });
+          return true;
+        }
+
+        const items = Array.from(event.clipboardData?.items || []);
+        const imageItems = items.filter(item => item.type.startsWith("image/"));
+        const hasTextContent = !!(
+          event.clipboardData?.getData("text/plain") || event.clipboardData?.getData("text/html")
+        );
+
+        if (imageItems.length > 0) {
+          if (!hasTextContent) {
+            event.preventDefault();
+          }
+
+          imageItems.forEach(async item => {
+            const file = item.getAsFile();
+            if (file) {
+              const toastId = toast.loading("Uploading image natively...");
+              try {
+                const { url } = await uploadFile(file);
+                editor?.chain().focus().setImage({ src: url }).run();
+                toast.dismiss(toastId);
+              } catch (e) {
+                toast.dismiss(toastId);
+                console.error("Paste upload failed:", e);
+              }
+            }
+          });
+
+          if (!hasTextContent) return true;
+        }
+        return false;
+      },
+      handleDrop: (view, event, slice, moved) => {
+        if (!moved && event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0]) {
+          const file = event.dataTransfer.files[0];
+          if (file.type.startsWith("image/")) {
+            event.preventDefault();
+            const toastId = toast.loading("Uploading dropped image...");
+            uploadFile(file)
+              .then(data => {
+                const node = view.state.schema.nodes.image.create({ src: data.url });
+                const transaction = view.state.tr.replaceSelectionWith(node);
+                view.dispatch(transaction);
+                toast.dismiss(toastId);
+                toast.success("Image uploaded");
+              })
+              .catch(err => {
+                toast.dismiss(toastId);
+                toast.error("Failed to upload dropped image");
+                console.error(err);
+              });
+            return true;
+          }
+        }
         return false;
       },
     },
     onUpdate: ({ editor }) => {
-      onChange?.(editor.getJSON());
+      const json = editor.getJSON();
+      onChange?.(json);
+
+      editor.state.doc.descendants((node, pos) => {
+        if (node.type.name === "image") {
+          const src = node.attrs.src;
+          const storageUrl = process.env.NEXT_PUBLIC_STORAGE_URL;
+
+          if (src && src.startsWith("http") && (!storageUrl || !src.includes(storageUrl))) {
+            uploadFileFromUrl(src)
+              .then(data => {
+                editor.chain().focus().setNodeSelection(pos).updateAttributes("image", { src: data.url }).run();
+              })
+              .catch(err => {
+                console.error("Re-hosting failed for:", src, err);
+              });
+          }
+        }
+        return true;
+      });
     },
     immediatelyRender: false,
   });
@@ -135,7 +245,12 @@ export function TiptapEditor({
 
   return (
     <div
-      className={cn(getEditorContainerClasses(theme), "flex flex-col flex-1 min-h-0", className)}
+      className={cn(
+        getEditorContainerClasses(theme),
+        "flex flex-col min-h-0",
+        !isTerminalCopy && "flex-grow",
+        className,
+      )}
       style={{
         borderRadius: isCyberCopy || isTechieCopy ? "0" : undefined,
         backgroundColor: theme === "journal" || theme === "sakura" ? "var(--journal-paper)" : undefined,
@@ -155,11 +270,11 @@ export function TiptapEditor({
           <EditorToolbar
             editor={editor}
             tenantId={tenantId}
-            className="px-4 md:px-12 shrink-0 border-b border-[var(--editor-border)]"
+            className="px-4 md:px-12 shrink-0 border-b border-[var(--editor-border)] sticky top-0 md:top-0 z-20 bg-[var(--editor-bg)]"
           />
           <EditorContent
             editor={editor}
-            className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar px-4 md:px-12 py-6 md:py-10 pb-32 md:pb-10"
+            className="px-4 md:px-12 pt-4 md:pt-16 pb-32 md:pb-8 min-h-[calc(100vh-600px)] flex-grow [&_.ProseMirror]:leading-[1.7] [&_.ProseMirror_p]:mb-6"
           />
         </>
       )}
@@ -225,6 +340,41 @@ export function TiptapEditor({
           z-index: 20;
           background-color: var(--accent);
           pointer-events: none;
+        }
+        /* Code Block Specific Editor Styles - High Visibility */
+        .ProseMirror .code-block-wrapper,
+        .ProseMirror pre {
+          background-color: var(--code-bg) !important;
+          color: var(--code-text) !important;
+          border: 1px solid var(--code-border) !important;
+          display: block !important;
+          min-height: 1.5rem;
+          margin: 1.5rem 0 !important;
+          opacity: 1 !important;
+          visibility: visible !important;
+          border-radius: 0.75rem !important;
+          padding: 1.25rem !important;
+        }
+        .ProseMirror .code-block-wrapper pre,
+        .ProseMirror pre {
+          background-color: transparent !important;
+          color: inherit !important;
+          padding: 0 !important;
+          margin: 0 !important;
+          border: none !important;
+          opacity: 1 !important;
+          visibility: visible !important;
+          display: block !important;
+        }
+        .ProseMirror .code-block-wrapper code,
+        .ProseMirror code {
+          background-color: transparent !important;
+          color: inherit !important;
+          padding: 0 !important;
+          border: none !important;
+          display: block !important;
+          opacity: 1 !important;
+          visibility: visible !important;
         }
       `,
         }}
