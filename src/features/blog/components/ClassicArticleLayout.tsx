@@ -189,9 +189,8 @@ export function ClassicArticleLayout({ post, tenant, isPreview: isPreviewProp }:
               "prose prose-invert prose-lg md:prose-xl",
               "prose-headings:text-foreground prose-headings:font-black prose-headings:tracking-tighter",
               "prose-a:text-accent prose-a:no-underline hover:prose-a:underline",
-              config.fontFamily === "serif"
-                ? "prose-p:font-serif prose-p:leading-[1.9] prose-headings:font-serif"
-                : "prose-p:font-sans",
+              config.fontFamily === "serif" ? "prose-p:font-serif prose-headings:font-serif" : "prose-p:font-sans",
+              "prose-p:leading-[1.7] prose-p:mb-8",
             )}
           >
             <PostContent content={post.content} />

@@ -13,11 +13,10 @@ import { WIP_LIMITS } from "@/lib/wip-limits";
 export function GlobalStatusBar() {
   const pathname = usePathname();
   const { theme, focusMode, setFocusMode, themeHubVisible, setThemeHubVisible } = useTheme();
+  const isStudio = pathname?.startsWith("/studio");
   const { isDarkMode, fontFamily } = useThemeHelpers();
   const [uptime, setUptime] = useState(0);
   const [load, setLoad] = useState("NORMAL");
-  
-  const isStudioRoute = pathname?.startsWith("/studio");
 
   useEffect(() => {
     const start = Date.now();
@@ -47,16 +46,15 @@ export function GlobalStatusBar() {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [themeHubVisible, setThemeHubVisible]);
 
-  if (focusMode || isStudioRoute || !WIP_LIMITS.showThemeOps) return null;
+  if (focusMode || !WIP_LIMITS.showThemeOps) return null;
 
-  const fontClass =
-    fontFamily === "mono" ? "font-mono" : fontFamily === "serif" ? "font-serif" : "font-sans";
+  const fontClass = fontFamily === "mono" ? "font-mono" : fontFamily === "serif" ? "font-serif" : "font-sans";
 
   return (
     <>
@@ -77,6 +75,7 @@ export function GlobalStatusBar() {
       <div
         className={cn(
           "fixed bottom-0 left-0 right-0 z-[100] h-9 hidden md:flex items-center justify-between px-4 text-xs tracking-wider transition-all duration-500 select-none",
+          isStudio ? "md:pl-64" : "",
           fontClass,
           "bg-black/90 border-t border-accent/20 text-accent/80 backdrop-blur-sm",
           !isDarkMode && "bg-stone-200/90 border-accent/10 text-stone-600 font-medium",

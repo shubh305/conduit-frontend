@@ -195,7 +195,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
       key={layoutKey}
       className={cn(
         "min-h-screen transition-all duration-1000 ease-in-out text-foreground max-w-[100vw] overflow-x-clip overscroll-behavior-none",
-        isEditorRoute ? "h-[100dvh] overflow-hidden overscroll-none" : "min-h-screen",
+        isEditorRoute ? "min-h-screen" : "min-h-screen",
         isRoninCopy || isSakuraCopy || isJournalCopy || isTerminalCopy || isTechieCopy
           ? "bg-transparent"
           : "bg-noir-bg",
@@ -358,7 +358,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
       <div
         className={cn(
           "flex justify-start md:justify-center",
-          isEditorRoute ? "h-full min-h-0 flex-col overflow-hidden" : "min-h-screen",
+          isEditorRoute ? "min-h-screen flex-col" : "min-h-screen",
           isStudioRoute ? (isSidebarOpen ? "md:pl-64" : "md:pl-20") : "",
         )}
       >
@@ -372,7 +372,8 @@ export function ShellLayout({ children }: ShellLayoutProps) {
         {/* Center Content */}
         <main
           className={cn(
-            "flex-1 min-w-0 transition-all duration-300 w-full border-noir-border pb-24 md:pb-8",
+            "flex-1 min-w-0 transition-all duration-300 w-full border-noir-border",
+            !isEditorRoute && "pb-24 md:pb-8",
             isRootSite() && "xl:border-r",
             isJournalImmersion
               ? "pt-0 h-screen overflow-hidden bg-journal-parchment flex flex-col"
@@ -387,7 +388,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
                 isOctaneCopy || isCyber || isTechieCopy ? "px-2 md:px-0" : "px-2 md:px-0",
               ),
             isDashboardRoute && cn("pb-0", isOctaneCopy || isCyber || isTechieCopy ? "px-2 md:px-0" : "px-2 md:px-0"),
-            isEditorRoute && "pt-0 md:pt-0 px-0 md:px-0 flex flex-col h-full overflow-hidden",
+            isEditorRoute && "pt-0 md:pt-0 px-0 md:px-0 flex flex-col flex-grow",
             isJournalImmersion && "mt-0 px-0",
             isJournalCopy && !isJournalImmersion && "bg-journal-ink/5",
             !isDarkMode && !isJournalCopy && "bg-noir-panel md:bg-noir-bg",

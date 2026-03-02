@@ -77,8 +77,8 @@ export function CoverImageManager({ value, attribution, onChange, tenantId, vari
   return (
     <div
       className={cn(
-        "relative group w-full mt-2 transition-all duration-300",
-        value ? "mb-6" : "mb-2",
+        "relative group w-full mt-0 transition-all duration-300",
+        value ? "mb-1 md:mb-2" : "mb-0",
         variant === "sidebar" && value ? "aspect-video" : "w-full",
       )}
     >
@@ -86,7 +86,7 @@ export function CoverImageManager({ value, attribution, onChange, tenantId, vari
         <div
           className={cn(
             "relative w-full overflow-hidden transition-all duration-500",
-            variant === "sidebar" ? "aspect-video" : "aspect-[21/9] shadow-xl mb-6",
+            variant === "sidebar" ? "aspect-video" : "aspect-[21/9] shadow-xl mb-2 md:mb-4",
             getRoundedClass(theme, "lg"),
           )}
         >

@@ -2,7 +2,6 @@
 
 import { useEditor, EditorContent, ReactNodeViewRenderer } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Underline from "@tiptap/extension-underline";
 import Youtube from "@tiptap/extension-youtube";
@@ -20,6 +19,12 @@ import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TableCell } from "@tiptap/extension-table-cell";
+import { Indent } from "@/features/studio/extensions/Indent";
+import { AlignedImage } from "@/features/studio/extensions/AlignedImage";
+import { TextStyle } from "@tiptap/extension-text-style";
+import { Color } from "@tiptap/extension-color";
+import { Highlight } from "@tiptap/extension-highlight";
+import { TextAlign } from "@tiptap/extension-text-align";
 
 const lowlight = createLowlight(common);
 
@@ -31,8 +36,15 @@ export function PostContent({ content }: { content: TiptapContent }) {
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Image,
+      AlignedImage,
       Underline,
+      TextStyle,
+      Color,
+      Highlight.configure({ multicolor: true }),
+      TextAlign.configure({
+        types: ["heading", "paragraph"],
+      }),
+      Indent,
       Ruby,
       RubyText,
       Link.configure({
@@ -78,8 +90,9 @@ export function PostContent({ content }: { content: TiptapContent }) {
                 ? "prose-base md:prose-lg prose-p:font-serif prose-p:leading-loose"
                 : "prose-p:font-sans",
           isSerif && !isTerminalCopy && !isRoninCopy
-            ? "prose-p:font-serif prose-p:leading-[1.9]"
-            : "prose-p:leading-relaxed",
+            ? "prose-p:font-serif prose-p:leading-[1.7]"
+            : "prose-p:leading-[1.7]",
+          "prose-p:mb-6",
         ),
       },
     },

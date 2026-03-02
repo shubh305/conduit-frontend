@@ -15,3 +15,14 @@ export async function uploadFile(file: File): Promise<{ url: string; filename: s
     url: getMediaUrl(res.url) || res.url,
   };
 }
+
+export async function uploadFileFromUrl(url: string): Promise<{ url: string }> {
+  const res = await fetchApi<{ url: string }>("/media/upload-url", {
+    method: "POST",
+    body: JSON.stringify({ url }),
+  });
+
+  return {
+    url: getMediaUrl(res.url) || res.url,
+  };
+}
