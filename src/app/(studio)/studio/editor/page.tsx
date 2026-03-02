@@ -11,10 +11,8 @@ import { useTheme, useThemeHelpers, useStudioLabels } from "@/features/theme/The
 import { useThemeLabel } from "@/components/theme";
 import { getHeadingClasses, getEditorContainerClasses } from "@/lib/theme-variants"
 import Link from "next/link";
-import { ArrowLeft, Settings } from "lucide-react";
-import { ArticlePageWrapper } from "@/features/blog/components/ArticlePageWrapper";
-import { FeedItem } from "@/features/feed/types";
-import { TiptapContent, Tenant } from "@/features/blog/types"
+import { ArrowLeft, Settings, ExternalLink } from "lucide-react";
+import { TiptapContent } from "@/features/blog/types";
 import { createPost, updatePost, schedulePost } from "@/features/blog/api";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -27,12 +25,11 @@ export default function EditorPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { theme, config } = useTheme();
-  const { isCyberCopy, isTechieCopy, isJournalCopy } = useThemeHelpers();
+  const { isCyberCopy, isTechieCopy, isJournalCopy, isTerminalCopy } = useThemeHelpers();
   const toastShownRef = useRef<string | null>(null);
 
   const requestedTenantId = searchParams.get("tenant") || searchParams.get("tenantId");
 
-  const isTerminalCopy = theme === "terminal";
 
   const { getLabel } = useStudioLabels();
 
@@ -54,7 +51,7 @@ export default function EditorPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState<TiptapContent>({ type: "doc", content: [] });
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
 
   const [postId, setPostId] = useState<string | null>(null);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -193,7 +190,12 @@ export default function EditorPage() {
     }
   };
 
-  const handlePreview = () => setIsPreviewOpen(true);
+  const handlePreview = () => {
+    const postSlug = slug || generateSlug(title);
+    if (!tenantId || !postSlug) return;
+    const username = user?.username || "user";
+    window.open(`/u/${username}/${postSlug}?preview=true`, "_blank");
+  };
 
   const handlePublish = async () => {
     if (!tenantId) return;
@@ -239,28 +241,7 @@ export default function EditorPage() {
     }
   };
 
-  const mockPreviewPost: FeedItem & { content: TiptapContent; readingTimeMinutes: number; status?: string } = {
-    tenantId: tenantId || "",
-    tenantSlug: user?.username || "my-blog",
-    tenantName: user?.displayName || "My Blog",
-    postId: postId || "preview-id",
-    postSlug: slug || "preview-slug",
-    title: title || "Untitled Draft",
-    content: content,
-    excerpt: "Story preview under generation...",
-    featuredImage: featuredImage || undefined,
-    featuredImageAttribution: featuredImageAttribution || undefined,
-    tags: tags.length > 0 ? tags : ["preview", "draft"],
-    authorName: user?.displayName || "You",
-    authorUsername: user.username || "user",
-    authorAvatar: user.avatar || undefined,
-    publishedAt: new Date().toISOString(),
-    viewsCount: 0,
-    likesCount: 0,
-    commentsCount: 0,
-    readingTimeMinutes: readingTimeMinutes || 5,
-    status: "draft",
-  };
+
 
   const syncStatusText = isSaving
     ? getLabel("editor_sync_saving")
@@ -268,192 +249,195 @@ export default function EditorPage() {
       ? `${getLabel("editor_sync_synced")} ${lastSaved.toLocaleTimeString()}`
       : getLabel("editor_sync_not_synced");
 
-  if (isPreviewOpen) {
-    return (
-      <div className="fixed inset-0 z-[200] bg-noir-bg flex flex-col overflow-hidden">
-        {/* Preview Control Bar */}
-        <div className="fixed top-8 right-12 z-[210] flex gap-4">
-          <Button
-            onClick={() => setIsPreviewOpen(false)}
-            variant="secondary"
-            className={cn(
-              "shadow-2xl border border-noir-border h-10 px-8 uppercase text-xs font-bold transition-all bg-noir-panel hover:bg-noir-hover",
-              isCyberCopy ? "rounded-none font-mono" : "rounded-full",
-            )}
-          >
-            {getLabel("retreat")}
-          </Button>
-        </div>
-
-        {/* Preview Content Area */}
-        <div className="flex-1 overflow-y-auto">
-          <ArticlePageWrapper
-            post={mockPreviewPost}
-            tenant={
-              {
-                id: tenantId!,
-                name: user.displayName || "User",
-                slug: user.username || "user",
-                status: "active",
-                plan: "free",
-              } as Tenant
-            }
-            isPreview={true}
-          />
-        </div>
-      </div>
-    );
-  }
-
   // Terminal Layout
   if (isTerminalCopy) {
     return (
-      <div className="flex flex-col h-full w-full relative font-mono text-accent">
-        {/* Main Terminal Window Frame */}
-        <div className="flex-1 border-2 border-accent rounded-lg flex flex-col relative overflow-hidden shadow-[0_0_30px_rgba(74,246,38,0.15)] bg-black">
-          {/* Top Bar */}
-          <div className="bg-accent text-black px-4 py-2 flex justify-between items-center select-none shrink-0 text-sm font-bold">
-            <div className="flex items-center gap-4">
-              <span>[ {title || "No Name"} ]</span>
-              <span>- VIM</span>
-              <span className="opacity-60 hidden md:inline">[~/blog/posts/{slug || "new_story.md"}]</span>
+      <ThemePage className="relative min-h-screen w-full z-0 flex flex-col">
+        <div
+          className={cn(
+            "flex flex-col items-center justify-start w-full p-0 md:px-12 md:py-12 bg-black/40 relative transistion-all duration-300",
+          )}
+        >
+          <div className="flex flex-col w-full max-w-5xl editor-container rounded-none md:rounded-lg shadow-[0_0_50px_rgba(var(--accent-rgb),0.2)] bg-black border-2 border-accent relative overflow-hidden font-mono">
+            {/* VIM Top Bar */}
+            <div className="bg-accent text-black px-4 py-2 flex justify-between items-center select-none shrink-0 text-sm font-bold">
+              <div className="flex items-center gap-4">
+                <span>[ {title || "No Name"} ]</span>
+                <span>- VIM</span>
+                <span className="opacity-60 hidden md:inline">[~/blog/posts/{slug || "new_story.md"}]</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handlePreview}
+                  className="hover:bg-black hover:text-accent px-3 py-0.5 transition-colors uppercase tracking-wider text-xs md:text-sm font-bold"
+                >
+                  [ {previewLabel} ]
+                </button>
+                <button
+                  onClick={handleSaveDraft}
+                  disabled={isSaving}
+                  className="hover:bg-black hover:text-accent px-3 py-0.5 transition-colors uppercase tracking-wider text-xs md:text-sm font-bold"
+                >
+                  [{isSaving ? savingLabel : ` ${draftLabel} `}]
+                </button>
+                <button
+                  onClick={() => setIsSidebarOpen(true)}
+                  disabled={isSaving}
+                  className="hover:bg-black hover:text-accent px-3 py-0.5 transition-colors uppercase tracking-wider text-xs md:text-sm font-extrabold"
+                >
+                  [ {publishLabel} ]
+                </button>
+                <Link
+                  href="/studio/posts"
+                  className="hover:bg-black hover:text-accent px-2 py-0.5 transition-colors uppercase tracking-wider text-xs md:text-sm ml-4"
+                >
+                  [ X ]
+                </Link>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2 md:gap-4">
-              <button
-                onClick={() => setIsPreviewOpen(true)}
-                className="hover:bg-black hover:text-accent px-3 py-0.5 transition-colors uppercase tracking-wider text-xs md:text-sm font-bold"
-              >
-                [ {previewLabel} ]
-              </button>
-              <button
-                onClick={handleSaveDraft}
-                disabled={isSaving}
-                className="hover:bg-black hover:text-accent px-3 py-0.5 transition-colors uppercase tracking-wider text-xs md:text-sm font-bold"
-              >
-                [{isSaving ? getLabel("editor_sync_saving") : ` ${draftLabel} `}]
-              </button>
-              <button
-                onClick={() => setIsSidebarOpen(true)}
-                className="hover:bg-black hover:text-accent px-3 py-0.5 transition-colors uppercase tracking-wider text-xs md:text-sm font-extrabold"
-              >
-                [ {publishLabel} ]
-              </button>
-              <Link
-                href="/studio/posts"
-                className="hover:bg-black hover:text-accent px-2 py-0.5 transition-colors uppercase tracking-wider text-xs md:text-sm ml-4"
-              >
-                [ X ]
-              </Link>
+            <div className="flex flex-col overflow-hidden">
+              <div className="flex flex-col px-4 md:px-10 pt-6 shrink-0 gap-4 border-b border-accent/20 pb-6 bg-black">
+                <CoverImageManager
+                  value={featuredImage}
+                  attribution={featuredImageAttribution}
+                  onChange={(url, attr) => {
+                    setFeaturedImage(url);
+                    setFeaturedImageAttribution(attr || null);
+                  }}
+                  tenantId={tenantId || undefined}
+                  variant="editor"
+                />
+
+                <Input
+                  placeholder={enterTitlePlaceholder}
+                  className="bg-transparent border-none text-4xl font-bold text-accent placeholder:text-accent/30 focus:ring-0 px-2 h-auto font-mono tracking-tight w-full"
+                  value={title}
+                  onChange={e => setTitle(e.target.value)}
+                />
+              </div>
+
+              <TiptapEditor
+                className="bg-black"
+                content={content}
+                onChange={setContent}
+                tenantId={tenantId || undefined}
+              />
             </div>
           </div>
 
-          {/* Title Input Area */}
-          <div className="border-b border-accent/20 p-6 shrink-0 bg-black">
-            <Input
-              placeholder={enterTitlePlaceholder}
-              className="bg-transparent border-none text-4xl font-bold text-accent placeholder:text-accent/70 focus:ring-0 px-2 h-auto font-mono tracking-tight w-full"
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-            />
-          </div>
+          <SettingsSidebar
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+            slug={slug}
+            tags={tags}
+            featuredImage={featuredImage}
+            onUpdate={updates => {
+              if (updates.slug !== undefined) {
+                setSlug(updates.slug);
+                isSlugManuallyEdited.current = true;
+              }
+              if (updates.tags !== undefined) setTags(updates.tags);
+              if (updates.featuredImage !== undefined) setFeaturedImage(updates.featuredImage);
+            }}
+            tenantId={tenantId || undefined}
+            postTitle={title}
+            authorUsername={user.username}
+            onPublish={handlePublish}
+            readingTimeMinutes={readingTimeMinutes}
+            wordCount={wordCount}
+            paragraphsCount={paragraphsCount}
+            onSchedule={async date => {
+              if (!tenantId) return;
 
-          {/* Editor Content */}
-          <div className="flex-1 relative min-h-0 bg-black">
-            <TiptapEditor
-              className="h-full border-none"
-              content={content}
-              onChange={setContent}
-              tenantId={tenantId || undefined}
-            />
-          </div>
-        </div>
-
-        <SettingsSidebar
-          isOpen={isSidebarOpen}
-          onClose={() => setIsSidebarOpen(false)}
-          slug={slug}
-          tags={tags}
-          featuredImage={featuredImage}
-          onUpdate={updates => {
-            if (updates.slug !== undefined) {
-              setSlug(updates.slug);
-              isSlugManuallyEdited.current = true;
-            }
-            if (updates.tags !== undefined) setTags(updates.tags);
-            if (updates.featuredImage !== undefined) setFeaturedImage(updates.featuredImage);
-          }}
-          tenantId={tenantId || undefined}
-          postTitle={title}
-          authorUsername={user.username}
-          onPublish={handlePublish}
-          readingTimeMinutes={readingTimeMinutes}
-          wordCount={wordCount}
-          paragraphsCount={paragraphsCount}
-          onSchedule={async date => {
-            if (!tenantId) return;
-
-            if (!tags || tags.length === 0) {
-              toast.error("At least one tag is required to schedule.");
-              return;
-            }
-
-            setIsSaving(true);
-            try {
-              const payload = {
-                title,
-                content,
-                status: "scheduled" as const,
-                slug,
-                tags,
-                featuredImage: featuredImage || undefined,
-                featuredImageAttribution: featuredImageAttribution || undefined,
-                scheduledAt: date,
-                wordCount,
-                paragraphsCount,
-                readingTimeMinutes,
-              };
-
-              if (postId) {
-                await updatePost(postId, payload, tenantId);
-                await schedulePost(postId, date, tenantId);
-              } else {
-                const { post } = await createPost(payload, tenantId);
-                if (post) setPostId(post.id);
+              if (!tags || tags.length === 0) {
+                toast.error("At least one tag is required to schedule.");
+                return;
               }
 
-              toast.success("Post scheduled successfully!");
-              setIsSidebarOpen(false);
-              setTimeout(() => router.push("/studio/posts"), 1000);
-            } catch (e) {
-              console.error(e);
-              toast.error("Failed to schedule.");
-            } finally {
-              setIsSaving(false);
-            }
-          }}
-          isPublishing={isSaving}
-          status="draft"
-        />
-      </div>
+              setIsSaving(true);
+              try {
+                const payload = {
+                  title,
+                  content,
+                  status: "scheduled" as const,
+                  slug,
+                  tags,
+                  featuredImage: featuredImage || undefined,
+                  featuredImageAttribution: featuredImageAttribution || undefined,
+                  scheduledAt: date,
+                  wordCount,
+                  paragraphsCount,
+                  readingTimeMinutes,
+                };
+
+                if (postId) {
+                  await updatePost(postId, payload, tenantId);
+                  await schedulePost(postId, date, tenantId);
+                } else {
+                  const { post } = await createPost(payload, tenantId);
+                  if (post) setPostId(post.id);
+                }
+
+                toast.success("Post scheduled successfully!");
+                setIsSidebarOpen(false);
+                setTimeout(() => router.push("/studio/posts"), 1000);
+              } catch (e) {
+                console.error(e);
+                toast.error("Failed to schedule.");
+              } finally {
+                setIsSaving(false);
+              }
+            }}
+            isPublishing={isSaving}
+            status="draft"
+          />
+
+          {/* Mobile Terminal Action Bar */}
+          <div className="md:hidden fixed bottom-0 left-0 right-0 z-[120] p-4 flex gap-3 border-t backdrop-blur-md bg-black border-accent/30 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+            <button
+              onClick={handlePreview}
+              className="flex-1 h-12 text-[10px] font-black uppercase tracking-widest border border-accent/40 text-accent bg-black"
+            >
+              [ {previewLabel} ]
+            </button>
+            <button
+              onClick={handleSaveDraft}
+              disabled={isSaving}
+              className="flex-1 h-12 text-[10px] font-black uppercase tracking-widest border border-accent/40 text-accent bg-black"
+            >
+              [ {isSaving ? "SAVING..." : draftLabel} ]
+            </button>
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              disabled={isSaving}
+              className="flex-1 h-12 text-[10px] font-black uppercase tracking-widest bg-accent text-noir-bg shadow-[0_0_15px_rgba(var(--accent-rgb),0.3)]"
+            >
+              [ {publishLabel} ]
+            </button>
+          </div>
+        </div>
+      </ThemePage>
     );
   }
 
   // Standard Layout
   return (
-    <ThemePage className="fixed inset-0 h-[100dvh] w-full md:relative md:h-full md:inset-auto z-0 overflow-hidden">
+    <ThemePage className="relative min-h-screen w-full z-0 flex flex-col">
       <div
         className={cn(
-          "flex flex-col items-center justify-start h-full w-full p-0 pt-[env(safe-area-inset-top)] md:pt-8 md:p-8 overflow-hidden relative",
-          theme !== "journal" && theme !== "sakura" && theme !== "classic" && "bg-black/20",
+          "flex flex-col items-center justify-start w-full p-0 md:px-12 md:py-12 bg-black/20 relative flex-grow transition-all duration-300",
+          (theme === "journal" || theme === "sakura" || theme === "classic") && "bg-transparent",
         )}
       >
         <div
           className={cn(
-            "flex flex-col w-full max-w-5xl editor-container md:rounded-3xl overflow-hidden shadow-2xl flex-1 min-h-0 border-none",
+            "flex flex-col w-full max-w-5xl editor-container rounded-none md:rounded-3xl shadow-none md:shadow-2xl bg-[var(--editor-bg)] border-none relative flex-grow min-h-0 overflow-hidden",
             getEditorContainerClasses(theme),
             isCyberCopy && "md:rounded-none",
-            isTechieCopy && "md:rounded-xl bg-[var(--editor-bg)]/95 shadow-[var(--editor-glow)]",
+            isTechieCopy && "md:rounded-xl shadow-[var(--editor-glow)]",
+            "pb-0 md:pb-4",
           )}
           style={{
             backgroundColor: theme === "journal" || theme === "sakura" ? "var(--journal-paper)" : undefined,
@@ -461,8 +445,10 @@ export default function EditorPage() {
         >
           <header
             className={cn(
-              "flex items-center justify-between px-4 md:px-12 py-2 md:py-6 border-b border-[var(--editor-border)] bg-[var(--editor-bg)] shrink-0",
-              (theme === "journal" || theme === "sakura") && "bg-noir-bg border-accent/10",
+              "flex items-center justify-between px-4 md:px-12 py-2 md:py-6 border-b border-[var(--editor-border)] bg-[var(--editor-bg)] shrink-0 sticky top-0 z-40 rounded-t-none md:rounded-t-3xl",
+              isCyberCopy && "md:rounded-none",
+              isTechieCopy && "md:rounded-t-xl",
+              theme === "journal" && "bg-noir-bg border-accent/10",
             )}
           >
             <div className="flex items-center gap-4">
@@ -491,8 +477,8 @@ export default function EditorPage() {
             <div className="flex gap-2">
               <div className="hidden md:flex gap-2">
                 <Button
-                  variant="ghost"
                   onClick={handlePreview}
+                  variant="ghost"
                   className={cn(
                     "px-4 md:px-6 h-8 md:h-9 text-[10px] md:text-xs uppercase font-bold tracking-wider",
                     isCyberCopy
@@ -501,8 +487,7 @@ export default function EditorPage() {
                   )}
                   style={{ borderRadius: isCyberCopy ? "0" : config.tokens.borderRadius }}
                 >
-                  <span className="hidden xs:inline">{previewLabel}</span>
-                  <span className="xs:hidden">Preview</span>
+                  {previewLabel} <ExternalLink size={14} className="ml-2" />
                 </Button>
                 <Button
                   onClick={handleSaveDraft}
@@ -533,13 +518,13 @@ export default function EditorPage() {
                   style={{ borderRadius: isCyberCopy ? "0" : config.tokens.borderRadius }}
                 >
                   <Settings size={14} className="shrink-0" />
-                  <span className="hidden sm:inline">{isSaving ? savingLabel : publishLabel}</span>
+                  <span className="hidden sm:inline">{publishLabel}</span>
                 </Button>
               </div>
             </div>
           </header>
 
-          <div className="flex flex-col px-4 md:px-12 pt-4 md:pt-8 shrink-0">
+          <div className="flex flex-col px-4 md:px-12 pt-0 md:pt-12 shrink-0 gap-1">
             <CoverImageManager
               value={featuredImage}
               attribution={featuredImageAttribution}

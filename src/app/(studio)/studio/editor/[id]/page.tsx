@@ -19,6 +19,7 @@ import { getEditorContainerClasses } from "@/lib/theme-variants";
 import { calculateReadingStats, generateSlug } from "@/features/blog/utils";
 import { ThemePage } from "@/components/theme/ThemePage";
 import { CoverImageManager } from "@/features/studio/components/CoverImageManager";
+import { useStudioLabels } from "@/features/theme/ThemeProvider";
 
 export default function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -27,8 +28,9 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   const searchParams = useSearchParams();
   const queryTenantId = searchParams.get("tenant") || searchParams.get("tenantId");
   const { theme, config } = useTheme();
-  const { isCyberCopy, isTechieCopy, isJournalCopy } = useThemeHelpers();
+  const { isCyberCopy, isTechieCopy, isJournalCopy, isTerminalCopy } = useThemeHelpers();
   const t = useThemeLabel();
+  const { getLabel } = useStudioLabels();
 
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -242,22 +244,27 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
 
   const syncStatusText = isSaving ? t("syncing") : lastSaved ? `${t("saved")} ${lastSaved.toLocaleTimeString()}` : "";
 
+
   return (
-    <ThemePage className="fixed inset-0 h-[100dvh] w-full md:relative md:h-full md:inset-auto z-0 overflow-hidden">
-      <div className="flex flex-col items-center justify-start h-full w-full p-0 pt-[env(safe-area-inset-top)] md:pt-8 md:p-8 bg-black/20 overflow-hidden relative">
+    <ThemePage className="relative min-h-screen w-full z-0 flex flex-col">
+      <div className="flex flex-col items-center justify-start w-full min-h-screen p-0 md:px-12 md:py-12 bg-black/20 relative flex-grow">
         <div
           className={cn(
-            "flex flex-col w-full max-w-5xl editor-container md:rounded-3xl overflow-hidden shadow-2xl flex-1 min-h-0 border-none",
+            "flex flex-col w-full max-w-5xl editor-container rounded-none md:rounded-3xl shadow-none md:shadow-2xl bg-[var(--editor-bg)] border-none relative flex-grow min-h-0",
             getEditorContainerClasses(theme),
             isCyberCopy && "md:rounded-none",
-            isTechieCopy && "md:rounded-xl bg-[var(--editor-bg)]/95 shadow-[var(--editor-glow)]",
-            "pb-20 md:pb-0",
+            isTechieCopy && "md:rounded-xl shadow-[var(--editor-glow)]",
+            "pb-0 md:pb-4",
           )}
-          style={{ backgroundColor: theme === "journal" ? "var(--journal-paper)" : undefined }}
+          style={{
+            backgroundColor: theme === "journal" ? "var(--journal-paper)" : undefined,
+          }}
         >
           <header
             className={cn(
-              "flex items-center justify-between px-4 md:px-12 py-2 md:py-6 border-b border-[var(--editor-border)] bg-[var(--editor-bg)] shrink-0",
+              "flex items-center justify-between px-4 md:px-12 py-2 md:py-6 border-b border-[var(--editor-border)] bg-[var(--editor-bg)] shrink-0 sticky top-0 z-40 rounded-t-none md:rounded-t-3xl",
+              isCyberCopy && "md:rounded-none",
+              isTerminalCopy && "border-accent/30 bg-black pt-4 pb-4",
               theme === "journal" && "bg-noir-bg border-accent/10",
             )}
           >
@@ -348,7 +355,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
             </div>
           </header>
 
-          <div className="flex flex-col px-4 md:px-12 pt-4 md:pt-8 shrink-0">
+          <div className="flex flex-col px-4 md:px-12 pt-0 md:pt-12 shrink-0 gap-1">
             <CoverImageManager
               value={featuredImage}
               attribution={featuredImageAttribution}
@@ -359,28 +366,30 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
               tenantId={activeTenantId || undefined}
               variant="editor"
             />
-
-            <Input
-              placeholder={t("articleTitlePlaceholder")}
-              className={cn(
-                "text-2xl md:text-4xl font-bold bg-transparent border-none h-auto focus:ring-0 w-full mb-2 md:mb-4 px-4",
-                isCyberCopy
-                  ? "placeholder:text-foreground-subtle/20 text-foreground uppercase tracking-tighter font-mono"
-                  : isTechieCopy
-                    ? "font-mono uppercase tracking-tighter text-foreground placeholder:text-noir-border"
-                    : theme === "terminal"
-                      ? "font-mono uppercase tracking-tighter text-accent placeholder:text-accent/10 terminal-glow"
-                      : config.fontFamily === "serif"
-                        ? "font-serif italic"
-                        : "font-sans",
-              )}
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-            />
+            <div className="flex flex-col gap-2">
+              <Input
+                placeholder={getLabel("editor_title_placeholder")}
+                className={cn(
+                  "text-3xl md:text-6xl font-black bg-transparent border-none h-auto focus:ring-0 w-full px-0 underline decoration-[var(--editor-border)] decoration-2 underline-offset-[16px]",
+                  isCyberCopy
+                    ? "placeholder:text-foreground-subtle/20 text-foreground uppercase tracking-tighter font-mono"
+                    : isTechieCopy
+                      ? "font-mono uppercase tracking-tighter text-foreground placeholder:text-noir-border"
+                      : theme === "terminal"
+                        ? "font-mono uppercase tracking-tighter text-accent placeholder:text-accent/10 terminal-glow border-b border-accent/20"
+                        : config.fontFamily === "serif"
+                          ? "font-serif italic"
+                          : "font-sans",
+                )}
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+              />
+              <div className="h-2" />
+            </div>
           </div>
 
           <TiptapEditor
-            className="flex-1 min-h-0"
+            className="h-auto flex-none"
             content={content}
             onChange={setContent}
             tenantId={activeTenantId || undefined}
@@ -443,9 +452,9 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
               await schedulePost(post.id, date, tenantId);
               toast.success("Post scheduled successfully!");
               router.push("/studio/posts");
-            } catch (e) {
-              console.error(e);
-              toast.error("Failed to schedule.");
+            } catch (error) {
+              console.error("Failed to schedule post", error);
+              toast.error("Failed to schedule post.");
             } finally {
               setIsSaving(false);
             }
@@ -481,7 +490,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
               isCyberCopy ? "rounded-none border-accent/30 text-accent" : "rounded-xl border-foreground/10",
             )}
           >
-            {isSaving ? savingLabel : "Save Draft"}
+            {isSaving ? savingLabel : draftLabel}
           </Button>
           <Button
             onClick={() => setIsSidebarOpen(true)}

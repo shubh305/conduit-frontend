@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Editor, EditorContent } from "@tiptap/react";
 import { cn } from "@/lib/utils";
 import { useThemeLabel } from "@/components/theme";
@@ -30,7 +30,12 @@ interface TerminalEditorShellProps {
   tenantId?: string;
 }
 
-export function TerminalEditorShell({ editor, filename = "article.md" }: TerminalEditorShellProps) {
+export function TerminalEditorShell({
+  editor,
+  filename = "article.md",
+  title = "",
+  onTitleChange,
+}: TerminalEditorShellProps) {
   const t = useThemeLabel();
   const insertLabel = t("statusDrafts");
   const saveLabel = t("saveChanges");
@@ -46,7 +51,30 @@ export function TerminalEditorShell({ editor, filename = "article.md" }: Termina
   const youtubeInputRef = useRef<HTMLInputElement>(null);
   const rubyInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const editorContainerRef = useRef<HTMLDivElement>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [lineNumbers, setLineNumbers] = useState(10);
+
+  useEffect(() => {
+    if (!editor) return;
+
+    const updateLineNumbers = () => {
+      const editorElement = editor.options.element as HTMLElement;
+      if (editorElement) {
+        const pmElement = editorElement.querySelector(".ProseMirror") as HTMLElement;
+        const height = pmElement ? pmElement.scrollHeight : editorElement.scrollHeight;
+        const count = Math.max(10, Math.ceil(height / 28.8));
+        setLineNumbers(count);
+      }
+    };
+
+    updateLineNumbers();
+    editor.on("update", updateLineNumbers);
+
+    return () => {
+      editor.off("update", updateLineNumbers);
+    };
+  }, [editor]);
 
   if (!editor) return null;
 
@@ -117,22 +145,22 @@ export function TerminalEditorShell({ editor, filename = "article.md" }: Termina
   };
 
   return (
-    <div className="flex flex-col h-full bg-black font-mono text-foreground relative overflow-hidden">
-      {/* Retro Toolbar (Fixed Top) */}
-      <div className="border-b border-accent/20 p-2 flex items-center justify-between text-accent font-mono text-base select-none bg-black z-10">
+    <div className="flex flex-col bg-black font-mono text-foreground relative h-full">
+      {/* Retro Toolbar (Sticky Top) */}
+      <div className="border-b border-accent/20 p-2 flex items-center justify-between text-accent font-mono text-base select-none bg-black sticky top-12 md:top-20 z-30">
         <div className="flex items-center gap-6">
           <div className="flex gap-2">
             <button
               onClick={() => editor.chain().focus().undo().run()}
               className="hover:bg-accent hover:text-black px-2 py-1 transition-colors"
-              title="Undo"
+              title={t("undo") || "Undo"}
             >
               u
             </button>
             <button
               onClick={() => editor.chain().focus().redo().run()}
               className="hover:bg-accent hover:text-black px-2 py-1 transition-colors"
-              title="Redo"
+              title={t("redo") || "Redo"}
             >
               r
             </button>
@@ -145,7 +173,7 @@ export function TerminalEditorShell({ editor, filename = "article.md" }: Termina
                 "hover:bg-accent hover:text-black px-2 py-1 transition-colors",
                 editor.isActive("bold") && "bg-accent text-black",
               )}
-              title="Bold"
+              title={t("bold") || "Bold"}
             >
               B
             </button>
@@ -155,7 +183,7 @@ export function TerminalEditorShell({ editor, filename = "article.md" }: Termina
                 "hover:bg-accent hover:text-black px-2 py-1 italic transition-colors",
                 editor.isActive("italic") && "bg-accent text-black",
               )}
-              title="Italic"
+              title={t("italic") || "Italic"}
             >
               I
             </button>
@@ -165,7 +193,7 @@ export function TerminalEditorShell({ editor, filename = "article.md" }: Termina
                 "hover:bg-accent hover:text-black px-2 py-1 underline transition-colors",
                 editor.isActive("underline") && "bg-accent text-black",
               )}
-              title="Underline"
+              title={t("underline") || "Underline"}
             >
               U
             </button>
@@ -175,7 +203,7 @@ export function TerminalEditorShell({ editor, filename = "article.md" }: Termina
                 "hover:bg-accent hover:text-black px-2 py-1 transition-colors",
                 editor.isActive("strike") && "bg-accent text-black",
               )}
-              title="Strikethrough"
+              title={t("strikethrough") || "Strikethrough"}
             >
               S
             </button>
@@ -188,7 +216,7 @@ export function TerminalEditorShell({ editor, filename = "article.md" }: Termina
                 "hover:bg-accent hover:text-black px-2 py-1 transition-colors",
                 editor.isActive("heading", { level: 1 }) && "bg-accent text-black",
               )}
-              title="H1"
+              title={t("h1") || "H1"}
             >
               h1
             </button>
@@ -198,7 +226,7 @@ export function TerminalEditorShell({ editor, filename = "article.md" }: Termina
                 "hover:bg-accent hover:text-black px-2 py-1 transition-colors",
                 editor.isActive("heading", { level: 2 }) && "bg-accent text-black",
               )}
-              title="H2"
+              title={t("h2") || "H2"}
             >
               h2
             </button>
@@ -208,7 +236,7 @@ export function TerminalEditorShell({ editor, filename = "article.md" }: Termina
                 "hover:bg-accent hover:text-black px-2 py-1 transition-colors",
                 editor.isActive("bulletList") && "bg-accent text-black",
               )}
-              title="Bullet List"
+              title={t("bulletList") || "Bullet List"}
             >
               <List size={14} />
             </button>
@@ -218,7 +246,7 @@ export function TerminalEditorShell({ editor, filename = "article.md" }: Termina
                 "hover:bg-accent hover:text-black px-2 py-1 transition-colors",
                 editor.isActive("orderedList") && "bg-accent text-black",
               )}
-              title="Ordered List"
+              title={t("orderedList") || "Ordered List"}
             >
               <ListOrdered size={14} />
             </button>
@@ -228,7 +256,7 @@ export function TerminalEditorShell({ editor, filename = "article.md" }: Termina
                 "hover:bg-accent hover:text-black px-2 py-1 transition-colors",
                 editor.isActive("link") && "bg-accent text-black",
               )}
-              title="Link"
+              title={t("insertLink") || "Link"}
             >
               <LinkIcon size={14} />
             </button>
@@ -241,7 +269,7 @@ export function TerminalEditorShell({ editor, filename = "article.md" }: Termina
                 "hover:bg-accent hover:text-black px-2 py-1 transition-colors",
                 editor.isActive("ruby") && "bg-accent text-black",
               )}
-              title="Ruby/Furigana"
+              title={t("insertFurigana") || "Ruby/Furigana"}
             >
               <Languages size={14} />
             </button>
@@ -251,7 +279,7 @@ export function TerminalEditorShell({ editor, filename = "article.md" }: Termina
                 "hover:bg-accent hover:text-black px-2 py-1 transition-colors",
                 editor.isActive("codeBlock") && "bg-accent text-black",
               )}
-              title="Code Block"
+              title={t("codeBlock") || "Code Block"}
             >
               <Code size={14} />
             </button>
@@ -261,7 +289,7 @@ export function TerminalEditorShell({ editor, filename = "article.md" }: Termina
                 "hover:bg-accent hover:text-black px-2 py-1 transition-colors",
                 editor.isActive("blockquote") && "bg-accent text-black",
               )}
-              title="Blockquote"
+              title={t("blockquote") || "Blockquote"}
             >
               <Quote size={14} />
             </button>
@@ -269,7 +297,7 @@ export function TerminalEditorShell({ editor, filename = "article.md" }: Termina
             <button
               onClick={() => fileInputRef.current?.click()}
               className="hover:bg-accent hover:text-black px-2 py-1 transition-colors"
-              title="Insert Image"
+              title={t("insertImage") || "Insert Image"}
             >
               {isUploading ? <Loader2 size={14} className="animate-spin" /> : <ImageIcon size={14} />}
             </button>
@@ -279,14 +307,14 @@ export function TerminalEditorShell({ editor, filename = "article.md" }: Termina
                 setTimeout(() => youtubeInputRef.current?.focus(), 50);
               }}
               className={cn("hover:bg-accent hover:text-black px-2 py-1 transition-colors")}
-              title="YouTube"
+              title={t("insertYoutube") || "YouTube"}
             >
               <Youtube size={14} />
             </button>
             <button
               onClick={() => editor.chain().focus().setHorizontalRule().run()}
               className="hover:bg-accent hover:text-black px-2 py-1 transition-colors"
-              title="Horizontal Rule"
+              title={t("horizontalRule") || "Horizontal Rule"}
             >
               <Minus size={14} />
             </button>
@@ -297,21 +325,21 @@ export function TerminalEditorShell({ editor, filename = "article.md" }: Termina
         </div>
       </div>
 
-      {/* Main Scrollable Area (Lines + Content) */}
-      <div className="flex-1 flex overflow-y-auto custom-scrollbar-cyber relative">
+      {/* Main Area (Lines + Content) */}
+      <div className="flex-1 relative flex flex-col bg-black min-h-[300px]" ref={editorContainerRef}>
         <div className="flex w-full min-h-full">
           {/* Line Numbers Column */}
           <div
-            className="w-12 pt-6 pb-6 text-right pr-3 text-accent/30 select-none bg-black border-r border-accent/10 text-sm leading-[1.8] flex flex-col font-mono"
+            className="w-12 pt-6 pb-6 text-right pr-3 text-accent/30 select-none bg-black border-r border-accent/10 text-sm leading-[1.8] flex flex-col font-mono shrink-0"
             aria-hidden="true"
           >
-            {Array.from({ length: 100 }).map((_, i) => (
+            {Array.from({ length: lineNumbers }).map((_, i) => (
               <div key={i} className="h-[28.8px] flex items-center justify-end">
                 {i + 1}
               </div>
             ))}
-            <div className="text-accent/20 flex-1 relative">
-              {Array.from({ length: 20 }).map((_, i) => (
+            <div className="text-accent/20 flex-1 relative overflow-hidden">
+              {Array.from({ length: 15 }).map((_, i) => (
                 <div key={`tilde-${i}`} className="h-[28.8px] flex items-center justify-end">
                   ~
                 </div>
@@ -325,8 +353,8 @@ export function TerminalEditorShell({ editor, filename = "article.md" }: Termina
             {isLinkInputOpen && (
               <div className="absolute top-0 left-0 z-50 bg-black border border-accent p-2 font-mono text-xs w-64 m-4 shadow-[0_0_20px_rgba(var(--accent-rgb),0.3)]">
                 <div className="flex justify-between mb-2 text-accent opacity-50">
-                  <span>INSERT_LINK</span>
-                  <button onClick={() => setIsLinkInputOpen(false)}>
+                  <span>{t("insertLink")}</span>
+                  <button onClick={() => setIsLinkInputOpen(false)} className="cursor-pointer">
                     <X size={12} />
                   </button>
                 </div>
@@ -335,18 +363,18 @@ export function TerminalEditorShell({ editor, filename = "article.md" }: Termina
                   value={linkUrl}
                   onChange={e => setLinkUrl(e.target.value)}
                   onKeyDown={handleLinkKeyDown}
-                  placeholder="https://..."
+                  placeholder={t("linkUrl")}
                   className="w-full bg-black border-b border-accent outline-none text-accent py-1"
                 />
-                <div className="mt-2 text-[10px] text-accent/30 text-right">PRESS ENTER TO APPLY</div>
+                <div className="mt-2 text-[10px] text-accent/30 text-right uppercase">{t("apply")} (ENTER)</div>
               </div>
             )}
 
             {isYoutubeInputOpen && (
               <div className="absolute top-0 left-0 z-50 bg-black border border-accent p-2 font-mono text-xs w-64 m-4 shadow-[0_0_20px_rgba(var(--accent-rgb),0.3)]">
                 <div className="flex justify-between mb-2 text-accent opacity-50">
-                  <span>INSERT_YOUTUBE</span>
-                  <button onClick={() => setIsYoutubeInputOpen(false)}>
+                  <span>{t("insertYoutube")}</span>
+                  <button onClick={() => setIsYoutubeInputOpen(false)} className="cursor-pointer">
                     <X size={12} />
                   </button>
                 </div>
@@ -355,18 +383,18 @@ export function TerminalEditorShell({ editor, filename = "article.md" }: Termina
                   value={youtubeUrl}
                   onChange={e => setYoutubeUrl(e.target.value)}
                   onKeyDown={handleYoutubeKeyDown}
-                  placeholder="https://youtube.com/..."
+                  placeholder={t("youtubeUrl")}
                   className="w-full bg-black border-b border-accent outline-none text-accent py-1"
                 />
-                <div className="mt-2 text-[10px] text-accent/30 text-right">PRESS ENTER TO APPLY</div>
+                <div className="mt-2 text-[10px] text-accent/30 text-right uppercase">{t("apply")} (ENTER)</div>
               </div>
             )}
 
             {isRubyInputOpen && (
               <div className="absolute top-0 left-0 z-50 bg-black border border-accent p-2 font-mono text-xs w-64 m-4 shadow-[0_0_20px_rgba(var(--accent-rgb),0.3)]">
                 <div className="flex justify-between mb-2 text-accent opacity-50">
-                  <span>INSERT_FURIGANA</span>
-                  <button onClick={() => setIsRubyInputOpen(false)}>
+                  <span>{t("insertFurigana")}</span>
+                  <button onClick={() => setIsRubyInputOpen(false)} className="cursor-pointer">
                     <X size={12} />
                   </button>
                 </div>
@@ -375,23 +403,32 @@ export function TerminalEditorShell({ editor, filename = "article.md" }: Termina
                   value={rubyText}
                   onChange={e => setRubyText(e.target.value)}
                   onKeyDown={handleRubyKeyDown}
-                  placeholder="Reading..."
+                  placeholder={t("reading")}
                   className="w-full bg-black border-b border-accent outline-none text-accent py-1"
                 />
-                <div className="mt-2 text-[10px] text-accent/30 text-right">PRESS ENTER TO APPLY</div>
+                <div className="mt-2 text-[10px] text-accent/30 text-right uppercase">{t("apply")} (ENTER)</div>
               </div>
             )}
 
+            <div className="px-6 mb-2">
+              <input
+                type="text"
+                value={title}
+                onChange={e => onTitleChange?.(e.target.value)}
+                placeholder={t("editor_title_placeholder") || "Title..."}
+                className="w-full bg-transparent border-none text-2xl font-bold text-accent placeholder:text-accent/20 outline-none focus:ring-0 p-0"
+              />
+            </div>
             <EditorContent
               editor={editor}
-              className="flex-1 outline-none p-0 [&_.ProseMirror]:min-h-full [&_.ProseMirror]:p-6 [&_.ProseMirror]:outline-none [&_.ProseMirror]:text-foreground [&_.ProseMirror]:font-mono [&_.ProseMirror]:leading-[1.8] [&_.is-editor-empty:before]:text-accent/50"
+              className="outline-none p-0 [&_.ProseMirror]:min-h-[300px] [&_.ProseMirror]:p-6 [&_.ProseMirror]:pt-2 [&_.ProseMirror]:outline-none [&_.ProseMirror]:text-foreground [&_.ProseMirror]:font-mono [&_.ProseMirror]:leading-[1.8] [&_.is-editor-empty:before]:text-accent/50"
             />
           </div>
         </div>
       </div>
 
-      {/* Status Bar (Fixed Bottom) */}
-      <div className="h-8 bg-accent text-black flex justify-between items-center px-4 md:px-6 text-xs md:text-sm font-bold border-t border-black z-10 shrink-0">
+      {/* Status Bar (Sticky Bottom) */}
+      <div className="h-8 bg-accent text-black flex justify-between items-center px-4 md:px-6 text-xs md:text-sm font-bold border-t border-black sticky bottom-0 z-30 shrink-0">
         <div className="flex items-center gap-6">
           <span className="bg-black text-accent px-2">-- {insertLabel} --</span>
           <span>{filename}</span>
