@@ -124,8 +124,7 @@ export function UnsplashSelector({ onSelect, tenantId }: UnsplashSelectorProps) 
                 onChange={e => setQuery(e.target.value)}
                 placeholder="Search high-res assets..."
                 className={cn(
-                  "pl-12 border-noir-border h-10 md:h-14 text-sm transition-all focus:ring-1 focus:ring-accent/30",
-                  theme === "sakura" ? "bg-white/80" : "bg-noir-bg/50",
+                  "pl-12 nuclear-input-reset !border-0 !shadow-none !ring-0 !outline-none h-10 md:h-14 text-sm transition-all !bg-transparent focus:!bg-transparent focus:!border-0 focus:!shadow-none focus:!ring-0 focus:!outline-none",
                   isCyberCopy ? "rounded-none font-mono uppercase border-accent/20" : "rounded-2xl",
                 )}
               />

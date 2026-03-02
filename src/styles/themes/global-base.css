@@ -309,3 +309,26 @@ h1, h2, h3, h4, h5, h6 {
 .hljs-emphasis { font-style: italic; }
 .hljs-strong { font-weight: bold; }
 .hljs-link { text-decoration: underline; }
+
+/* 
+ * Nuclear Overrides for Editor HUD Inputs 
+ */
+[data-theme] .nuclear-input-reset {
+  background-color: transparent !important;
+  border: none !important;
+  border-width: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  border-radius: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+[data-theme] .nuclear-input-reset:focus {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}

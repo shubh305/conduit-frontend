@@ -384,7 +384,7 @@ export function TerminalEditorShell({
                   onChange={e => setYoutubeUrl(e.target.value)}
                   onKeyDown={handleYoutubeKeyDown}
                   placeholder={t("youtubeUrl")}
-                  className="w-full bg-black border-b border-accent outline-none text-accent py-1"
+                  className="w-full nuclear-input-reset !bg-transparent !border-0 !shadow-none !ring-0 !outline-none border-accent border-b text-accent py-1 focus:!bg-transparent focus:!border-0 focus:!shadow-none focus:!ring-0 focus:!outline-none"
                 />
                 <div className="mt-2 text-[10px] text-accent/30 text-right uppercase">{t("apply")} (ENTER)</div>
               </div>
@@ -404,7 +404,7 @@ export function TerminalEditorShell({
                   onChange={e => setRubyText(e.target.value)}
                   onKeyDown={handleRubyKeyDown}
                   placeholder={t("reading")}
-                  className="w-full bg-black border-b border-accent outline-none text-accent py-1"
+                  className="w-full nuclear-input-reset !bg-transparent !border-0 !shadow-none !ring-0 !outline-none border-accent border-b text-accent py-1 focus:!bg-transparent focus:!border-0 focus:!shadow-none focus:!ring-0 focus:!outline-none"
                 />
                 <div className="mt-2 text-[10px] text-accent/30 text-right uppercase">{t("apply")} (ENTER)</div>
               </div>
@@ -416,7 +416,7 @@ export function TerminalEditorShell({
                 value={title}
                 onChange={e => onTitleChange?.(e.target.value)}
                 placeholder={t("editor_title_placeholder") || "Title..."}
-                className="w-full bg-transparent border-none text-2xl font-bold text-accent placeholder:text-accent/20 outline-none focus:ring-0 p-0"
+                className="w-full nuclear-input-reset !bg-transparent !border-0 !shadow-none !ring-0 !outline-none text-2xl font-bold text-accent placeholder:text-accent/20 focus:!bg-transparent focus:!border-0 focus:!shadow-none focus:!ring-0 focus:!outline-none p-0"
               />
             </div>
             <EditorContent

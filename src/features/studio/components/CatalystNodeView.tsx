@@ -350,9 +350,9 @@ export function CatalystNodeView({ node, editor, deleteNode, updateAttributes }:
           ref={inputRef}
           type="text"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={e => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
-          onBlur={(e) => {
+          onBlur={e => {
             if (!isFetchingDetail && !containerRef.current?.contains(e.relatedTarget as Node)) {
               setTimeout(() => {
                 if (document.activeElement !== inputRef.current) {
@@ -362,7 +362,7 @@ export function CatalystNodeView({ node, editor, deleteNode, updateAttributes }:
             }
           }}
           placeholder={placeholders[category]}
-          className="flex-1 bg-transparent border-none outline-none text-sm placeholder:text-muted-foreground"
+          className="flex-1 nuclear-input-reset !bg-transparent !border-0 !shadow-none !ring-0 !outline-none text-sm placeholder:text-muted-foreground focus:!bg-transparent focus:!border-0 focus:!shadow-none focus:!ring-0 focus:!outline-none"
           disabled={isFetchingDetail}
         />
         <button
@@ -403,18 +403,22 @@ export function CatalystNodeView({ node, editor, deleteNode, updateAttributes }:
                       "group flex items-center gap-3 cursor-pointer px-4 py-2.5 text-sm transition-all",
                       selectedIndex === i ? "bg-accent/10 text-accent font-medium" : "hover:bg-accent/5",
                     )}
-                    onMouseDown={(e) => {
+                    onMouseDown={e => {
                       e.preventDefault();
                       handleSelect(r);
                     }}
                   >
-                    <div className={cn(
-                      "h-1.5 w-1.5 rounded-full transition-colors",
-                      selectedIndex === i ? "bg-accent" : "bg-muted-foreground/30 group-hover:bg-muted-foreground/50"
-                    )} />
+                    <div
+                      className={cn(
+                        "h-1.5 w-1.5 rounded-full transition-colors",
+                        selectedIndex === i ? "bg-accent" : "bg-muted-foreground/30 group-hover:bg-muted-foreground/50",
+                      )}
+                    />
                     <div className="flex-1 min-w-0">
                       <div className="truncate">{title}</div>
-                      {subtitle && <div className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">{subtitle}</div>}
+                      {subtitle && (
+                        <div className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">{subtitle}</div>
+                      )}
                     </div>
                   </li>
                 );
