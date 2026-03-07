@@ -12,12 +12,12 @@ import { StudioSidebar } from "@/features/studio/components/StudioSidebar";
 import { cn, getRootUrl } from "@/lib/utils";
 import { TopNavigation } from "./TopNavigation";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
+import { MermaidGlobalFocus } from "@/features/studio/components/MermaidGlobalFocus";
 import { WIP_LIMITS } from "@/lib/wip-limits";
 import { UserNavWidget } from "./UserNavWidget";
 import { useThemeLabel } from "@/components/theme/ThemeLabel";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { isRootSite } from "@/lib/utils";
-import { useOnboarding } from "@/features/auth/hooks/useOnboarding";
 
 interface ShellLayoutProps {
   children: React.ReactNode;
@@ -41,7 +41,6 @@ export function ShellLayout({ children }: ShellLayoutProps) {
   const { user } = useAuth();
   const t = useThemeLabel();
 
-  useOnboarding();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -136,7 +135,12 @@ export function ShellLayout({ children }: ShellLayoutProps) {
   const isPreview = searchParams.get("preview") === "true";
 
   if (isFullScreenRoute || isPreview) {
-    return <>{children}</>;
+    return (
+      <>
+        {children}
+        <MermaidGlobalFocus />
+      </>
+    );
   }
 
   if (!mounted) {
@@ -156,6 +160,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
           </main>
           <div className="hidden xl:block w-80 shrink-0" />
         </div>
+        <MermaidGlobalFocus />
       </div>
     );
   }
@@ -478,6 +483,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
           <ThemeToggle />
         </div>
       )}
+      <MermaidGlobalFocus />
     </div>
   );
 }

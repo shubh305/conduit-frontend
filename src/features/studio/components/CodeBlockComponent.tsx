@@ -1,8 +1,8 @@
 "use client";
 
 import { NodeViewWrapper, NodeViewContent, NodeViewProps } from "@tiptap/react";
-import { Check, Clipboard, Trash2, Sparkles, ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { Check, Clipboard, Trash2, Sparkles, ChevronDown, Eye, Code2, Maximize2 } from "lucide-react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 const languages = [
@@ -19,6 +19,7 @@ const languages = [
   { label: "C++", value: "cpp" },
   { label: "Java", value: "java" },
   { label: "YAML", value: "yaml" },
+  { label: "Mermaid", value: "mermaid" },
 ];
 
 export const CodeBlockComponent = ({
@@ -31,22 +32,51 @@ export const CodeBlockComponent = ({
   const [isCopied, setIsCopied] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { language: defaultLanguage } = node.attrs;
+  const [viewMode, setViewMode] = useState<"code" | "preview">("preview");
+  const [svgContent, setSvgContent] = useState<string>("");
+
+  useEffect(() => {
+    if (defaultLanguage === "mermaid" && viewMode === "preview") {
+      const text = node.content.textBetween(0, node.content.size, "\n");
+      if (!text.trim()) {
+        setSvgContent("");
+        return;
+      }
+      const renderDiagram = async () => {
+        try {
+          const mermaid = (await import("mermaid")).default;
+          mermaid.initialize({ startOnLoad: false, theme: "base" });
+          const id = `mermaid-${Math.random().toString(36).substring(2, 9)}`;
+          const { svg } = await mermaid.render(id, text);
+          setSvgContent(svg);
+        } catch {
+          setSvgContent(
+            `<div class="text-red-500 p-4 font-mono text-xs whitespace-pre-wrap">Syntax Error or Invalid Diagram</div>`,
+          );
+        }
+      };
+      renderDiagram();
+    }
+  }, [defaultLanguage, viewMode, node.content]);
 
   const copyToClipboard = async () => {
-    // Get text content and ensure newlines are explicitly preserved
     const text = node.content.textBetween(0, node.content.size, "\n");
     if (text) {
       try {
-        const html = `<pre><code class="language-${defaultLanguage || ""}">$&#123;text&#125;</code></pre>`.replace("$&#123;text&#125;", text);
+        const html = `<pre><code class="language-${defaultLanguage || ""}">$&#123;text&#125;</code></pre>`.replace(
+          "$&#123;text&#125;",
+          text,
+        );
         const blobText = new Blob([text], { type: "text/plain" });
         const blobHtml = new Blob([html], { type: "text/html" });
-        const data = [new ClipboardItem({
-          "text/plain": blobText,
-          "text/html": blobHtml,
-        })];
+        const data = [
+          new ClipboardItem({
+            "text/plain": blobText,
+            "text/html": blobHtml,
+          }),
+        ];
         await navigator.clipboard.write(data);
       } catch {
-        // Fallback to plain text if ClipboardItem API fails or is not supported
         await navigator.clipboard.writeText(text);
       }
       setIsCopied(true);
@@ -123,6 +153,7 @@ export const CodeBlockComponent = ({
       <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--code-border)] bg-[var(--code-header)] backdrop-blur-md sticky top-0 z-10">
         <div className="relative">
           <button
+            type="button"
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             className="flex items-center gap-2 text-[10px] uppercase font-bold tracking-widest text-[var(--code-text)] opacity-50 hover:opacity-100 transition-opacity py-1 group/lang cursor-pointer"
           >
@@ -139,6 +170,7 @@ export const CodeBlockComponent = ({
               {languages.map(lang => (
                 <button
                   key={lang.value}
+                  type="button"
                   onClick={() => handleLanguageChange(lang.value)}
                   className={cn(
                     "w-full text-left px-4 py-2 text-[10px] uppercase font-bold tracking-widest transition-all cursor-pointer",
@@ -154,8 +186,59 @@ export const CodeBlockComponent = ({
           )}
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5" contentEditable={false} onMouseDown={e => e.stopPropagation()}>
+          {defaultLanguage === "mermaid" && (
+            <button
+              type="button"
+              onClick={() => setViewMode(viewMode === "preview" ? "code" : "preview")}
+              className={cn(
+                "flex items-center gap-1.5 px-2 py-1 text-[10px] uppercase font-bold tracking-widest rounded-md transition-all cursor-pointer mr-2",
+                viewMode === "preview"
+                  ? "bg-accent/20 text-accent"
+                  : "bg-black/10 text-[var(--code-text)] opacity-50 hover:opacity-100",
+              )}
+              title="Toggle View Mode"
+            >
+              {viewMode === "preview" ? (
+                <>
+                  <Code2 size={12} />
+                  <span>Code</span>
+                </>
+              ) : (
+                <>
+                  <Eye size={12} />
+                  <span>Preview</span>
+                </>
+              )}
+            </button>
+          )}
+
+          {defaultLanguage === "mermaid" && viewMode === "preview" && (
+            <button
+              type="button"
+              data-tiptap-ignore
+              onMouseDown={e => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (svgContent) {
+                  const event = new CustomEvent("conduit:maximize-mermaid", {
+                    detail: { svg: svgContent },
+                    bubbles: true,
+                    composed: true,
+                  });
+                  document.dispatchEvent(event);
+                }
+              }}
+              draggable={false}
+              className="p-1.5 text-[var(--code-text)] opacity-30 hover:opacity-100 hover:bg-black/5 rounded-lg transition-all active:scale-95 cursor-pointer"
+              title="Maximize Diagram"
+            >
+              <Maximize2 size={14} />
+            </button>
+          )}
+
           <button
+            type="button"
             onClick={copyToClipboard}
             className="p-1.5 text-[var(--code-text)] opacity-30 hover:opacity-100 hover:bg-black/5 rounded-lg transition-all active:scale-95 cursor-pointer"
             title="Copy Code"
@@ -163,33 +246,50 @@ export const CodeBlockComponent = ({
             {isCopied ? <Check size={14} className="text-emerald-400" /> : <Clipboard size={14} />}
           </button>
 
-          <button
-            onClick={formatCode}
-            className="p-1.5 text-[var(--code-text)] opacity-30 hover:opacity-100 hover:bg-black/5 rounded-lg transition-all active:scale-95 group/format cursor-pointer"
-            title="Pretty Format (Auto-align)"
-          >
-            <Sparkles size={14} className="group-hover/format:animate-pulse" />
-          </button>
+          {editor?.isEditable && defaultLanguage !== "mermaid" && (
+            <button
+              type="button"
+              onClick={formatCode}
+              className="p-1.5 text-[var(--code-text)] opacity-30 hover:opacity-100 hover:bg-black/5 rounded-lg transition-all active:scale-95 group/format cursor-pointer"
+              title="Pretty Format (Auto-align)"
+            >
+              <Sparkles size={14} className="group-hover/format:animate-pulse" />
+            </button>
+          )}
 
-          <button
-            onClick={deleteNode}
-            className="p-1.5 text-[var(--code-text)] opacity-30 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all active:scale-95 cursor-pointer"
-            title="Delete Block"
-          >
-            <Trash2 size={14} />
-          </button>
+          {editor?.isEditable && (
+            <button
+              type="button"
+              onClick={deleteNode}
+              className="p-1.5 text-[var(--code-text)] opacity-30 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all active:scale-95 cursor-pointer"
+              title="Delete Block"
+            >
+              <Trash2 size={14} />
+            </button>
+          )}
         </div>
       </div>
 
-      <pre className="p-5 overflow-x-auto selection:bg-accent/30 no-scrollbar bg-transparent">
-        <NodeViewContent
-          as="div"
-          className={cn(
-            defaultLanguage && `language-${defaultLanguage}`,
-            "block font-mono text-sm leading-relaxed text-[var(--code-text)]",
-          )}
-        />
-      </pre>
+      <div className="p-5 overflow-x-auto selection:bg-accent/30 no-scrollbar bg-transparent">
+        {defaultLanguage === "mermaid" && viewMode === "preview" ? (
+          <div
+            className="mermaid-preview flex justify-center items-center py-4 bg-white/5 rounded-lg"
+            dangerouslySetInnerHTML={{ __html: svgContent }}
+          />
+        ) : null}
+
+        <div className={cn(defaultLanguage === "mermaid" && viewMode === "preview" ? "hidden" : "block")}>
+          <pre className="!bg-transparent !p-0 !m-0 !border-none">
+            <NodeViewContent
+              as="div"
+              className={cn(
+                defaultLanguage && `language-${defaultLanguage}`,
+                "block font-mono text-sm leading-relaxed text-[var(--code-text)] w-full",
+              )}
+            />
+          </pre>
+        </div>
+      </div>
     </NodeViewWrapper>
   );
 };
