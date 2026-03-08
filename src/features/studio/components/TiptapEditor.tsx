@@ -9,6 +9,7 @@ import Youtube from "@tiptap/extension-youtube";
 import BubbleMenuExtension from "@tiptap/extension-bubble-menu";
 import { common, createLowlight } from "lowlight";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import MarkdownIt from "markdown-it";
 import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
 import { TableHeader } from "@tiptap/extension-table-header";
@@ -86,6 +87,7 @@ export function TiptapEditor({
         openOnClick: false,
         HTMLAttributes: {
           class: "text-accent hover:underline cursor-pointer transition-all",
+          target: "_self",
         },
       }),
       Placeholder.configure({
@@ -126,7 +128,45 @@ export function TiptapEditor({
         class: getEditorProseClasses(theme, config.isDark),
       },
       handlePaste: (view, event) => {
+        if (view.state.selection.$from.parent.type.name === "codeBlock") {
+          return false;
+        }
+
         const text = event.clipboardData?.getData("text/plain");
+        const html = event.clipboardData?.getData("text/html");
+
+        if (text) {
+          const isFromCodeViewer =
+            html && (html.match(/<pre/i) || html.match(/vscode/i) || html.match(/font-family:.*monospace/i));
+
+          let handleAsMarkdown = false;
+
+          if (isFromCodeViewer) {
+            if (/^```/m.test(text) || /^#{1,6}\s/m.test(text)) {
+              handleAsMarkdown = true;
+            }
+          } else {
+            const isMarkdown = /^#{1,6}\s|\*\*|__|\*|_|\[.*\]\(.*\)|\n\s*-\s|\n\s*\*\s|\n\s*\d+\.\s|```|^\s*> /m.test(
+              text,
+            );
+            if (isMarkdown) {
+              handleAsMarkdown = true;
+            }
+          }
+
+          if (handleAsMarkdown) {
+            event.preventDefault();
+            try {
+              const md = new MarkdownIt({ html: true, breaks: true });
+              const parsedHtml = md.render(text);
+              editor?.chain().focus().insertContent(parsedHtml).run();
+            } catch (e) {
+              console.error("Markdown parsing failed:", e);
+              editor?.chain().focus().insertContent(text).run();
+            }
+            return true;
+          }
+        }
 
         // Handle YouTube
         if (text && (text.includes("youtube.com/watch") || text.includes("youtu.be/"))) {
@@ -270,7 +310,7 @@ export function TiptapEditor({
           <EditorToolbar
             editor={editor}
             tenantId={tenantId}
-            className="px-4 md:px-12 shrink-0 border-b border-[var(--editor-border)] sticky top-0 md:top-0 z-20 bg-[var(--editor-bg)]"
+            className="px-4 md:px-12 shrink-0 border-b border-[var(--editor-border)] sticky top-12 md:top-[84px] z-30 bg-[var(--editor-bg)]"
           />
           <EditorContent
             editor={editor}

@@ -88,7 +88,6 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
             wordCount,
             paragraphsCount,
             readingTimeMinutes,
-            status: post.status,
           },
           tenantId,
         );

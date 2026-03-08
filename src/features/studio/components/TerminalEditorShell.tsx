@@ -147,7 +147,7 @@ export function TerminalEditorShell({
   return (
     <div className="flex flex-col bg-black font-mono text-foreground relative h-full">
       {/* Retro Toolbar (Sticky Top) */}
-      <div className="border-b border-accent/20 p-2 flex items-center justify-between text-accent font-mono text-base select-none bg-black sticky top-12 md:top-20 z-30">
+      <div className="border-b border-accent/20 p-2 flex items-center justify-between text-accent font-mono text-base select-none bg-black sticky top-12 md:top-[84px] z-30">
         <div className="flex items-center gap-6">
           <div className="flex gap-2">
             <button

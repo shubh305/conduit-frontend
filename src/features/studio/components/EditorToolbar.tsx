@@ -197,7 +197,7 @@ export function EditorToolbar({
     <Tooltip.Provider delayDuration={400} skipDelayDuration={0}>
       <div
         className={cn(
-          "editor-toolbar flex flex-col sticky top-0 z-50 relative transition-colors",
+          "editor-toolbar flex flex-col sticky top-0 z-30 transition-colors",
           "bg-[var(--editor-bg)] border-b border-[var(--editor-border)]",
           isSakuraCopy && "bg-white/50 backdrop-blur-sm",
           isOctaneCopy && "octane-panel border-b-accent-warm/20",
