@@ -9,9 +9,11 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import { usePathname } from "next/navigation";
 import { WIP_LIMITS } from "@/lib/wip-limits";
+import { useAuth } from "@/features/auth/AuthProvider";
 
 export function GlobalStatusBar() {
   const pathname = usePathname();
+  const { user } = useAuth();
   const { theme, focusMode, setFocusMode, themeHubVisible, setThemeHubVisible } = useTheme();
   const isStudio = pathname?.startsWith("/studio");
   const { isDarkMode, fontFamily } = useThemeHelpers();
@@ -52,7 +54,7 @@ export function GlobalStatusBar() {
     };
   }, [themeHubVisible, setThemeHubVisible]);
 
-  if (focusMode || !WIP_LIMITS.showThemeOps) return null;
+  if (!user || focusMode || !WIP_LIMITS.showThemeOps) return null;
 
   const fontClass = fontFamily === "mono" ? "font-mono" : fontFamily === "serif" ? "font-serif" : "font-sans";
 

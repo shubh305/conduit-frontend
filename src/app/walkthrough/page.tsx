@@ -27,10 +27,16 @@ import {
 export default function WalkthroughPage() {
   const { isTerminalCopy, fontFamily } = useThemeHelpers();
   const { setSpotlight } = useSpotlight();
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
+  useEffect(() => {
+    if (!isAuthLoading && !user) {
+      router.push("/login?redirect=/walkthrough");
+    }
+  }, [user, isAuthLoading, router]);
+
   const urlStage = (searchParams.get("tourStage") as WalkthroughStage) || "discovery";
   const stage = urlStage;
   const currentStep = parseInt(searchParams.get("step") || "0", 10);
@@ -118,6 +124,14 @@ export default function WalkthroughPage() {
   };
 
   const isLastStep = stage === "creator" && currentStep === creatorSteps.length - 1;
+
+  if (isAuthLoading || (!user && typeof window !== "undefined")) {
+    return (
+      <div className="p-20 font-mono text-foreground-subtle text-center animate-pulse bg-noir-bg min-h-screen">
+        Validating user...
+      </div>
+    );
+  }
 
   return (
     <ThemePage className={cn("max-w-[1600px] mx-auto py-0 md:py-16 px-2 md:px-12 min-h-screen lg:min-h-0", "md:pt-16")}>
