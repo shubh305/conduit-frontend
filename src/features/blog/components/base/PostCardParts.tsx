@@ -57,18 +57,20 @@ export function PostMeta({ data, theme, isFlat }: PostCardPartsProps) {
 
   if (isTechie) {
     return (
-      <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-wide text-foreground/50">
-        <span className="text-accent-secondary">{dateFormatted}</span>
-        <span>{"//"}</span>
-        <span>{data.readingTimeMinutes || 5} MIN</span>
+      <div className="flex items-center justify-between gap-2 text-[10px] font-mono uppercase tracking-wide text-foreground/50">
+        <div className="flex items-center gap-2">
+          <span className="text-accent-secondary">{dateFormatted}</span>
+          <span>{"//"}</span>
+          <span>{data.readingTimeMinutes ?? 0} MIN</span>
+        </div>
         {tenantName && (
-          <>
+          <div className="flex items-center gap-2">
             <span>{"//"}</span>
             <span className="text-foreground">{tenantName}</span>
-          </>
+          </div>
         )}
       </div>
-    )
+    );
   }
 
   return (
@@ -77,8 +79,16 @@ export function PostMeta({ data, theme, isFlat }: PostCardPartsProps) {
         "flex items-center justify-between text-[10px] uppercase tracking-wide",
         isFlat
           ? isCyber
-            ? "text-accent/70"
-            : "text-white/80"
+            ? "text-accent font-mono"
+            : isTechie
+              ? "text-accent-secondary font-mono"
+              : isSakura
+                ? "text-rose-200 font-serif"
+                : isRonin
+                  ? "text-white/80 font-serif"
+                  : isTerminal
+                    ? "text-accent/80 font-mono"
+                    : "text-white/80"
           : isCyber
             ? "font-mono text-foreground-subtle"
             : isRonin
@@ -99,7 +109,7 @@ export function PostMeta({ data, theme, isFlat }: PostCardPartsProps) {
           {tenantName}
         </span>
       )}
-      {isFlat && data.readingTimeMinutes && <span>{data.readingTimeMinutes} MIN READ</span>}
+      {(data.readingTimeMinutes ?? 0) > 0 && <span>· {data.readingTimeMinutes} MIN READ</span>}
     </div>
   );
 }
@@ -108,35 +118,76 @@ export function PostMeta({ data, theme, isFlat }: PostCardPartsProps) {
 // Hero Image
 // =============================================================================
 
-export function PostHeroImage({ data, theme, isDarkMode, isFlat, className }: PostCardPartsProps & { className?: string }) {
-  if (!data.featuredImage) return null;
-
+export function PostHeroImage({
+  data,
+  theme,
+  isDarkMode,
+  isFlat,
+  className,
+}: PostCardPartsProps & { className?: string }) {
   const isCyber = theme === "cyber";
   const isSakura = theme === "sakura";
   const isRonin = theme === "ronin";
   const isOctane = theme === "octane";
   const isJournal = theme === "journal";
   const isTerminal = theme === "terminal";
-  const isTechie = theme === "techie"
+  const isTechie = theme === "techie";
 
   const imgUrl = getMediaUrl(data.featuredImage);
 
   if (isFlat) {
     return (
       <div className={cn("absolute inset-0 z-0 bg-black", className)}>
-        {/* Dual Orientation Gradient: Darkens top for meta/heading and bottom for author */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 z-10" />
-        <Image
-          src={imgUrl || ""}
-          alt={data.title}
-          fill
+        {imgUrl ? (
+          <Image
+            src={imgUrl}
+            alt={data.title}
+            fill
+            className={cn(
+              "object-cover transition-all duration-700 group-hover:scale-110 opacity-50 group-hover:opacity-60",
+              (isCyber || isTerminal || isRonin || isTechie) && "grayscale group-hover:grayscale-0",
+            )}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--accent)_0%,_transparent_70%)] opacity-20" />
+        )}
+        {/* Adaptive Theme Gradient over image */}
+        <div
           className={cn(
-            "object-cover transition-all duration-700 group-hover:scale-110 opacity-50 group-hover:opacity-60",
-            (isCyber || isTerminal || isRonin || isTechie) && "grayscale group-hover:grayscale-0",
+            "absolute inset-0 z-10 mix-blend-multiply",
+            isCyber
+              ? "bg-gradient-to-b from-black/80 via-transparent to-accent/40"
+              : isSakura
+                ? "bg-gradient-to-b from-black/60 via-transparent to-rose-900/60"
+                : isTerminal
+                  ? "bg-gradient-to-b from-black/90 via-black/40 to-accent/30"
+                  : isTechie
+                    ? "bg-gradient-to-b from-black/80 via-black/20 to-cyan-900/50"
+                    : "bg-gradient-to-b from-black/60 via-transparent to-black/80",
           )}
         />
+        {/* Maximum Contrast Base */}
+        <div className="absolute inset-0 bg-black/20 z-10 pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-[85%] bg-gradient-to-t from-black via-black/80 to-transparent z-10 pointer-events-none" />
       </div>
-    )
+    );
+  }
+
+  if (!imgUrl) {
+    return (
+      <div
+        className={cn(
+          "relative w-full aspect-video bg-noir-hover border border-noir-border/30 rounded-lg flex items-center justify-center overflow-hidden",
+          isTechie && "border-accent/10",
+          className,
+        )}
+      >
+        <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(var(--accent)_1px,transparent_0)] bg-[length:20px_20px]" />
+        <span className="text-foreground-subtle text-xs font-mono uppercase tracking-widest opacity-30 select-none">
+          No Image Asset
+        </span>
+      </div>
+    );
   }
 
   return (
@@ -198,11 +249,12 @@ export function PostHeroImage({ data, theme, isDarkMode, isFlat, className }: Po
 
 export function PostTags({ data, theme, isFlat }: PostCardPartsProps) {
   const isCyber = theme === "cyber";
+  const isSakura = theme === "sakura";
   const isRonin = theme === "ronin";
   const isOctane = theme === "octane";
   const isJournal = theme === "journal";
   const isTerminal = theme === "terminal";
-  const isTechie = theme === "techie"
+  const isTechie = theme === "techie";
 
   if (isTechie) {
     return (
@@ -227,7 +279,15 @@ export function PostTags({ data, theme, isFlat }: PostCardPartsProps) {
           className={cn(
             "text-[10px] px-1.5 py-0.5 uppercase",
             isFlat
-              ? "bg-white/20 text-white backdrop-blur-md border border-white/30"
+              ? isCyber
+                ? "font-mono text-accent bg-accent/10 border-accent/40 shadow-[0_0_8px_rgba(var(--accent-rgb),0.3)]"
+                : isTechie
+                  ? "font-mono text-accent-secondary bg-black/60 border-accent/30"
+                  : isSakura
+                    ? "text-rose-100 bg-rose-500/30 border-rose-300/40 font-serif tracking-widest"
+                    : isTerminal
+                      ? "font-mono text-accent/80 border-b border-accent/40"
+                      : "bg-white/20 text-white backdrop-blur-md border border-white/30"
               : isCyber
                 ? "font-mono text-accent border border-accent/30 bg-accent/5"
                 : isRonin
@@ -245,7 +305,7 @@ export function PostTags({ data, theme, isFlat }: PostCardPartsProps) {
         </span>
       ))}
     </div>
-  )
+  );
 }
 
 // =============================================================================
@@ -344,7 +404,7 @@ export function PostActions({
       compact={compact}
       layout={layout}
       onRemove={onRemove}
-      className={cn("pt-4 border-t border-noir-border/30", isFlat && "border-white/20 text-white/90", className)}
+      className={cn("pt-4 px-2 border-t border-noir-border/30", isFlat && "border-white/20 text-white/90", className)}
     />
   );
 }

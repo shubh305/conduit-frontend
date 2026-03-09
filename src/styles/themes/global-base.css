@@ -332,3 +332,13 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: none !important;
   outline: none !important;
 }
+
+[data-theme] .flat-card-title {
+  color: #ffffff !important;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.9) !important;
+}
+
+[data-theme] .flat-card-excerpt {
+  color: rgba(255, 255, 255, 0.9) !important;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.9) !important;
+}

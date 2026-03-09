@@ -137,26 +137,32 @@ export function PublicBlogViewer({ tenant, items, currentTenantSlug }: PublicBlo
   return (
     <div
       className={cn(
-        "min-h-screen relative",
-        layout === "magazine" && "h-screen overflow-hidden",
+        "relative flex flex-col transition-all duration-300 w-full",
         isTechieCopy ? "bg-noir-bg" : "bg-background",
+        layout === "magazine" ? "h-[calc(100dvh-144px)] md:h-[calc(100dvh-128px)] overflow-hidden" : "min-h-screen",
       )}
     >
-      <div className="mb-4">
-        <BlogHeader tenant={tenant} />
+      <div
+        className={cn(
+          layout === "magazine" ? "px-0 md:px-0 pt-6 md:pt-1 pb-1 shrink-0" : "mb-4 shrink-0 pt-6 md:pt-0 px-4 md:px-8",
+        )}
+      >
+        <BlogHeader tenant={tenant} className={layout === "magazine" ? "px-6 md:px-16" : ""} />
       </div>
 
-      <LayoutManager
-        posts={posts}
-        tenantSlug={tenant.slug}
-        currentTenantSlug={currentTenantSlug}
-        layout={layout}
-        showHero={layoutConfig.showHero}
-        density={layoutConfig.density}
-        themeConfig={{
-          fontFamily: config.fontFamily,
-        }}
-      />
+      <div className="flex-1 min-h-0 relative h-full">
+        <LayoutManager
+          posts={posts}
+          tenantSlug={tenant.slug}
+          currentTenantSlug={currentTenantSlug}
+          layout={layout}
+          showHero={layoutConfig.showHero}
+          density={layoutConfig.density}
+          themeConfig={{
+            fontFamily: config.fontFamily,
+          }}
+        />
+      </div>
     </div>
   );
 }

@@ -59,6 +59,14 @@ export function BasePostCard({
   // Deterministic Score Generation for Techie Theme
   const score = isTechieCopy ? (((parseInt(post.id.substring(0, 8), 16) % 30) + 70) / 10).toFixed(1) : null;
 
+  const baseHeadingClasses = getHeadingClasses(themeVariant);
+  const flatSafeHeadingClasses = isFlat
+    ? baseHeadingClasses
+        .split(" ")
+        .filter(cls => !cls.startsWith("text-"))
+        .join(" ")
+    : baseHeadingClasses;
+
   // =========================================================================
   // CARD LAYOUT (Vertical / Bento / Grid)
   // =========================================================================
@@ -67,10 +75,14 @@ export function BasePostCard({
 
     let v = isFlat
       ? {
-          base: isTerminalCopy ? "bg-black text-accent" : "bg-noir-bg text-white",
+          base: isTerminalCopy
+            ? "bg-black text-accent"
+            : isTechieCopy
+              ? "bg-noir-panel/60 text-white"
+              : "bg-black text-white",
           border: isCyberCopy ? "border border-accent/20" : "border-none",
           radius: themeRadius,
-          hover: isCyberCopy ? "hover:border-accent/50" : "",
+          hover: isCyberCopy ? "hover:border-accent/50" : isTechieCopy ? "hover:bg-noir-panel/80" : "",
         }
       : cardVariants[themeVariant] || cardVariants.classic;
 
@@ -87,7 +99,7 @@ export function BasePostCard({
       <Link
         href={postUrl}
         className={cn(
-          "group relative flex flex-col w-full h-full p-6 transition-all duration-300 overflow-hidden",
+          "group relative flex flex-col w-full h-full p-4 md:p-6 transition-all duration-300 overflow-hidden",
           v.base,
           v.border,
           v.radius,
@@ -120,7 +132,7 @@ export function BasePostCard({
 
             <div className={cn("flex-1 flex flex-col", isFlat ? "justify-end" : "justify-start")}>
               {/* Techie Score Badge for Vertical Layout */}
-              {isTechieCopy && !isFlat && (
+              {isTechieCopy && (
                 <div className="mb-2">
                   <span className="text-xs font-mono font-bold text-accent bg-accent/20 px-1.5 py-1 rounded-sm shadow-sm">
                     {score}
@@ -130,9 +142,13 @@ export function BasePostCard({
 
               <h3
                 className={cn(
-                  "font-bold mb-4 leading-tight group-hover:text-accent/80 transition-colors",
-                  getHeadingClasses(themeVariant),
-                  isFlat ? "text-2xl md:text-3xl text-white shadow-black drop-shadow-md" : "text-xl md:text-2xl",
+                  "font-bold mb-4 leading-tight group-hover:text-white/80 transition-colors",
+                  flatSafeHeadingClasses,
+                  isFlat
+                    ? isTechieCopy
+                      ? "text-xl md:text-2xl flat-card-title line-clamp-1"
+                      : "text-2xl md:text-3xl flat-card-title line-clamp-1"
+                    : "text-xl md:text-2xl",
                   themeVariant === "octane" && "octane-header-accent",
                   themeVariant === "ronin" && "ronin-slash",
                   isTechieCopy && "text-white uppercase tracking-tight group-hover:text-accent/80",
@@ -144,8 +160,8 @@ export function BasePostCard({
               {(isFlat ? themeConfig?.showExcerpt !== false : themeConfig?.showExcerpt !== false) && (
                 <p
                   className={cn(
-                    "line-clamp-2 mb-4 font-medium drop-shadow",
-                    isFlat ? "text-sm text-white/80" : "text-base text-foreground-muted",
+                    "line-clamp-2 mb-4 font-medium",
+                    isFlat ? "text-sm flat-card-excerpt" : "text-base text-foreground-muted",
                     isTechieCopy && "font-sans leading-relaxed text-sm opacity-80",
                   )}
                 >

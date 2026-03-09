@@ -147,7 +147,7 @@ export function ClassicArticleLayout({ post, tenant, isPreview: isPreviewProp }:
               initialIsLiked={post.isLiked}
               initialIsFollowing={post.isFollowing}
               initialComments={post.commentsCount}
-              className="border-t border-b border-noir-border py-6 shadow-sm"
+              className="border-t border-b border-noir-border py-6 px-2 md:px-6 shadow-sm"
               onCommentClick={() => setIsCommentsOpen(true)}
             />
           </header>

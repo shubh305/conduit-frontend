@@ -4,22 +4,17 @@ import { Tenant } from "../types";
 import { useTheme, useThemeHelpers } from "@/features/theme/ThemeProvider";
 import { cn } from "@/lib/utils";
 
-export function BlogHeader({ tenant }: { tenant: Tenant }) {
+export function BlogHeader({ tenant, className }: { tenant: Tenant; className?: string }) {
   const { config } = useTheme();
   const { isCyberCopy, isTechieCopy } = useThemeHelpers();
   return (
-    <header
-      className={cn(
-        "border-b py-6 md:py-12",
-        isTechieCopy ? "bg-noir-bg border-noir-border" : "border-noir-border bg-noir-panel",
-      )}
-    >
-      <div className="container mx-auto px-4 md:px-6 max-w-7xl">
+    <header className="py-2 bg-transparent">
+      <div className={cn("w-full px-4 md:px-8", className)}>
         <div className="flex items-start justify-between gap-4 mb-4">
           <div className="flex-1">
             <h1
               className={cn(
-                "text-3xl md:text-5xl font-black tracking-tighter uppercase mb-2 text-foreground font-display",
+                "text-2xl md:text-3xl font-black tracking-tighter uppercase text-foreground font-display transition-colors",
                 isCyberCopy || isTechieCopy ? "font-mono" : config.fontFamily === "serif" ? "font-serif" : "font-sans",
                 isTechieCopy && "text-accent tracking-widest",
               )}
@@ -29,7 +24,7 @@ export function BlogHeader({ tenant }: { tenant: Tenant }) {
             {tenant.description && (
               <p
                 className={cn(
-                  "text-lg md:text-xl max-w-2xl text-foreground-muted",
+                  "text-base md:text-lg max-w-2xl text-foreground-muted transition-colors",
                   isCyberCopy || isTechieCopy ? "font-mono" : "font-sans",
                   isTechieCopy && "text-accent-secondary text-base",
                 )}

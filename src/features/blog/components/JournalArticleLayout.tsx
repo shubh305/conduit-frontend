@@ -161,8 +161,8 @@ export function JournalArticleLayout({ post, tenant, nextPost, isPreview: isPrev
   const ringCount = containerHeight > 0 ? Math.ceil(containerHeight / 30) : 24;
 
   return (
-    <div className="w-full h-[100dvh] flex flex-col items-center justify-center p-2 pt-0 md:p-6 md:pt-20 lg:p-8 lg:pt-24 overflow-hidden">
-      {/* 2D LAYOUT CONTAINER - No global 3D context to mess up z-index */}
+    <div className="w-full h-[100dvh] flex flex-col items-center justify-center p-4 md:p-6 lg:p-8 pt-0 md:pt-20 lg:pt-24 overflow-hidden">
+      {/* 2D LAYOUT CONTAINER */}
       <main
         className={cn(
           "relative w-full h-[88dvh] min-h-[500px] md:min-h-[650px] flex shadow-2xl rounded-r-lg bg-journal-binding overflow-hidden transition-all duration-700",
