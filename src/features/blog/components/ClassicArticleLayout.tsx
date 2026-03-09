@@ -24,7 +24,7 @@ interface ArticleLayoutProps {
 export function ClassicArticleLayout({ post, tenant, isPreview: isPreviewProp }: ArticleLayoutProps) {
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
-  const { config } = useTheme();
+  const { config, focusMode } = useTheme();
   const { isDarkMode, isProfessionalCopy, isOctaneCopy } = useThemeHelpers();
   const searchParams = useSearchParams();
   const isPreview = isPreviewProp || searchParams.get("preview") === "true";
@@ -36,7 +36,12 @@ export function ClassicArticleLayout({ post, tenant, isPreview: isPreviewProp }:
   return (
     <main className="min-h-screen bg-noir-bg text-foreground pb-20 transition-all duration-700">
       {/* Editorial Header */}
-      <div className="border-b border-noir-border py-6 bg-noir-panel/50 backdrop-blur-xl sticky top-0 z-[40]">
+      <div
+        className={cn(
+          "border-b border-noir-border py-6 bg-noir-panel/50 backdrop-blur-xl sticky top-0 z-[40] transition-all duration-500",
+          focusMode && "opacity-0 pointer-events-none translate-y-[-100%]",
+        )}
+      >
         <div className="container mx-auto px-2 md:px-6 max-w-5xl flex items-center justify-between">
           <div className="flex items-center gap-6">
             {!isPreview && (

@@ -66,14 +66,14 @@ export function MermaidGlobalFocus() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[1000000] flex flex-col select-none overflow-hidden touch-none"
-            style={{ 
-              backgroundColor: 'var(--color-noir-bg)',
+            style={{
+              backgroundColor: "var(--bg-primary)",
             }}
           >
             {/* Opaque Header Bar */}
-            <div 
-              className="absolute top-0 left-0 right-0 z-[150] h-16 md:h-24 flex items-center justify-between px-6 md:px-12 pointer-events-auto border-b border-noir-border shadow-sm"
-              style={{ backgroundColor: 'var(--color-noir-bg)' }}
+            <div
+              className="absolute top-0 left-0 right-0 z-[150] h-16 md:h-24 flex items-center justify-between px-6 md:px-12 pointer-events-auto border-b border-noir-border shadow-sm backdrop-blur-xl"
+              style={{ backgroundColor: "color-mix(in srgb, var(--bg-primary) 80%, transparent)" }}
             >
               <div className="flex flex-col">
                 <h3 className="text-foreground text-xs md:text-lg font-black uppercase tracking-[0.2em] leading-none mb-1">
@@ -106,10 +106,10 @@ export function MermaidGlobalFocus() {
             {/* CenterLock Canvas */}
             <div
               ref={containerRef}
-              className={`flex-1 relative custom-scrollbar ${zoomLevel > 1 ? 'overflow-auto' : 'overflow-hidden'} mt-16 md:mt-24 mb-20 md:mb-0`}
-              style={{ backgroundColor: 'transparent' }}
+              className={`flex-1 relative custom-scrollbar ${zoomLevel > 1 ? "overflow-auto" : "overflow-hidden"} mt-16 md:mt-24 mb-20 md:mb-0`}
+              style={{ backgroundColor: "transparent" }}
             >
-              <div 
+              <div
                 ref={contentRef}
                 className="min-h-full min-w-full flex items-center justify-center p-4 md:p-12"
                 style={{
@@ -120,14 +120,14 @@ export function MermaidGlobalFocus() {
               >
                 <div
                   className="rounded-[1.5rem] md:rounded-[3rem] p-6 md:p-16 border border-noir-border shadow-2xl relative flex items-center justify-center"
-                  style={{ 
-                    backgroundColor: 'var(--color-noir-panel)',
+                  style={{
+                    backgroundColor: "var(--bg-panel)",
                     transform: `scale(${zoomLevel})`,
-                    transformOrigin: 'center center',
-                    width: 'min(94vw, 1400px)',
-                    height: 'min(80vh, 1200px)',
-                    maxHeight: 'calc(100vh - 12rem)',
-                    flexShrink: 0
+                    transformOrigin: "center center",
+                    width: "min(94vw, 1400px)",
+                    height: "min(80vh, 1200px)",
+                    maxHeight: "calc(100vh - 12rem)",
+                    flexShrink: 0,
                   }}
                 >
                   <div
@@ -139,9 +139,9 @@ export function MermaidGlobalFocus() {
             </div>
 
             {/* Mobile Bottom Bar */}
-            <div 
+            <div
               className="md:hidden absolute bottom-0 left-0 right-0 z-[150] h-20 border-t border-noir-border flex items-center justify-center px-6 pointer-events-auto shadow-lg"
-              style={{ backgroundColor: 'var(--color-noir-bg)' }}
+              style={{ backgroundColor: "var(--bg-primary)" }}
             >
               <div className="flex items-center gap-2 bg-accent/5 border border-accent/10 rounded-full px-4 py-1.5 ">
                 <button
@@ -166,9 +166,9 @@ export function MermaidGlobalFocus() {
 
             {/* Desktop Zoom Controls */}
             <div className="hidden md:flex absolute top-6 md:top-8 left-1/2 -translate-x-1/2 z-[160] pointer-events-auto">
-              <div 
+              <div
                 className="flex items-center gap-4 border border-noir-border rounded-full px-6 py-2.5 shadow-2xl backdrop-blur-md"
-                style={{ backgroundColor: 'color-mix(in srgb, var(--color-noir-bg) 80%, transparent)' }}
+                style={{ backgroundColor: "color-mix(in srgb, var(--color-noir-bg) 80%, transparent)" }}
               >
                 <button
                   type="button"

@@ -204,16 +204,16 @@ export function ShellLayout({ children }: ShellLayoutProps) {
         isRoninCopy || isSakuraCopy || isJournalCopy || isTerminalCopy || isTechieCopy
           ? "bg-transparent"
           : "bg-noir-bg",
-        focusMode && (isSakuraCopy ? "bg-[#0a0508] focus-mode" : "bg-[#050505] focus-mode"),
+        focusMode && "focus-mode",
       )}
     >
       {/* Immersive Void Overlay */}
       {focusMode && (
         <div
           className={cn(
-            "fixed inset-0 pointer-events-none z-10 animate-in fade-in duration-1000",
+            "fixed inset-0 pointer-events-none z-0 animate-in fade-in duration-1000",
             isSakuraCopy
-              ? "bg-[radial-gradient(circle_at_center,rgba(0,0,0,0)_0%,rgba(219,39,119,0.05)_100%)]"
+              ? "bg-[radial-gradient(circle_at_center,rgba(0,0,0,0)_0%,rgba(219,39,119,0.1)_100%)]"
               : "bg-[radial-gradient(circle_at_center,rgba(0,0,0,0)_0%,rgba(0,0,0,0.6)_100%)]",
           )}
         />
@@ -232,7 +232,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
           <button
             onClick={() => setFocusMode(false)}
             className={cn(
-              "hidden md:block text-[10px] text-accent/50 hover:text-accent transition-all uppercase tracking-widest px-3 py-1 border border-accent/20 hover:border-accent/50 bg-black/40 backdrop-blur-md",
+              "hidden md:block text-[10px] text-white transition-all uppercase tracking-[0.3em] px-4 py-1.5 border border-white/20 hover:border-white/50 bg-black/60 backdrop-blur-md font-bold",
               fontFamily === "mono" ? "font-mono" : fontFamily === "serif" ? "font-serif" : "font-sans",
             )}
           >
@@ -241,7 +241,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
 
           <button
             onClick={() => setFocusMode(false)}
-            className="flex items-center justify-center w-10 h-10 rounded-full border border-accent/30 bg-black/60 text-accent hover:bg-accent hover:text-black transition-all shadow-[0_0_15px_rgba(var(--accent-rgb),0.2)] md:w-8 md:h-8"
+            className="flex items-center justify-center w-10 h-10 rounded-full border border-white/30 bg-black/60 text-white hover:bg-white hover:text-black transition-all shadow-[0_0_15px_rgba(255,255,255,0.2)] md:w-8 md:h-8"
             aria-label="Exit Void Mode"
           >
             <svg
@@ -368,7 +368,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
         )}
       >
         {/* Left Sidebar Spacer - dynamically sized */}
-        {(user || pathname === "/walkthrough") && !isStudioRoute && !isProfilePage && (
+        {(user || pathname === "/walkthrough") && !isStudioRoute && !isProfilePage && !focusMode && (
           <div
             className={cn("hidden md:block shrink-0 transition-all duration-300", isSidebarOpen ? "w-64" : "w-20")}
           />
@@ -397,7 +397,8 @@ export function ShellLayout({ children }: ShellLayoutProps) {
             isJournalImmersion && "mt-0 px-0",
             isJournalCopy && !isJournalImmersion && "bg-journal-ink/5",
             !isDarkMode && !isJournalCopy && "bg-noir-panel md:bg-noir-bg",
-            focusMode && "xl:border-none pt-16 md:pt-24 max-w-[1920px] mx-auto flex-none w-full px-6 md:px-12 lg:px-24",
+            focusMode &&
+              "xl:border-none pt-16 md:pt-24 max-w-[1920px] mx-auto flex-none w-full px-6 md:px-12 lg:px-24 relative z-10",
           )}
         >
           {children}
@@ -406,6 +407,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
         {/* Right Sidebar Spacer - matched with fixed sidebar width */}
         {(user || pathname === "/walkthrough") &&
           isRootSite() &&
+          !focusMode &&
           (pathname === "/" || pathname === "/walkthrough" || pathname.startsWith("/search")) && (
             <div className="hidden xl:block w-80 shrink-0" />
           )}
