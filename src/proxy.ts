@@ -72,6 +72,7 @@ export default async function middleware(req: NextRequest) {
     "stream",
     "stats",
     "broker",
+    "_acme-challenge",
   ];
 
   if (reservedSubdomains.includes(currentHost)) {
